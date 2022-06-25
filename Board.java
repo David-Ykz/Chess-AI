@@ -136,7 +136,7 @@ class Board {
     // Piece Movement
     public void explore(int position, int direction, int color, boolean range) {
         position = position + direction;
-        if (position / 10 < 9 && position / 10 > 0 && position % 10 > 0 && position % 10 < 9 && !friendlySquare(position, color)) {
+        if (position / 10 < 9 && position / 10 > 0 && position % 10 > 0 && position % 10 < 9) {
             moveList.add(position);
             if (emptySquare(position) && range) {
                 explore(position, direction, color, range);
@@ -144,17 +144,17 @@ class Board {
         }
     }
 
-    public void cardinalMoves(int position) {
-        explore(position, -1, pieceColor(position), true); // N
-        explore(position, 1, pieceColor(position), true); // S
-        explore(position, -10, pieceColor(position), true); // W
-        explore(position, 10, pieceColor(position), true); // E
+    public void cardinalMoves(int position, boolean range) {
+        explore(position, -1, pieceColor(position), range); // N
+        explore(position, 1, pieceColor(position), range); // S
+        explore(position, -10, pieceColor(position), range); // W
+        explore(position, 10, pieceColor(position), range); // E
     }
-    public void diagonalMoves(int position) {
-        explore(position, -11, pieceColor(position), true); // NW
-        explore(position, 9, pieceColor(position), true); // NE
-        explore(position, -9, pieceColor(position), true); // SW
-        explore(position, 11, pieceColor(position), true); // SE
+    public void diagonalMoves(int position, boolean range) {
+        explore(position, -11, pieceColor(position), range); // NW
+        explore(position, 9, pieceColor(position), range); // NE
+        explore(position, -9, pieceColor(position), range); // SW
+        explore(position, 11, pieceColor(position), range); // SE
     }
     public void pawnCaptureMoves(int position) {
         if (pieceColor(position) > 0) {
@@ -197,6 +197,62 @@ class Board {
         }
     }
 
+    public void findPossibleMoves(int position) {
+        int piece = Math.abs(pieces.get(position));
+        if (piece == 1) { // Pawn
+            pawnCaptureMoves(position);
+        } else if (piece == 2) {
+            diagonalMoves(position, true);
+        } else if (piece == 3) {
+            knightMoves(position);
+        } else if (piece == 4) {
+            cardinalMoves(position, true);
+        } else if (piece == 5) {
+            cardinalMoves(position, true);
+            diagonalMoves(position, true);
+        } else if (piece == 6) {
+            cardinalMoves(position, false);
+            diagonalMoves(position, false);
+        }
+    }
+
+
+    public void findAllPossibleMoves(int color) {
+        moveList.clear();
+        for (Integer position : pieces.keySet()) {
+            if (pieceColor(position) == color) {
+                findPossibleMoves(position);
+            }
+        }
+    }
+
+    public int findKingPos(int color) {
+        for (Integer position : pieces.keySet()) {
+            if (pieces.get(position) == 6 * color) {
+                return position;
+            }
+        }
+        return -1;
+    }
+
+    public HashSet<Integer> findLegalMoves(int position) {
+        moveList.clear();
+        findPossibleMoves(position);
+        HashSet<Integer> legalMoves = new HashSet<>();
+        HashSet<Integer> pieceMoves = new HashSet<>(moveList); // DOES THIS WORK???
+        moveList.clear();
+        for (Integer newPosition : pieceMoves) {
+            if (!friendlySquare(newPosition, pieceColor(position))) {
+                int capturedPiece = movePiece(position, newPosition);
+                findAllPossibleMoves(-1 * pieceColor(position));
+                if (!moveList.contains(findKingPos(pieceColor(position)))) {
+                    legalMoves.add(newPosition);
+                }
+                revertMove(position, newPosition, capturedPiece);
+            }
+        }
+        return legalMoves;
+    }
 
 
     // Graphics

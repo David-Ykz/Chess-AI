@@ -11,7 +11,7 @@ class Board {
     private HashMap<Integer, BufferedImage> pieceSprites = new HashMap<>();
     private HashMap<Integer, Double> pieceValues = new HashMap<>();
 
-    Board(int turn, HashMap<Integer, Integer> pieces) {
+    Board (int turn, HashMap<Integer, Integer> pieces) {
         this.turn = turn;
         this.pieces = pieces;
         pieceNames.put(6, "k");
@@ -30,10 +30,6 @@ class Board {
 
         try {
             for (Integer piece : pieceNames.keySet()) {
-//                String name = pieceNames.get(piece);
- //               if (pieceColor(position) > 0) {
-  //                  name = name.toUpperCase();
-   //             }
                 pieceSprites.put(piece, ImageIO.read(new File(piece + ".png")));
                 pieceSprites.put(-piece, ImageIO.read(new File(-piece + ".png")));
             }
@@ -42,14 +38,13 @@ class Board {
         }
     }
 
+    // Helper Methods
     public int getTurn() {
         return this.turn;
     }
-
     public void changeTurn() {
         this.turn = turn * -1;
     }
-
     public int pieceColor(int position) {
         if (pieces.get(position) > 0) {
             return 1;
@@ -57,27 +52,21 @@ class Board {
             return -1;
         }
     }
-
     public Integer getPiece(int position) {
         return this.pieces.get(position);
     }
-
     public boolean emptySquare(int position) {
         return !this.pieces.containsKey(position);
     }
-
     public boolean friendlySquare(int position, int color) {
         return (!emptySquare(position) && pieceColor(position) == color);
     }
-
     public boolean hostileSquare(int position, int color) {
         return (!emptySquare(position) && pieceColor(position) != color);
     }
-
     public void changePiecePos(int oldPosition, int newPosition) {
         pieces.put(newPosition, pieces.remove(oldPosition));
     }
-
     public int movePiece(int oldPosition, int newPosition) {
         if (pieces.get(oldPosition) == 6) { // CHECK IF INTEGER != INT
             if (oldPosition == 58) {
@@ -107,14 +96,10 @@ class Board {
         changePiecePos(oldPosition, newPosition);
         return removedPiece;
     }
-
     public void castlePiece(int oldKingPos, int newKingPos, int oldRookPos, int newRookPos) {
         changePiecePos(oldKingPos, newKingPos);
         changePiecePos(oldRookPos, newRookPos);
     }
-
-
-
     public void revertMove(int oldPosition, int newPosition, int capturedPiece) {
         if (pieces.get(newPosition) == 6) { // CHECK IF INTEGER != INT
             if (oldPosition == 51) { // Black king
@@ -137,7 +122,6 @@ class Board {
             pieces.put(newPosition, capturedPiece);
         }
     }
-
     public boolean isCheckmate() {
         int numOfLegalMoves = 0;
         for (Piece piece : getPieces()) {
@@ -148,6 +132,7 @@ class Board {
         return numOfLegalMoves == 0;
     }
 
+    // Graphics
     public String toFEN() {
         String[][] chessboard = new String[8][8];
         for (Integer position : pieces.keySet()) {
@@ -184,11 +169,6 @@ class Board {
         }
         return fen;
     }
-
-
-
-
-
     public void drawEvaluation(Graphics g, int GRIDSIZE) {
         Color whiteGrey = new Color(200, 200, 200);
         Color blackGrey = new Color(100, 100, 100);
@@ -230,12 +210,11 @@ class Board {
         }
     }
 
-    // Important methods
+    // Logic Methods
     public double evaluateBoard() {
         double evaluation = 0;
         double developmentBoost = 0.1;
         double pieceActivity = 0.02;
-
         for (Integer position : pieces.keySet()) {
             evaluation += pieceValues.get(pieces.get(position)) * pieceColor(position);
         }

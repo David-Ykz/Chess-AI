@@ -227,15 +227,6 @@ class Board {
 
         for (Integer position : pieces.keySet()) {
             g.drawImage(pieceSprites.get(pieces.get(position)), (position / 10 - 1) * GRIDSIZE, (position % 10 - 1) * GRIDSIZE, null);
-//            String name = pieceNames.get(pieces.get(position));
-//            if (pieceColor(position) > 0) {
-//                name = name.toUpperCase();
-//            }
-//            String spriteName = name + ".png";
-//            public void drawPiece(Graphics g, int GRIDSIZE) {
-//                g.drawImage(sprite, (position / 10 - 1) * GRIDSIZE, (position % 10 - 1) * GRIDSIZE, null);
-//            }
-
         }
     }
 
@@ -245,40 +236,10 @@ class Board {
         double developmentBoost = 0.1;
         double pieceActivity = 0.02;
 
-        for (Piece piece : this.pieces.values()) {
-            evaluation += piece.findValue(this) * piece.getColor();
-
-            if (piece.getName().equals("knight") && piece.getPosition() != 1 && piece.getPosition() != 8) {
-                evaluation += developmentBoost * piece.getColor();
-            } else if (piece.getName().equals("bishop")) {
-                evaluation += piece.findPossibleMoves(this).size() * pieceActivity * piece.getColor();
-            } else if (piece.getName().equals("queen") && piece.getPosition() != 1 && piece.getPosition() != 8) {
-                evaluation -= developmentBoost * 2 * piece.getColor();
-            }
-//            System.out.println(piece.getName() + " " + evaluation);
-
-            // Development Index
-//            if (piece.getColor() > 0 && piece.getPosition() % 10 != 1 && !piece.getName().equals("king") && !piece.getName().equals("rook")) {
-            //               evaluation += developmentBoost * piece.getColor();
-            //          } else if (piece.getColor() < 0 && piece.getPosition() % 10 != 8 && !piece.getName().equals("king") && !piece.getName().equals("rook")) {
-            //            evaluation += developmentBoost * piece.getColor();
-            //        }
-
-            //
-
-
-
+        for (Integer position : pieces.keySet()) {
+            evaluation += pieceValues.get(pieces.get(position)) * pieceColor(position);
         }
-//        System.out.println(evaluation);
         return evaluation;
     }
-
-
-
-
-
-
-    }
-
 
 }

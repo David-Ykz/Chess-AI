@@ -11,7 +11,6 @@ class Board {
     private HashMap<Integer, BufferedImage> pieceSprites = new HashMap<>();
     private HashMap<Integer, Double> pieceValues = new HashMap<>();
     private HashSet<Integer> moveList = new HashSet<>();
-
     Board (int turn, HashMap<Integer, Integer> pieces) {
         this.turn = turn;
         this.pieces = pieces;
@@ -125,9 +124,9 @@ class Board {
     }
     public boolean isCheckmate() {
         int numOfLegalMoves = 0;
-        for (Piece piece : getPieces()) {
-            if (piece.getColor() == turn) {
-                numOfLegalMoves += piece.findLegalMoves(this).size();
+        for (Integer position : pieces.keySet()) {
+            if (pieceColor(position) == turn) {
+                numOfLegalMoves += findLegalMoves(position).size();
             }
         }
         return numOfLegalMoves == 0;
@@ -143,7 +142,6 @@ class Board {
             }
         }
     }
-
     public void cardinalMoves(int position, boolean range) {
         explore(position, -1, pieceColor(position), range); // N
         explore(position, 1, pieceColor(position), range); // S
@@ -196,7 +194,6 @@ class Board {
             explore(position, direction, pieceColor(position), false);
         }
     }
-
     public void findPossibleMoves(int position) {
         int piece = Math.abs(pieces.get(position));
         if (piece == 1) { // Pawn
@@ -215,8 +212,6 @@ class Board {
             diagonalMoves(position, false);
         }
     }
-
-
     public void findAllPossibleMoves(int color) {
         moveList.clear();
         for (Integer position : pieces.keySet()) {
@@ -225,7 +220,6 @@ class Board {
             }
         }
     }
-
     public int findKingPos(int color) {
         for (Integer position : pieces.keySet()) {
             if (pieces.get(position) == 6 * color) {
@@ -234,10 +228,12 @@ class Board {
         }
         return -1;
     }
-
     public HashSet<Integer> findLegalMoves(int position) {
         moveList.clear();
         findPossibleMoves(position);
+        if (Math.abs(pieces.get(position)) == 1) {
+            pawnForwardMoves(position);
+        }
         HashSet<Integer> legalMoves = new HashSet<>();
         HashSet<Integer> pieceMoves = new HashSet<>(moveList); // DOES THIS WORK???
         moveList.clear();
@@ -253,7 +249,6 @@ class Board {
         }
         return legalMoves;
     }
-
 
     // Graphics
     public String toFEN() {
@@ -343,5 +338,4 @@ class Board {
         }
         return evaluation;
     }
-
 }

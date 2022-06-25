@@ -10,6 +10,7 @@ class Board {
     private HashMap<Integer, String> pieceNames = new HashMap<>();
     private HashMap<Integer, BufferedImage> pieceSprites = new HashMap<>();
     private HashMap<Integer, Double> pieceValues = new HashMap<>();
+    private HashSet<Integer> moveList = new HashSet<>();
 
     Board (int turn, HashMap<Integer, Integer> pieces) {
         this.turn = turn;
@@ -55,10 +56,10 @@ class Board {
     public Integer getPiece(int position) {
         return this.pieces.get(position);
     }
-    public boolean emptySquare(int position) {
+    public boolean emptySquare(int position) { // Returns true if the square is empty
         return !this.pieces.containsKey(position);
     }
-    public boolean friendlySquare(int position, int color) {
+    public boolean friendlySquare(int position, int color) { // Returns true if the square is occupied by a friendly piece
         return (!emptySquare(position) && pieceColor(position) == color);
     }
     public boolean hostileSquare(int position, int color) {
@@ -131,6 +132,72 @@ class Board {
         }
         return numOfLegalMoves == 0;
     }
+
+    // Piece Movement
+    public void explore(int position, int direction, int color, boolean range) {
+        position = position + direction;
+        if (position / 10 < 9 && position / 10 > 0 && position % 10 > 0 && position % 10 < 9 && !friendlySquare(position, color)) {
+            moveList.add(position);
+            if (emptySquare(position) && range) {
+                explore(position, direction, color, range);
+            }
+        }
+    }
+
+    public void cardinalMoves(int position) {
+        explore(position, -1, pieceColor(position), true); // N
+        explore(position, 1, pieceColor(position), true); // S
+        explore(position, -10, pieceColor(position), true); // W
+        explore(position, 10, pieceColor(position), true); // E
+    }
+    public void diagonalMoves(int position) {
+        explore(position, -11, pieceColor(position), true); // NW
+        explore(position, 9, pieceColor(position), true); // NE
+        explore(position, -9, pieceColor(position), true); // SW
+        explore(position, 11, pieceColor(position), true); // SE
+    }
+    public void pawnCaptureMoves(int position) {
+        if (pieceColor(position) > 0) {
+            if (position / 10 > 1) {
+                moveList.add(position - 11);
+            }
+            if (position / 10 < 8) {
+                moveList.add(position + 9);
+            }
+        } else if (pieceColor(position) < 0) {
+            if (position / 10 > 1) {
+                moveList.add(position - 9);
+            }
+            if (position / 10 < 8) {
+                moveList.add(position + 11);
+            }
+        }
+    }
+    public void pawnForwardMoves(int position) {
+        if (pieceColor(position) > 0) {
+            if (emptySquare(position - 1)) {
+                moveList.add(position - 1);
+            }
+            if (position % 10 == 7 && emptySquare(position - 1) && emptySquare(position - 2)) {
+                moveList.add(position - 2);
+            }
+        } else {
+            if (emptySquare(position + 1)) {
+                moveList.add(position + 1);
+            }
+            if (position % 10 == 2 && emptySquare(position + 1) && emptySquare(position + 2)) {
+                moveList.add(position + 2);
+            }
+        }
+    }
+    public void knightMoves(int position) {
+        int[] knightSquares = { -8, 12, 21, 19, 8, -12, -21, -19};
+        for (int direction : knightSquares) {
+            explore(position, direction, pieceColor(position), false);
+        }
+    }
+
+
 
     // Graphics
     public String toFEN() {

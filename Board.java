@@ -254,8 +254,8 @@ class Board {
         for (Integer newPosition : pieceMoves) {
             if (!friendlySquare(newPosition, pieceColor(position))) {
                 int capturedPiece = movePiece(position, newPosition);
-                findAllPossibleMoves(-1 * pieceColor(position));
-                if (!moveList.contains(findKingPos(pieceColor(position)))) {
+                findAllPossibleMoves(-1 * pieceColor(newPosition));
+                if (!moveList.contains(findKingPos(pieceColor(newPosition)))) {
                     legalMoves.add(newPosition);
                 }
                 revertMove(position, newPosition, capturedPiece);

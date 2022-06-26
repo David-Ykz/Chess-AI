@@ -26,21 +26,22 @@ class Chess {
             String row;
             int buffer = 0;
             if (i < 7) {
-                row = fen.substring(0, fen.indexOf('/') - 1);
+                row = fen.substring(0, fen.indexOf('/'));
                 System.out.println(row);
                 fen = fen.substring(fen.indexOf('/') + 1);
             } else {
-                row = fen.substring(0, fen.indexOf(' ') - 1);
+                row = fen.substring(0, fen.indexOf(' '));
                 System.out.println(row);
                 fen = fen.substring(fen.indexOf(' ') + 1);
             }
             for (int j = 0; j < row.length(); j++) {
                 if (nameToValue.containsKey(row.substring(j, j + 1))) {
-                    pieces.put(j + 10 * i + buffer, -1);
+                    pieces.put(10 * (j + 1) + i + 1 + buffer * 10, nameToValue.get(row.substring(j, j + 1)));
                 } else {
                     buffer = Integer.parseInt(row.substring(j, j + 1)) - 1;
                 }
             }
+
         }
         int color;
         if (fen.substring(0, 1).equals("w")) {
@@ -112,7 +113,10 @@ class Chess {
 //        HashMap<Integer, Piece> startingPieces = fillStartingPieces();
 //        HashMap<Integer, Piece> startingPieces = setupCustomBoard();
         currentBoard = fenToBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-
+//        HashMap<Integer, Integer> somePieces = new HashMap<>();
+ //       somePieces.put(11, 4);
+  //      somePieces.put(54, 4);
+    //    currentBoard = new Board(1, somePieces);
         ChessVisualizer visualizer = new ChessVisualizer(currentBoard);
 //        System.out.println(currentBoard.toFEN());
 

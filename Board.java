@@ -172,51 +172,51 @@ class Board {
 
 
     // Piece Movement
-    public void explore(int position, int direction, int color, boolean range) {
+    public void explore(int position, int direction, int color, boolean range, HashSet<Integer> moves) {
         position = position + direction;
         if (position / 10 < 9 && position / 10 > 0 && position % 10 > 0 && position % 10 < 9) {
-            moveList.add(position);
+            moves.add(position);
             if (emptySquare(position) && range) {
-                explore(position, direction, color, range);
+                explore(position, direction, color, range, moves);
             }
         }
     }
-    public void cardinalMoves(int position, boolean range) {
-        explore(position, -1, pieceColor(position), range); // N
-        explore(position, 1, pieceColor(position), range); // S
-        explore(position, -10, pieceColor(position), range); // W
-        explore(position, 10, pieceColor(position), range); // E
+    public void cardinalMoves(int position, boolean range, HashSet<Integer> moves) {
+        explore(position, -1, pieceColor(position), range, moves); // N
+        explore(position, 1, pieceColor(position), range, moves); // S
+        explore(position, -10, pieceColor(position), range, moves); // W
+        explore(position, 10, pieceColor(position), range, moves); // E
     }
-    public void diagonalMoves(int position, boolean range) {
-        explore(position, -11, pieceColor(position), range); // NW
-        explore(position, 9, pieceColor(position), range); // NE
-        explore(position, -9, pieceColor(position), range); // SW
-        explore(position, 11, pieceColor(position), range); // SE
+    public void diagonalMoves(int position, boolean range, HashSet<Integer> moves) {
+        explore(position, -11, pieceColor(position), range, moves); // NW
+        explore(position, 9, pieceColor(position), range, moves); // NE
+        explore(position, -9, pieceColor(position), range, moves); // SW
+        explore(position, 11, pieceColor(position), range, moves); // SE
     }
-    public void pawnCaptureMoves(int position) {
+    public void pawnCaptureMoves(int position, HashSet<Integer> moves) {
         if (pieceColor(position) > 0) {
             if (position / 10 > 1) {
-                moveList.add(position - 11);
+                moves.add(position - 11);
             }
             if (position / 10 < 8) {
-                moveList.add(position + 9);
+                moves.add(position + 9);
             }
         } else if (pieceColor(position) < 0) {
             if (position / 10 > 1) {
-                moveList.add(position - 9);
+                moves.add(position - 9);
             }
             if (position / 10 < 8) {
-                moveList.add(position + 11);
+                moves.add(position + 11);
             }
         }
     }
-    public void pawnForwardMoves(int position) {
+    public void pawnForwardMoves(int position, HashSet<Integer> moves) {
         if (pieceColor(position) > 0) {
             if (emptySquare(position - 1)) {
-                moveList.add(position - 1);
+                moves.add(position - 1);
             }
             if (position % 10 == 7 && emptySquare(position - 1) && emptySquare(position - 2)) {
-                moveList.add(position - 2);
+                moves.add(position - 2);
             }
         } else {
             if (emptySquare(position + 1)) {
@@ -227,37 +227,38 @@ class Board {
             }
         }
     }
-    public void knightMoves(int position) {
+    public void knightMoves(int position, HashSet<Integer> moves) {
         int[] knightSquares = { -8, 12, 21, 19, 8, -12, -21, -19};
         for (int direction : knightSquares) {
-            explore(position, direction, pieceColor(position), false);
+            explore(position, direction, pieceColor(position), false, moves);
         }
     }
-    public void findPossibleMoves(int position) {
+    public void findPossibleMoves(int position, HashSet<Integer> moves) {
         int piece = Math.abs(pieces.get(position));
         if (piece == 1) { // Pawn
-            pawnCaptureMoves(position);
+            pawnCaptureMoves(position, moves);
         } else if (piece == 2) {
-            diagonalMoves(position, true);
+            diagonalMoves(position, true, moves);
         } else if (piece == 3) {
-            knightMoves(position);
+            knightMoves(position, moves);
         } else if (piece == 4) {
-            cardinalMoves(position, true);
+            cardinalMoves(position, true, moves);
         } else if (piece == 5) {
-            cardinalMoves(position, true);
-            diagonalMoves(position, true);
+            cardinalMoves(position, true, moves);
+            diagonalMoves(position, true, moves);
         } else if (piece == 6) {
-            cardinalMoves(position, false);
-            diagonalMoves(position, false);
+            cardinalMoves(position, false, moves);
+            diagonalMoves(position, false, moves);
         }
     }
-    public void findAllPossibleMoves(int color) {
-        moveList.clear();
+    public HashSet<Integer> findAllPossibleMoves(int color) {
+        HashSet<Integer> possibleMoveList = new HashSet<>();
         for (Integer position : pieces.keySet()) {
             if (pieceColor(position) == color) {
-                findPossibleMoves(position);
+                findPossibleMoves(position, possibleMoveList);
             }
         }
+        return possibleMoveList;
     }
     public int findKingPos(int color) {
         for (Integer position : pieces.keySet()) {
@@ -267,39 +268,40 @@ class Board {
         }
         return -1;
     }
-    public void kingCastleMoves(int position) {
+    public void kingCastleMoves(int position, HashSet<Integer> moves) {
         if (pieceColor(position) > 0) {
-            if (castleKW) {
-                moveList.add(78);
+            if (castleKW && emptySquare(68) && emptySquare(78)
+            && findAllPossibleMoves(-1).contains(68)) {
+                moves.add(78);
             }
-            if (castleQW) {
-                moveList.add(38);
+            if (castleQW && emptySquare(48) && emptySquare(38)
+                    && findAllPossibleMoves(-1).contains(48)) {
+                moves.add(38);
             }
         } else if (pieceColor(position) < 0) {
-            if (castleKB) {
-                moveList.add(71);
+            if (castleKB && emptySquare(61) && emptySquare(71)
+                    && findAllPossibleMoves(1).contains(61)) {
+                moves.add(71);
             }
-            if (castleQB) {
-                moveList.add(31);
+            if (castleKW && emptySquare(41) && emptySquare(31)
+                    && findAllPossibleMoves(1).contains(41)) {
+                moves.add(31);
             }
         }
     }
     public HashSet<Integer> findLegalMoves(int position) {
         moveList.clear();
-        findPossibleMoves(position);
+        findPossibleMoves(position, moveList);
         if (Math.abs(pieces.get(position)) == 1) {
-            pawnForwardMoves(position);
+            pawnForwardMoves(position, moveList);
         } else if (Math.abs(pieces.get(position)) == 6) {
-            kingCastleMoves(position);
+            kingCastleMoves(position, moveList);
         }
         HashSet<Integer> legalMoves = new HashSet<>();
-        HashSet<Integer> pieceMoves = new HashSet<>(moveList); // DOES THIS WORK???
-        moveList.clear();
-        for (Integer newPosition : pieceMoves) {
+        for (Integer newPosition : moveList) {
             if (!friendlySquare(newPosition, pieceColor(position))) {
                 int capturedPiece = movePiece(position, newPosition);
-                findAllPossibleMoves(-1 * pieceColor(newPosition));
-                if (!moveList.contains(findKingPos(pieceColor(newPosition)))) {
+                if (!findAllPossibleMoves(-1 * pieceColor(newPosition)).contains(findKingPos(pieceColor(newPosition)))) {
                     legalMoves.add(newPosition);
                 }
                 revertMove(position, newPosition, capturedPiece);

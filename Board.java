@@ -3,17 +3,18 @@ import java.awt.*;
 import java.util.*;
 import java.io.*;
 import java.awt.image.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 class Board {
     private int turn;
-    private HashMap<Integer, Integer> pieces;
+    private ConcurrentHashMap<Integer, Integer> pieces;
     private HashMap<Integer, String> pieceNames = new HashMap<>();
     private HashMap<Integer, BufferedImage> pieceSprites = new HashMap<>();
     private HashMap<Integer, Double> pieceValues = new HashMap<>();
     private HashSet<Integer> moveList = new HashSet<>();
     Board (int turn, HashMap<Integer, Integer> pieces) {
         this.turn = turn;
-        this.pieces = pieces;
+        this.pieces = new ConcurrentHashMap<>(pieces);
         pieceNames.put(6, "k");
         pieceNames.put(5, "q");
         pieceNames.put(4, "r");
@@ -39,7 +40,7 @@ class Board {
     }
 
     // Helper Methods
-    public HashMap<Integer, Integer> getPieces() {
+    public ConcurrentHashMap<Integer, Integer> getPieces() {
         return pieces;
     }
     public int getTurn() {

@@ -66,15 +66,19 @@ class Chess {
     public static void processClick(int position, Board board) {
         boolean foundPiece = false;
         if (selectedSquares.contains(position)) {
-//            if (selectedPiece.getName().compareTo("rook") == 0) {
-//                ((Rook) selectedPiece).setMoved();
-//            } else if (selectedPiece.getName().compareTo("king") == 0) {
-//                ((King) selectedPiece).setMoved();
-//            }
+            if (board.getPiece(selectedPiecePosition) == 4 && selectedPiecePosition == 18) {
+                board.setCastleQW(false);
+            } else if (board.getPiece(selectedPiecePosition) == 4 && selectedPiecePosition == 88) {
+                board.setCastleKW(false);
+            }
+            if (board.getPiece(selectedPiecePosition) == -4 && selectedPiecePosition == 11) {
+                board.setCastleQB(false);
+            } else if (board.getPiece(selectedPiecePosition) == -4 && selectedPiecePosition == 81) {
+                board.setCastleKB(false);
+            }
             board.movePiece(selectedPiecePosition, position);
             board.checkPromotion();
             board.changeTurn();
-
             if (board.isCheckmate()) {
                 System.exit(0);
             }

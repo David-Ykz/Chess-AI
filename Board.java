@@ -12,6 +12,10 @@ class Board {
     private HashMap<Integer, BufferedImage> pieceSprites = new HashMap<>();
     private HashMap<Integer, Double> pieceValues = new HashMap<>();
     private HashSet<Integer> moveList = new HashSet<>();
+    private boolean castleKW = true;
+    private boolean castleQW = true;
+    private boolean castleKB = true;
+    private boolean castleQB = true;
     Board (int turn, HashMap<Integer, Integer> pieces) {
         this.turn = turn;
         this.pieces = new ConcurrentHashMap<>(pieces);
@@ -65,9 +69,6 @@ class Board {
     public boolean friendlySquare(int position, int color) { // Returns true if the square is occupied by a friendly piece
         return (!emptySquare(position) && pieceColor(position) == color);
     }
-    public boolean hostileSquare(int position, int color) {
-        return (!emptySquare(position) && pieceColor(position) != color);
-    }
     public void changePiecePos(int oldPosition, int newPosition) {
         pieces.put(newPosition, pieces.remove(oldPosition));
     }
@@ -91,8 +92,6 @@ class Board {
                 }
             }
         }
-
-
         int removedPiece = 0;
         if (pieces.containsKey(newPosition) && pieceColor(oldPosition) != pieceColor(newPosition)) {
             removedPiece = pieces.remove(newPosition);
@@ -146,6 +145,31 @@ class Board {
             }
         }
     }
+    public boolean getCastleKB() {
+        return castleKB;
+    }
+    public boolean getCastleKW() {
+        return castleKW;
+    }
+    public boolean getCastleQB() {
+        return castleQB;
+    }
+    public boolean getCastleQW() {
+        return castleQW;
+    }
+    public void setCastleKW(boolean bool) {
+        castleKW = bool;
+    }
+    public void setCastleQW(boolean bool) {
+        castleQW = bool;
+    }
+    public void setCastleKB(boolean bool) {
+        castleKB = bool;
+    }
+    public void setCastleQB(boolean bool) {
+        castleQB = bool;
+    }
+
 
     // Piece Movement
     public void explore(int position, int direction, int color, boolean range) {
@@ -243,11 +267,30 @@ class Board {
         }
         return -1;
     }
+    public void kingCastleMoves(int position) {
+        if (pieceColor(position) > 0) {
+            if (castleKW) {
+                moveList.add(78);
+            }
+            if (castleQW) {
+                moveList.add(38);
+            }
+        } else if (pieceColor(position) < 0) {
+            if (castleKB) {
+                moveList.add(71);
+            }
+            if (castleQB) {
+                moveList.add(31);
+            }
+        }
+    }
     public HashSet<Integer> findLegalMoves(int position) {
         moveList.clear();
         findPossibleMoves(position);
         if (Math.abs(pieces.get(position)) == 1) {
             pawnForwardMoves(position);
+        } else if (Math.abs(pieces.get(position)) == 6) {
+            kingCastleMoves(position);
         }
         HashSet<Integer> legalMoves = new HashSet<>();
         HashSet<Integer> pieceMoves = new HashSet<>(moveList); // DOES THIS WORK???

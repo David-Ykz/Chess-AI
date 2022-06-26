@@ -39,6 +39,9 @@ class Board {
     }
 
     // Helper Methods
+    public HashMap<Integer, Integer> getPieces() {
+        return pieces;
+    }
     public int getTurn() {
         return this.turn;
     }
@@ -130,6 +133,17 @@ class Board {
             }
         }
         return numOfLegalMoves == 0;
+    }
+    public void checkPromotion() {
+        for (Integer position : pieces.keySet()) {
+            if (pieces.get(position) == 1 && position % 10 == 1) { // White pawn
+                pieces.remove(position);
+                pieces.put(position, 5);
+            } else if (pieces.get(position) == -1 && position % 10 == 8) { // Black pawn
+                pieces.remove(position);
+                pieces.put(position, -5);
+            }
+        }
     }
 
     // Piece Movement

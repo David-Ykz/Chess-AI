@@ -101,7 +101,14 @@ class Board {
     }
     public void castlePiece(int oldKingPos, int newKingPos, int oldRookPos, int newRookPos) {
         changePiecePos(oldKingPos, newKingPos);
-        changePiecePos(oldRookPos, newRookPos);
+        try {
+            changePiecePos(oldRookPos, newRookPos);
+        } catch (Exception e) {
+            System.out.println(e);
+            System.out.println(oldRookPos + " " + newRookPos);
+            System.out.println(pieces.toString());
+            System.out.println(toFEN());
+        }
     }
     public void revertMove(int oldPosition, int newPosition, int capturedPiece) {
         if (Math.abs(pieces.get(newPosition)) == 6) { // CHECK IF INTEGER != INT
@@ -268,23 +275,26 @@ class Board {
         }
         return -1;
     }
+    public boolean validRook(int position, int color) {
+        return friendlySquare(position, color) && pieces.get(position) == 4 * color;
+    }
     public void kingCastleMoves(int position, HashSet<Integer> moves) {
         if (pieceColor(position) > 0) {
             if (castleKW && emptySquare(68) && emptySquare(78)
-            && !findAllPossibleMoves(-1).contains(68)) {
+            && !findAllPossibleMoves(-1).contains(68) && validRook(88, 1)) {
                 moves.add(78);
             }
             if (castleQW && emptySquare(48) && emptySquare(38)
-                    && !findAllPossibleMoves(-1).contains(48)) {
+                    && !findAllPossibleMoves(-1).contains(48) && validRook(18, 1)) {
                 moves.add(38);
             }
         } else if (pieceColor(position) < 0) {
             if (castleKB && emptySquare(61) && emptySquare(71)
-                    && !findAllPossibleMoves(1).contains(61)) {
+                    && !findAllPossibleMoves(1).contains(61) && validRook(18, -1)) {
                 moves.add(71);
             }
             if (castleKW && emptySquare(41) && emptySquare(31)
-                    && !findAllPossibleMoves(1).contains(41)) {
+                    && !findAllPossibleMoves(1).contains(41) && validRook(11, -1)) {
                 moves.add(31);
             }
         }
@@ -411,7 +421,7 @@ class Board {
         double developmentBoost = 0.1;
         double pieceActivity = 0.02;
         for (Integer position : pieces.keySet()) {
-            evaluation += pieceValues.get(pieces.get(position)) * pieceColor(position);
+            evaluation += pieceValues.get(Math.abs(pieces.get(position))) * pieceColor(position);
         }
         return evaluation;
     }

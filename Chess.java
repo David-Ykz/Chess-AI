@@ -4,7 +4,7 @@ class Chess {
     static Board currentBoard;
     static HashSet<Integer> selectedSquares = new HashSet<>();
     static int selectedPiecePosition;
-//    static ChessAI chessAI = new ChessAI();
+    static ChessAI chessAI = new ChessAI();
     static HashMap<Integer, HashMap<String, Integer>> evaluationData;
 
     public static Board fenToBoard(String fen) {
@@ -50,18 +50,6 @@ class Chess {
                     buffer--;
                 }
             }
-
-
-//            for (int j = 0; j < row.length(); j++) {
-//                if (nameToValue.containsKey(row.substring(j, j + 1))) {
-//                    System.out.println("value: " + (j + 1 + buffer));
-//                    pieces.put(10 * (j + 1) + i + 1 + buffer * 10, nameToValue.get(row.substring(j, j + 1)));
-//                } else {
-//                    buffer = Integer.parseInt(row.substring(j, j + 1)) - 1;
-//                    System.out.println("buffer: " + buffer);
-//                }
-//            }
-
         }
         int color;
         if (fen.substring(0, 1).equals("w")) {
@@ -74,13 +62,13 @@ class Chess {
 
 
 
-//    public static void makeAIMove() {
-//        double start = System.nanoTime();
-//        Move bestMove = chessAI.generateDepthSearch(currentBoard, 3);
-//        currentBoard.movePiece(currentBoard.getPiece(bestMove.getOldPosition()), bestMove.getNewPosition());
-//        double end = System.nanoTime();
-//        System.out.println((end - start)/1000000000);
-//    }
+    public static void makeAIMove() {
+        double start = System.nanoTime();
+        Move bestMove = chessAI.generateDepthSearch(currentBoard, 3);
+        currentBoard.movePiece(bestMove.getOldPosition(), bestMove.getNewPosition());
+        double end = System.nanoTime();
+        System.out.println((end - start)/1000000000);
+    }
 
 
     public static void processClick(int position, Board board) {
@@ -102,13 +90,13 @@ class Chess {
             if (board.isCheckmate()) {
                 System.exit(0);
             }
-//            int currentBoardTurn = board.getTurn();
-//            makeAIMove();
+            int currentBoardTurn = board.getTurn();
+            makeAIMove();
 //            chessAI.findMove(board); // Uses database
 
-//            if (currentBoardTurn == board.getTurn()) {
- //               board.changeTurn();
-  //          }
+            if (currentBoardTurn == board.getTurn()) {
+                board.changeTurn();
+            }
 //            board.changeTurn();
         } else {
             for (Integer piecePosition : board.getPieces().keySet()) {
@@ -136,7 +124,8 @@ class Chess {
         //      evaluationData = evaluationReader.getEvaluations();
 //        HashMap<Integer, Piece> startingPieces = fillStartingPieces();
 //        HashMap<Integer, Piece> startingPieces = setupCustomBoard();
-        currentBoard = fenToBoard("rnbqk2r/pppp1ppp/5n2/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4");
+        currentBoard = fenToBoard("rnb1k2r/pppp1ppp/8/4N3/2B1n2q/8/PPPP2PP/RNBQK2R w kq - 2 7");
+//        currentBoard = fenToBoard("rnbqk2r/pppp1ppp/5n2/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4");
 //        currentBoard = fenToBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 //        HashMap<Integer, Integer> somePieces = new HashMap<>();
  //       somePieces.put(11, 4);

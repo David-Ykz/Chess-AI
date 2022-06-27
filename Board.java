@@ -104,7 +104,7 @@ class Board {
         changePiecePos(oldRookPos, newRookPos);
     }
     public void revertMove(int oldPosition, int newPosition, int capturedPiece) {
-        if (pieces.get(newPosition) == 6) { // CHECK IF INTEGER != INT
+        if (Math.abs(pieces.get(newPosition)) == 6) { // CHECK IF INTEGER != INT
             if (oldPosition == 51) { // Black king
                 if (newPosition == 31) {
                     changePiecePos(41, 11); // Queenside castle

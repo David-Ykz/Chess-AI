@@ -77,9 +77,24 @@ class ChessAI {
         return bestMove;
     }
 
-    public Move minmax(Board board, Move move, int depth, int color, double alpha, double beta) {
-        if (depth == 0) { // ?????????????????????????????????????????????????????????????????????????????????????????????
-            return move;
+    public Move minmax(Board board, int depth, int color, double alpha, double beta) {
+        if (depth == 0) {
+            ArrayList<Move> moves = new ArrayList<>();
+            for (Integer oldPosition : board.getPieces().keySet()) {
+                if (board.pieceColor(oldPosition) == color) { // Finds all pieces of the turn player
+                    for (int eachMove : board.findLegalMoves(oldPosition)) {
+                        int capturedPiece = board.movePiece(oldPosition, eachMove);
+                        moves.add(new Move(oldPosition, eachMove, board.evaluateBoard()));
+                        board.revertMove(oldPosition, eachMove, capturedPiece);
+                    }
+                }
+            }
+            if (color > 0) {
+                return max(moves);
+            } else {
+                System.out.println(min(moves).getOldPosition() + " " + min(moves).getNewPosition());
+                return min(moves);
+            }
         }
 
         if (color > 0) {
@@ -89,8 +104,7 @@ class ChessAI {
                 if (board.pieceColor(oldPosition) == color) { // Finds all pieces of the turn player
                     for (int eachMove : board.findLegalMoves(oldPosition)) {
                         int capturedPiece = board.movePiece(oldPosition, eachMove);
-                        Move responseMove = new Move(oldPosition, eachMove, board.evaluateBoard());
-                        Move newMove = minmax(board, responseMove, depth - 1, color * -1, alpha, beta);
+                        Move newMove = new Move(oldPosition, eachMove, minmax(board, depth - 1, color * -1, alpha, beta).getEvaluation()); // SHOULD NOT BE EQUAL
                         board.revertMove(oldPosition, eachMove, capturedPiece);
                         bestValue = max(bestValue, newMove);
                         alpha = Math.max(alpha, bestValue.getEvaluation());
@@ -109,7 +123,7 @@ class ChessAI {
                     for (int eachMove : board.findLegalMoves(oldPosition)) {
                         int capturedPiece = board.movePiece(oldPosition, eachMove);
                         Move responseMove = new Move(oldPosition, eachMove, board.evaluateBoard());
-                        Move newMove = minmax(board, responseMove, depth - 1, color * -1, alpha, beta);
+                        Move newMove = new Move(oldPosition, eachMove, minmax(board, depth - 1, color * -1, alpha, beta).getEvaluation()); // SHOULD NOT BE EQUAL
                         board.revertMove(oldPosition, eachMove, capturedPiece);
                         bestValue = min(bestValue, newMove);
                         beta = Math.min(beta, bestValue.getEvaluation());

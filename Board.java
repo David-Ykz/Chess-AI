@@ -26,7 +26,7 @@ class Board {
         pieceNames.put(2, "b");
         pieceNames.put(1, "p");
 
-        pieceValues.put(6, 999.0);
+        pieceValues.put(6, Double.MAX_VALUE);
         pieceValues.put(5, 9.0);
         pieceValues.put(4, 5.0);
         pieceValues.put(3, 3.0);

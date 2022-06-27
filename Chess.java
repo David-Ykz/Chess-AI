@@ -64,7 +64,7 @@ class Chess {
 
     public static void makeAIMove() {
         double start = System.nanoTime();
-        Move bestMove = chessAI.generateDepthSearch(currentBoard, 3);
+        Move bestMove = chessAI.generateDepthSearch(currentBoard, 3, currentBoard.getTurn());
         currentBoard.movePiece(bestMove.getOldPosition(), bestMove.getNewPosition());
         double end = System.nanoTime();
         System.out.println((end - start)/1000000000);

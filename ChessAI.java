@@ -63,24 +63,22 @@ class ChessAI {
     }
 
 
-    public Move generateDepthSearch(Board board, int depth) {
+    public Move generateDepthSearch(Board board, int depth, int color) {
         double currentEval = board.evaluateBoard();
         ArrayList<Move> moves = new ArrayList<>();
         board.checkPromotion();
-        int color = board.getTurn();
+        Move bestMove;
         for (Integer oldPosition : board.getPieces().keySet()) {
-            if (board.pieceColor(oldPosition) == color) {
+            if (board.pieceColor(oldPosition) == color) { // Finds all pieces of the turn player
                 for (int eachMove : board.findLegalMoves(oldPosition)) {
                     int capturedPiece = board.movePiece(oldPosition, eachMove);
-                    board.changeTurn();
                     if (depth == 0) {
                         moves.add(new Move(oldPosition, eachMove, board.evaluateBoard()));
                     } else {
-                        Move bestMove = generateDepthSearch(board, depth - 1);
+                        bestMove = generateDepthSearch(board, depth - 1, color * -1);
                         moves.add(new Move(oldPosition, eachMove, bestMove.getEvaluation()));
                     }
                     board.revertMove(oldPosition, eachMove, capturedPiece);
-                    board.changeTurn();
                 }
             }
         }

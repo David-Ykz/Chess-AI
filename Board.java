@@ -73,21 +73,21 @@ class Board {
         pieces.put(newPosition, pieces.remove(oldPosition));
     }
     public int movePiece(int oldPosition, int newPosition) {
-        if (pieces.get(oldPosition) == 6) { // CHECK IF INTEGER != INT
+        if (Math.abs(pieces.get(oldPosition)) == 6) { // CHECK IF INTEGER != INT
             if (oldPosition == 58) {
                 if (newPosition == 38) { // Queenside castle
-                    castlePiece(oldPosition, newPosition, pieces.get(18), newPosition + 10);
+                    castlePiece(oldPosition, newPosition, 18, newPosition + 10);
                     return 0;
                 } else if (newPosition == 78) { // Kingside castle
-                    castlePiece(oldPosition, newPosition, pieces.get(88), newPosition - 10);
+                    castlePiece(oldPosition, newPosition, 88, newPosition - 10);
                     return 0;
                 }
             } else if (oldPosition == 51) {
                 if (newPosition == 31) { // Queenside castle
-                    castlePiece(oldPosition, newPosition, pieces.get(11), newPosition + 10);
+                    castlePiece(oldPosition, newPosition, 11, newPosition + 10);
                     return 0;
                 } else if (newPosition == 71) { // Kingside castle
-                    castlePiece(oldPosition, newPosition, pieces.get(81), newPosition - 10);
+                    castlePiece(oldPosition, newPosition, 81, newPosition - 10);
                     return 0;
                 }
             }
@@ -107,16 +107,16 @@ class Board {
         if (pieces.get(newPosition) == 6) { // CHECK IF INTEGER != INT
             if (oldPosition == 51) { // Black king
                 if (newPosition == 31) {
-                    changePiecePos(pieces.get(41), 11); // Queenside castle
+                    changePiecePos(41, 11); // Queenside castle
                 } else if (newPosition == 71) {
-                    changePiecePos(pieces.get(61), 81); // Kingside castle
+                    changePiecePos(61, 81); // Kingside castle
                 }
             }
             if (oldPosition == 58) { // White king
                 if (newPosition == 38) {
-                    changePiecePos(pieces.get(48), 18); // Queenside castle
+                    changePiecePos(48, 18); // Queenside castle
                 } else if (newPosition == 78) {
-                    changePiecePos(pieces.get(68), 88); // Kingside castle
+                    changePiecePos(68, 88); // Kingside castle
                 }
             }
         }
@@ -271,30 +271,47 @@ class Board {
     public void kingCastleMoves(int position, HashSet<Integer> moves) {
         if (pieceColor(position) > 0) {
             if (castleKW && emptySquare(68) && emptySquare(78)
-            && findAllPossibleMoves(-1).contains(68)) {
+            && !findAllPossibleMoves(-1).contains(68)) {
                 moves.add(78);
             }
             if (castleQW && emptySquare(48) && emptySquare(38)
-                    && findAllPossibleMoves(-1).contains(48)) {
+                    && !findAllPossibleMoves(-1).contains(48)) {
                 moves.add(38);
             }
         } else if (pieceColor(position) < 0) {
             if (castleKB && emptySquare(61) && emptySquare(71)
-                    && findAllPossibleMoves(1).contains(61)) {
+                    && !findAllPossibleMoves(1).contains(61)) {
                 moves.add(71);
             }
             if (castleKW && emptySquare(41) && emptySquare(31)
-                    && findAllPossibleMoves(1).contains(41)) {
+                    && !findAllPossibleMoves(1).contains(41)) {
                 moves.add(31);
             }
         }
     }
     public HashSet<Integer> findLegalMoves(int position) {
         moveList.clear();
-        findPossibleMoves(position, moveList);
         if (Math.abs(pieces.get(position)) == 1) {
             pawnForwardMoves(position, moveList);
-        } else if (Math.abs(pieces.get(position)) == 6) {
+            if (pieceColor(position) > 0) {
+                if (position / 10 > 1 && !emptySquare(position - 11)) {
+                    moveList.add(position - 11);
+                }
+                if (position / 10 < 8 && !emptySquare(position + 9)) {
+                    moveList.add(position + 9);
+                }
+            } else if (pieceColor(position) < 0) {
+                if (position / 10 > 1 && !emptySquare(position - 9)) {
+                    moveList.add(position - 9);
+                }
+                if (position / 10 < 8 && !emptySquare(position + 11)) {
+                    moveList.add(position + 11);
+                }
+            }
+        } else {
+            findPossibleMoves(position, moveList);
+        }
+        if (Math.abs(pieces.get(position)) == 6) {
             kingCastleMoves(position, moveList);
         }
         HashSet<Integer> legalMoves = new HashSet<>();

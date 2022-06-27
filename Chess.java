@@ -34,13 +34,33 @@ class Chess {
                 System.out.println(row);
                 fen = fen.substring(fen.indexOf(' ') + 1);
             }
-            for (int j = 0; j < row.length(); j++) {
-                if (nameToValue.containsKey(row.substring(j, j + 1))) {
-                    pieces.put(10 * (j + 1) + i + 1 + buffer * 10, nameToValue.get(row.substring(j, j + 1)));
+
+            int rowIndex = 0;
+            for (int j = 0; j < 8; j++) {
+                rowIndex++;
+                if (buffer == 0) {
+                    String character = row.substring(0, 1);
+                    row = row.substring(1);
+                    if (nameToValue.containsKey(character)) {
+                        pieces.put(10 * rowIndex + i + 1, nameToValue.get(character));
+                    } else {
+                        buffer = Integer.parseInt(character) - 1;
+                    }
                 } else {
-                    buffer = Integer.parseInt(row.substring(j, j + 1)) - 1;
+                    buffer--;
                 }
             }
+
+
+//            for (int j = 0; j < row.length(); j++) {
+//                if (nameToValue.containsKey(row.substring(j, j + 1))) {
+//                    System.out.println("value: " + (j + 1 + buffer));
+//                    pieces.put(10 * (j + 1) + i + 1 + buffer * 10, nameToValue.get(row.substring(j, j + 1)));
+//                } else {
+//                    buffer = Integer.parseInt(row.substring(j, j + 1)) - 1;
+//                    System.out.println("buffer: " + buffer);
+//                }
+//            }
 
         }
         int color;
@@ -116,7 +136,8 @@ class Chess {
         //      evaluationData = evaluationReader.getEvaluations();
 //        HashMap<Integer, Piece> startingPieces = fillStartingPieces();
 //        HashMap<Integer, Piece> startingPieces = setupCustomBoard();
-        currentBoard = fenToBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+        currentBoard = fenToBoard("rnbqk2r/pppp1ppp/5n2/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4");
+//        currentBoard = fenToBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 //        HashMap<Integer, Integer> somePieces = new HashMap<>();
  //       somePieces.put(11, 4);
   //      somePieces.put(54, 4);

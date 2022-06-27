@@ -71,6 +71,7 @@ class Board {
     }
     public void changePiecePos(int oldPosition, int newPosition) {
         pieces.put(newPosition, pieces.remove(oldPosition));
+        checkPromotion();
     }
     public int movePiece(int oldPosition, int newPosition) {
         if (Math.abs(pieces.get(oldPosition)) == 6) { // CHECK IF INTEGER != INT

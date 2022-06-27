@@ -41,6 +41,21 @@ class ChessAI {
 //        board.movePiece(board.getPiece(bestMove.getOldPosition()), bestMove.getNewPosition());
 //    }
 
+    public Move max(Move a, Move b) {
+        if (a.getEvaluation() > b.getEvaluation()) {
+            return a;
+        } else {
+            return b;
+        }
+    }
+
+    public Move min(Move a, Move b) {
+        if (a.getEvaluation() < b.getEvaluation()) {
+            return a;
+        } else {
+            return b;
+        }
+    }
 
     public Move max(ArrayList<Move> moves) {
         Move bestMove = moves.get(0);
@@ -62,11 +77,55 @@ class ChessAI {
         return bestMove;
     }
 
+    public Move minmax(Board board, Move move, int depth, int color, double alpha, double beta) {
+        if (depth == 0) { // ?????????????????????????????????????????????????????????????????????????????????????????????
+            return move;
+        }
 
-    public Move generateDepthSearch(Board board, int depth, int color) {
-        double currentEval = board.evaluateBoard();
+        if (color > 0) {
+            Move bestValue = new Move(-1, -1, -Double.MAX_VALUE);
+            outside:
+            for (Integer oldPosition : board.getPieces().keySet()) {
+                if (board.pieceColor(oldPosition) == color) { // Finds all pieces of the turn player
+                    for (int eachMove : board.findLegalMoves(oldPosition)) {
+                        int capturedPiece = board.movePiece(oldPosition, eachMove);
+                        Move responseMove = new Move(oldPosition, eachMove, board.evaluateBoard());
+                        Move newMove = minmax(board, responseMove, depth - 1, color * -1, alpha, beta);
+                        board.revertMove(oldPosition, eachMove, capturedPiece);
+                        bestValue = max(bestValue, newMove);
+                        alpha = Math.max(alpha, bestValue.getEvaluation());
+                        if (beta <= alpha) {
+                            break outside;
+                        }
+                    }
+                }
+            }
+            return bestValue;
+        } else {
+            Move bestValue = new Move(-1, -1, Double.MAX_VALUE);
+            outside:
+            for (Integer oldPosition : board.getPieces().keySet()) {
+                if (board.pieceColor(oldPosition) == color) { // Finds all pieces of the turn player
+                    for (int eachMove : board.findLegalMoves(oldPosition)) {
+                        int capturedPiece = board.movePiece(oldPosition, eachMove);
+                        Move responseMove = new Move(oldPosition, eachMove, board.evaluateBoard());
+                        Move newMove = minmax(board, responseMove, depth - 1, color * -1, alpha, beta);
+                        board.revertMove(oldPosition, eachMove, capturedPiece);
+                        bestValue = min(bestValue, newMove);
+                        beta = Math.min(beta, bestValue.getEvaluation());
+                        if (beta <= alpha) {
+                            break outside;
+                        }
+                    }
+                }
+            }
+            return bestValue;
+
+        }
+    }
+
+    public Move generateDepthSearch(Board board, int depth, int color, double alpha, double beta) {
         ArrayList<Move> moves = new ArrayList<>();
-        board.checkPromotion();
         Move bestMove;
         for (Integer oldPosition : board.getPieces().keySet()) {
             if (board.pieceColor(oldPosition) == color) { // Finds all pieces of the turn player
@@ -75,7 +134,7 @@ class ChessAI {
                     if (depth == 0) {
                         moves.add(new Move(oldPosition, eachMove, board.evaluateBoard()));
                     } else {
-                        bestMove = generateDepthSearch(board, depth - 1, color * -1);
+                        bestMove = generateDepthSearch(board, depth - 1, color * -1, alpha, beta);
                         moves.add(new Move(oldPosition, eachMove, bestMove.getEvaluation()));
                     }
                     board.revertMove(oldPosition, eachMove, capturedPiece);

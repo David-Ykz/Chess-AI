@@ -1,47 +1,11 @@
 import java.util.*;
 
 class ChessAI {
+    public static int[] depthMap = new int[4];
+
     ChessAI() {
     }
-
-    // Find all possible moves
-    // Convert to fen
-    // Give evaluations for each move
-    // Pick the best evaluation
-
-
-//    public void findMove(Board board) {
-//        ArrayList<Move> moves = new ArrayList<>();
-//        Chess.checkPromotion(board);
-//        int color = board.getTurn();
-//        for (Piece piece : board.getPieces()) {
-//            if (piece.getColor() == color) {
-//                for (int eachMove : piece.findLegalMoves(board)) {
-//                    int oldPosition = piece.getPosition();
-//                    Piece capturedPiece = board.movePiece(piece, eachMove);
-//                    String fen = board.toFEN();
-//                    int evaluation;
-//                    if (Chess.evaluationData.containsKey(board.getPieces().size()) && Chess.evaluationData.get(board.getPieces().size()).containsKey(fen)) {
-//                        evaluation = Chess.evaluationData.get(board.getPieces().size()).get(fen);
-//                        Move move = new Move(oldPosition, piece.getPosition(), evaluation);
-//                        moves.add(move);
-//                    }
-//                    board.revertMove(piece, capturedPiece, oldPosition);
-//                }
-//            }
-//        }
-//        Move bestMove;
-//        if (moves.size() == 0) {
-//            bestMove = generateDepthSearch(board, 3);
-//        } else if (board.getTurn() > 0) {
-//            bestMove = max(moves);
-//        } else {
-//            bestMove = min(moves);
-//        }
-//        board.movePiece(board.getPiece(bestMove.getOldPosition()), bestMove.getNewPosition());
-//    }
-
-    public Move max(Move a, Move b) {
+    public Move maxMove(Move a, Move b) {
         if (a.getEvaluation() > b.getEvaluation()) {
             return a;
         } else {
@@ -49,7 +13,7 @@ class ChessAI {
         }
     }
 
-    public Move min(Move a, Move b) {
+    public Move minMove(Move a, Move b) {
         if (a.getEvaluation() < b.getEvaluation()) {
             return a;
         } else {
@@ -57,111 +21,67 @@ class ChessAI {
         }
     }
 
-    public Move max(ArrayList<Move> moves) {
-        Move bestMove = moves.get(0);
-        for (Move move : moves) {
-            if (move.getEvaluation() > bestMove.getEvaluation()) {
-                bestMove = move;
-            }
-        }
-        return bestMove;
-    }
-
-    public Move min(ArrayList<Move> moves) {
-        Move bestMove = moves.get(0);
-        for (Move move : moves) {
-            if (move.getEvaluation() < bestMove.getEvaluation()) {
-                bestMove = move;
-            }
-        }
-        return bestMove;
-    }
-
-    public Move minmax(Board board, int depth, int color, double alpha, double beta) {
-        if (depth == 0) {
-            ArrayList<Move> moves = new ArrayList<>();
-            for (Integer oldPosition : board.getPieces().keySet()) {
-                if (board.pieceColor(oldPosition) == color) { // Finds all pieces of the turn player
-                    for (int eachMove : board.findLegalMoves(oldPosition)) {
-                        int capturedPiece = board.movePiece(oldPosition, eachMove);
-                        moves.add(new Move(oldPosition, eachMove, board.evaluateBoard()));
-                        board.revertMove(oldPosition, eachMove, capturedPiece);
-                    }
-                }
-            }
-            if (color > 0) {
-                return max(moves);
-            } else {
-                System.out.println(min(moves).getOldPosition() + " " + min(moves).getNewPosition());
-                return min(moves);
-            }
-        }
-
-        if (color > 0) {
-            Move bestValue = new Move(-1, -1, -Double.MAX_VALUE);
-            outside:
-            for (Integer oldPosition : board.getPieces().keySet()) {
-                if (board.pieceColor(oldPosition) == color) { // Finds all pieces of the turn player
-                    for (int eachMove : board.findLegalMoves(oldPosition)) {
-                        int capturedPiece = board.movePiece(oldPosition, eachMove);
-                        Move newMove = new Move(oldPosition, eachMove, minmax(board, depth - 1, color * -1, alpha, beta).getEvaluation()); // SHOULD NOT BE EQUAL
-                        board.revertMove(oldPosition, eachMove, capturedPiece);
-                        bestValue = max(bestValue, newMove);
-                        alpha = Math.max(alpha, bestValue.getEvaluation());
-                        if (beta <= alpha) {
-                            break outside;
-                        }
-                    }
-                }
-            }
-            return bestValue;
-        } else {
-            Move bestValue = new Move(-1, -1, Double.MAX_VALUE);
-            outside:
-            for (Integer oldPosition : board.getPieces().keySet()) {
-                if (board.pieceColor(oldPosition) == color) { // Finds all pieces of the turn player
-                    for (int eachMove : board.findLegalMoves(oldPosition)) {
-                        int capturedPiece = board.movePiece(oldPosition, eachMove);
-                        Move responseMove = new Move(oldPosition, eachMove, board.evaluateBoard());
-                        Move newMove = new Move(oldPosition, eachMove, minmax(board, depth - 1, color * -1, alpha, beta).getEvaluation()); // SHOULD NOT BE EQUAL
-                        board.revertMove(oldPosition, eachMove, capturedPiece);
-                        bestValue = min(bestValue, newMove);
-                        beta = Math.min(beta, bestValue.getEvaluation());
-                        if (beta <= alpha) {
-                            break outside;
-                        }
-                    }
-                }
-            }
-            return bestValue;
-
-        }
-    }
-
-    public Move generateDepthSearch(Board board, int depth, int color, double alpha, double beta) {
-        ArrayList<Move> moves = new ArrayList<>();
-        Move bestMove;
+    public HashSet<Move> generatePositionMoves(Board board, int color) {
+        System.out.println("generating");
+        HashSet<Move> moves = new HashSet<>();
         for (Integer oldPosition : board.getPieces().keySet()) {
             if (board.pieceColor(oldPosition) == color) { // Finds all pieces of the turn player
                 for (int eachMove : board.findLegalMoves(oldPosition)) {
-                    int capturedPiece = board.movePiece(oldPosition, eachMove);
-                    if (depth == 0) {
-                        moves.add(new Move(oldPosition, eachMove, board.evaluateBoard()));
-                    } else {
-                        bestMove = generateDepthSearch(board, depth - 1, color * -1, alpha, beta);
-                        moves.add(new Move(oldPosition, eachMove, bestMove.getEvaluation()));
-                    }
-                    board.revertMove(oldPosition, eachMove, capturedPiece);
+                    moves.add(new Move(oldPosition, eachMove));
                 }
             }
         }
-        if (moves.size() == 0) {
-            return new Move(-1, -1, -9999 * color);
+
+        return moves;
+    }
+
+    public Move minmax(Board board, int depth, boolean isMaximizingPlayer, double alpha, double beta) {
+        depthMap[depth] += 1;
+        System.out.println("Depth 0 Check");
+        if (depth == 0) {
+            System.out.println("Returned");
+            return new Move(-1, -1, board.evaluateBoard());
         }
-        if (color > 0) {
-            return max(moves);
+
+        System.out.println(isMaximizingPlayer);
+
+        if (isMaximizingPlayer) {
+            System.out.println("Maximizing Player");
+            Move bestMove = new Move(-1, -1, -Board.INFINITY);
+            System.out.println("Move Generation");
+            for (Move move : generatePositionMoves(board, 1)) {
+                int capturedPiece = board.movePiece(move.getOldPosition(), move.getNewPosition());
+                Move newMove = new Move(move, minmax(board, depth - 1, false, alpha, beta).getEvaluation());
+                System.out.println("Reverting Move");
+                board.revertMove(move.getOldPosition(), move.getNewPosition(), capturedPiece);
+
+                bestMove = maxMove(bestMove, newMove);
+                alpha = Math.max(alpha, newMove.getEvaluation());
+                if (beta <= alpha) {
+                    return bestMove;
+                }
+            }
+            System.out.println("Returning Max");
+            return bestMove;
         } else {
-            return min(moves);
+            System.out.println("Minimizing Player");
+            Move bestMove = new Move(-1, -1, Board.INFINITY);
+            System.out.println("Move Generation");
+            for (Move move : generatePositionMoves(board, -1)) {
+                System.out.println("In for loop");
+                int capturedPiece = board.movePiece(move.getOldPosition(), move.getNewPosition());
+                Move newMove = new Move(move, minmax(board, depth - 1, true, alpha, beta).getEvaluation());
+                System.out.println("Reverting Move");
+                board.revertMove(move.getOldPosition(), move.getNewPosition(), capturedPiece);
+
+                bestMove = minMove(bestMove, newMove);
+                beta = Math.min(beta, newMove.getEvaluation());
+                if (beta <= alpha) {
+                    return bestMove;
+                }
+            }
+            System.out.println("Returning Min");
+            return bestMove;
         }
     }
 }

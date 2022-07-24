@@ -62,4 +62,16 @@
     </task>
     <servers />
   </component>
+  <component name="XDebuggerManager">
+    <pin-to-top-manager>
+      <pinned-members>
+        <PinnedItemInfo parentTag="java.lang.Integer" memberName="value" />
+      </pinned-members>
+    </pin-to-top-manager>
+    <watches-manager>
+      <configuration name="Application">
+        <watch expression="oldPosition.value" />
+      </configuration>
+    </watches-manager>
+  </component>
 </project>

@@ -6,6 +6,7 @@ import java.awt.image.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 class Board {
+    public static final double INFINITY = 999;
     private int turn;
     private ConcurrentHashMap<Integer, Integer> pieces;
     private HashMap<Integer, String> pieceNames = new HashMap<>();
@@ -26,7 +27,7 @@ class Board {
         pieceNames.put(2, "b");
         pieceNames.put(1, "p");
 
-        pieceValues.put(6, Double.MAX_VALUE);
+        pieceValues.put(6, INFINITY);
         pieceValues.put(5, 9.0);
         pieceValues.put(4, 5.0);
         pieceValues.put(3, 3.0);
@@ -54,11 +55,18 @@ class Board {
         this.turn = turn * -1;
     }
     public int pieceColor(int position) {
-        if (pieces.get(position) > 0) {
-            return 1;
-        } else {
-            return -1;
+        try {
+            if (pieces.get(position) > 0) {
+                return 1;
+            } else {
+                return -1;
+            }
+        } catch (Exception e) {
+            System.out.println(e);
+            System.out.println(pieces.toString());
+            System.out.println(position);
         }
+        return -1;
     }
     public Integer getPiece(int position) {
         return this.pieces.get(position);

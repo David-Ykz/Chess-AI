@@ -12,7 +12,6 @@ class Board {
     private HashMap<Integer, String> pieceNames = new HashMap<>();
     private HashMap<Integer, BufferedImage> pieceSprites = new HashMap<>();
     private HashMap<Integer, Double> pieceValues = new HashMap<>();
-    private HashSet<Integer> moveList = new HashSet<>();
     private boolean castleKW = true;
     private boolean castleQW = true;
     private boolean castleKB = true;
@@ -236,10 +235,10 @@ class Board {
             }
         } else {
             if (emptySquare(position + 1)) {
-                moveList.add(position + 1);
+                moves.add(position + 1);
             }
             if (position % 10 == 2 && emptySquare(position + 1) && emptySquare(position + 2)) {
-                moveList.add(position + 2);
+                moves.add(position + 2);
             }
         }
     }
@@ -268,13 +267,13 @@ class Board {
         }
     }
     public HashSet<Integer> findAllPossibleMoves(int color) {
-        HashSet<Integer> possibleMoveList = new HashSet<>();
+        HashSet<Integer> moves = new HashSet<>();
         for (Integer position : pieces.keySet()) {
             if (pieceColor(position) == color) {
-                findPossibleMoves(position, possibleMoveList);
+                findPossibleMoves(position, moves);
             }
         }
-        return possibleMoveList;
+        return moves;
     }
     public int findKingPos(int color) {
         for (Integer position : pieces.keySet()) {
@@ -309,32 +308,32 @@ class Board {
         }
     }
     public HashSet<Integer> findLegalMoves(int position) {
-        moveList.clear();
+        HashSet<Integer> moves = new HashSet<>();
         if (Math.abs(pieces.get(position)) == 1) {
-            pawnForwardMoves(position, moveList);
+            pawnForwardMoves(position, moves);
             if (pieceColor(position) > 0) {
                 if (position / 10 > 1 && !emptySquare(position - 11)) {
-                    moveList.add(position - 11);
+                    moves.add(position - 11);
                 }
                 if (position / 10 < 8 && !emptySquare(position + 9)) {
-                    moveList.add(position + 9);
+                    moves.add(position + 9);
                 }
             } else if (pieceColor(position) < 0) {
                 if (position / 10 > 1 && !emptySquare(position - 9)) {
-                    moveList.add(position - 9);
+                    moves.add(position - 9);
                 }
                 if (position / 10 < 8 && !emptySquare(position + 11)) {
-                    moveList.add(position + 11);
+                    moves.add(position + 11);
                 }
             }
         } else {
-            findPossibleMoves(position, moveList);
+            findPossibleMoves(position, moves);
         }
         if (Math.abs(pieces.get(position)) == 6) {
-            kingCastleMoves(position, moveList);
+            kingCastleMoves(position, moves);
         }
         HashSet<Integer> legalMoves = new HashSet<>();
-        for (Integer newPosition : moveList) {
+        for (Integer newPosition : moves) {
             if (!friendlySquare(newPosition, pieceColor(position))) {
                 int capturedPiece = movePiece(position, newPosition);
                 if (!findAllPossibleMoves(-1 * pieceColor(newPosition)).contains(findKingPos(pieceColor(newPosition)))) {

@@ -24,9 +24,13 @@ class ChessAI {
     public HashSet<Move> generatePositionMoves(Board board, int color) {
         System.out.println("generating");
         HashSet<Move> moves = new HashSet<>();
-        for (Integer oldPosition : board.getPieces().keySet()) {
+        HashSet<Integer> piecePositions = new HashSet<>(board.getPieces().keySet());
+        for (Integer oldPosition : piecePositions) {
+            System.out.println("Position " + oldPosition);
             if (board.pieceColor(oldPosition) == color) { // Finds all pieces of the turn player
                 for (int eachMove : board.findLegalMoves(oldPosition)) {
+                    System.out.println(board.findLegalMoves(oldPosition).toString());
+                    System.out.println(eachMove);
                     moves.add(new Move(oldPosition, eachMove));
                 }
             }

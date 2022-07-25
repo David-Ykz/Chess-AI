@@ -142,7 +142,8 @@ class Board {
     }
     public boolean isCheckmate() {
         int numOfLegalMoves = 0;
-        for (Integer position : pieces.keySet()) {
+        HashSet<Integer> positions = new HashSet<>(pieces.keySet());
+        for (Integer position : positions) {
             if (pieceColor(position) == turn) {
                 numOfLegalMoves += findLegalMoves(position).size();
             }

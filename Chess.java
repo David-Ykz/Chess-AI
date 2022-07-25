@@ -61,13 +61,10 @@ class Chess {
     }
 
     public static void makeAIMove() {
-        Arrays.fill(ChessAI.depthMap, 0);
         double start = System.nanoTime();
-        System.out.println("Entering MinMax");
+        System.out.println("entering");
         Move bestMove = chessAI.minmax(currentBoard, 3, currentBoard.getTurn() == 1, -Board.INFINITY, Board.INFINITY);
-        System.out.println("Exited, now moving piece");
         currentBoard.movePiece(bestMove.getOldPosition(), bestMove.getNewPosition());
-        System.out.println("Finished");
         double end = System.nanoTime();
         System.out.println((end - start)/1000000000);
     }
@@ -129,7 +126,8 @@ class Chess {
 //        currentBoard = fenToBoard("rnb1k2r/pppp1ppp/8/4N3/2B1n2q/8/PPPP2PP/RNBQK2R w kq - 2 7");
 //        currentBoard = fenToBoard("rnbqk2r/pppp1ppp/5n2/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4");
 //        currentBoard = fenToBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-        currentBoard = fenToBoard("bk6/8/8/8/8/8/B7/K7 w - - 17 47");
+//        currentBoard = fenToBoard("bk6/8/8/8/8/8/B7/K7 w - - 17 47");
+        currentBoard = fenToBoard("6k1/p7/1P6/8/8/8/8/K7 w - - 17 47");
 //        HashMap<Integer, Integer> somePieces = new HashMap<>();
  //       somePieces.put(11, 4);
   //      somePieces.put(54, 4);

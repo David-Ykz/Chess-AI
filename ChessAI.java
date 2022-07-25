@@ -1,7 +1,6 @@
 import java.util.*;
 
 class ChessAI {
-    public static int[] depthMap = new int[4];
 
     ChessAI() {
     }
@@ -22,15 +21,11 @@ class ChessAI {
     }
 
     public HashSet<Move> generatePositionMoves(Board board, int color) {
-        System.out.println("generating");
         HashSet<Move> moves = new HashSet<>();
         HashSet<Integer> piecePositions = new HashSet<>(board.getPieces().keySet());
         for (Integer oldPosition : piecePositions) {
-            System.out.println("Position " + oldPosition);
             if (board.pieceColor(oldPosition) == color) { // Finds all pieces of the turn player
                 for (int eachMove : board.findLegalMoves(oldPosition)) {
-                    System.out.println(board.findLegalMoves(oldPosition).toString());
-                    System.out.println(eachMove);
                     moves.add(new Move(oldPosition, eachMove));
                 }
             }
@@ -40,23 +35,19 @@ class ChessAI {
     }
 
     public Move minmax(Board board, int depth, boolean isMaximizingPlayer, double alpha, double beta) {
-        depthMap[depth] += 1;
-        System.out.println("Depth 0 Check");
         if (depth == 0) {
-            System.out.println("Returned");
             return new Move(-1, -1, board.evaluateBoard());
         }
 
-        System.out.println(isMaximizingPlayer);
-
+        System.out.println(depth + " " + isMaximizingPlayer);
+        HashSet<Move> moves = new HashSet<>(generatePositionMoves(board, board.getTurn()));
+        System.out.println("dffdfdf");
         if (isMaximizingPlayer) {
-            System.out.println("Maximizing Player");
             Move bestMove = new Move(-1, -1, -Board.INFINITY);
-            System.out.println("Move Generation");
-            for (Move move : generatePositionMoves(board, 1)) {
+            for (Move move : moves) {
                 int capturedPiece = board.movePiece(move.getOldPosition(), move.getNewPosition());
                 Move newMove = new Move(move, minmax(board, depth - 1, false, alpha, beta).getEvaluation());
-                System.out.println("Reverting Move");
+                System.out.println("Old pos: " + move.getOldPosition() + " New pos: " + move.getNewPosition() + " eval: " + newMove.getEvaluation());
                 board.revertMove(move.getOldPosition(), move.getNewPosition(), capturedPiece);
 
                 bestMove = maxMove(bestMove, newMove);
@@ -65,17 +56,13 @@ class ChessAI {
                     return bestMove;
                 }
             }
-            System.out.println("Returning Max");
             return bestMove;
         } else {
-            System.out.println("Minimizing Player");
             Move bestMove = new Move(-1, -1, Board.INFINITY);
-            System.out.println("Move Generation");
-            for (Move move : generatePositionMoves(board, -1)) {
-                System.out.println("In for loop");
+            for (Move move : moves) {
                 int capturedPiece = board.movePiece(move.getOldPosition(), move.getNewPosition());
                 Move newMove = new Move(move, minmax(board, depth - 1, true, alpha, beta).getEvaluation());
-                System.out.println("Reverting Move");
+                System.out.println("Old pos: " + move.getOldPosition() + " New pos: " + move.getNewPosition() + " eval: " + newMove.getEvaluation());
                 board.revertMove(move.getOldPosition(), move.getNewPosition(), capturedPiece);
 
                 bestMove = minMove(bestMove, newMove);
@@ -84,7 +71,6 @@ class ChessAI {
                     return bestMove;
                 }
             }
-            System.out.println("Returning Min");
             return bestMove;
         }
     }

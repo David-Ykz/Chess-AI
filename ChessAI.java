@@ -5,7 +5,7 @@ class ChessAI {
     ChessAI() {
     }
     public Move maxMove(Move a, Move b) {
-        if (a.getEvaluation() > b.getEvaluation()) {
+        if (a.getEvaluation() >= b.getEvaluation()) {
             return a;
         } else {
             return b;
@@ -13,7 +13,7 @@ class ChessAI {
     }
 
     public Move minMove(Move a, Move b) {
-        if (a.getEvaluation() < b.getEvaluation()) {
+        if (a.getEvaluation() <= b.getEvaluation()) {
             return a;
         } else {
             return b;
@@ -39,17 +39,19 @@ class ChessAI {
             return new Move(-1, -1, board.evaluateBoard());
         }
 
-//        System.out.println(depth + " - " + isMaximizingPlayer);
-        HashSet<Move> moves = new HashSet<>(generatePositionMoves(board, board.getTurn()));
+        int turn;
+        if (isMaximizingPlayer) {
+            turn = 1;
+        } else {
+            turn = -1;
+        }
+        HashSet<Move> moves = new HashSet<>(generatePositionMoves(board, turn));
         if (isMaximizingPlayer) {
             Move bestMove = new Move(-1, -1, -Board.INFINITY);
             for (Move move : moves) {
                 int capturedPiece = board.movePiece(move.getOldPosition(), move.getNewPosition());
                 Move newMove = new Move(move, minmax(board, depth - 1, false, alpha, beta).getEvaluation());
                 board.revertMove(move.getOldPosition(), move.getNewPosition(), capturedPiece);
-                if (Math.abs(board.getPieces().get(move.getOldPosition())) != 6) {
-                    System.out.println("Depth: " + depth + " Old pos: " + move.getOldPosition() + " New pos: " + move.getNewPosition() + " eval: " + newMove.getEvaluation());
-                }
 
                 bestMove = maxMove(bestMove, newMove);
 //                System.out.println(depth + " - " + bestMove.getEvaluation());
@@ -65,12 +67,8 @@ class ChessAI {
                 int capturedPiece = board.movePiece(move.getOldPosition(), move.getNewPosition());
                 Move newMove = new Move(move, minmax(board, depth - 1, true, alpha, beta).getEvaluation());
                 board.revertMove(move.getOldPosition(), move.getNewPosition(), capturedPiece);
-                if (Math.abs(board.getPieces().get(move.getOldPosition())) != 6) {
-                    System.out.println("Depth: " + depth + " Old pos: " + move.getOldPosition() + " New pos: " + move.getNewPosition() + " eval: " + newMove.getEvaluation());
-                }
 
                 bestMove = minMove(bestMove, newMove);
-//                System.out.println(depth + " - " + bestMove.getEvaluation());
                 beta = Math.min(beta, newMove.getEvaluation());
                 if (beta <= alpha) {
                     return bestMove;

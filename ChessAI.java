@@ -54,7 +54,6 @@ class ChessAI {
                 board.revertMove(move.getOldPosition(), move.getNewPosition(), capturedPiece);
 
                 bestMove = maxMove(bestMove, newMove);
-//                System.out.println(depth + " - " + bestMove.getEvaluation());
                 alpha = Math.max(alpha, newMove.getEvaluation());
                 if (beta <= alpha) {
                     return bestMove;
@@ -77,65 +76,5 @@ class ChessAI {
             return bestMove;
         }
     }
-
-
-
-    public Move minmaxStore(Board board, int depth, boolean isMaximizingPlayer, double alpha, double beta, StoredMove prev) {
-        if (depth == 0) {
-            prev.next.add(new StoredMove(-1, -1, -1, board.evaluateBoard()));
-            return new Move(-1, -1, board.evaluateBoard());
-        }
-
-
-
- //       System.out.println(depth + " " + isMaximizingPlayer);
-        HashSet<Move> moves = new HashSet<>(generatePositionMoves(board, board.getTurn()));
-        if (isMaximizingPlayer) {
-            Move bestMove = new Move(-1, -1, -Board.INFINITY);
-            for (Move move : moves) {
-                int capturedPiece = board.movePiece(move.getOldPosition(), move.getNewPosition());
-                StoredMove storeMove = new StoredMove(move.getOldPosition(), move.getNewPosition(), capturedPiece, 0);
-                prev.next.add(storeMove);
-                Move newMove = new Move(move, minmaxStore(board, depth - 1, false, alpha, beta, storeMove).getEvaluation());
-                board.revertMove(move.getOldPosition(), move.getNewPosition(), capturedPiece);
-                storeMove.evaluation = newMove.getEvaluation();
-                if (board.getPieces().get(move.getOldPosition()) != 6) {
-       //             System.out.println("Old pos: " + move.getOldPosition() + " New pos: " + move.getNewPosition() + " eval: " + newMove.getEvaluation());
-                }
-
-                bestMove = maxMove(bestMove, newMove);
-                alpha = Math.max(alpha, newMove.getEvaluation());
-                if (beta <= alpha) {
-                    return bestMove;
-                }
-            }
-            return bestMove;
-        } else {
-            Move bestMove = new Move(-1, -1, Board.INFINITY);
-            for (Move move : moves) {
-                int capturedPiece = board.movePiece(move.getOldPosition(), move.getNewPosition());
-                StoredMove storeMove = new StoredMove(move.getOldPosition(), move.getNewPosition(), capturedPiece, 0);
-                prev.next.add(storeMove);
-                Move newMove = new Move(move, minmax(board, depth - 1, true, alpha, beta).getEvaluation());
-                board.revertMove(move.getOldPosition(), move.getNewPosition(), capturedPiece);
-                storeMove.evaluation = newMove.getEvaluation();
-                if (board.getPieces().get(move.getOldPosition()) != -6) {
-    //                System.out.println("Old pos: " + move.getOldPosition() + " New pos: " + move.getNewPosition() + " eval: " + newMove.getEvaluation());
-                }
-
-                bestMove = minMove(bestMove, newMove);
-                beta = Math.min(beta, newMove.getEvaluation());
-                if (beta <= alpha) {
-                    return bestMove;
-                }
-            }
-            return bestMove;
-        }
-    }
-
-
-
-
-
 
 }

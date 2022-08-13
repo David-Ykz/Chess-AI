@@ -62,24 +62,11 @@ class Chess {
     }
 
 
-    public static void printStoredInfo(StoredMove storedMove) {
-        storedMove.printInfo();
-        System.out.print(" - ");
-        for (StoredMove move : storedMove.next) {
-            System.out.println();
-            printStoredInfo(move);
-        }
-    }
-
 
     public static void makeAIMove() {
         double start = System.nanoTime();
         System.out.println("entering");
-//        Move bestMove = chessAI.minmax(currentBoard, 3, currentBoard.getTurn() == 1, -Board.INFINITY, Board.INFINITY);
         Move bestMove = chessAI.minmax(currentBoard, 3, currentBoard.getTurn() == 1, -Double.MAX_VALUE, Double.MAX_VALUE);
-        StoredMove storeMove = new StoredMove(-1, -1, -1, currentBoard.evaluateBoard());
-//        Move bestMove = chessAI.minmaxStore(currentBoard, 3, currentBoard.getTurn() == 1, -Board.INFINITY, Board.INFINITY, storeMove);
-        printStoredInfo(storeMove);
 
 
 

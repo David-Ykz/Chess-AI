@@ -78,7 +78,13 @@ class Board {
         return (!emptySquare(position) && pieceColor(position) == color);
     }
     public void changePiecePos(int oldPosition, int newPosition) {
-        pieces.put(newPosition, pieces.remove(oldPosition));
+        try {
+            pieces.put(newPosition, pieces.remove(oldPosition));
+        } catch (Exception e) {
+            System.out.println(e);
+            System.out.println("Old Position: " + oldPosition + " New Position: " + newPosition);
+            System.out.println(pieces.toString());
+        }
     }
     public int movePiece(int oldPosition, int newPosition) {
         if (Math.abs(pieces.get(oldPosition)) == 6) { // CHECK IF INTEGER != INT

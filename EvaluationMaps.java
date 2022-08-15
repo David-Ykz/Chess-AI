@@ -90,9 +90,9 @@ public class EvaluationMaps {
         int yPos = pos%10 - 1;
 
         if (piece > 0) {
-            return openingWeights[piece - 1] * openingMap[piece - 1][yPos][xPos];
+            return openingWeights[piece % 10 - 1] * openingMap[piece % 10 - 1][yPos][xPos];
         } else {
-            return openingWeights[Math.abs(piece) - 1] * openingMap[Math.abs(piece) - 1][7 - yPos][xPos];
+            return openingWeights[Math.abs(piece % 10) - 1] * openingMap[Math.abs(piece % 10) - 1][7 - yPos][xPos];
         }
     }
 

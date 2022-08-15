@@ -37,4 +37,8 @@ public class Move {
     public double getEvaluation() {
         return evaluation;
     }
+
+    public void setEvaluation(double evaluation) {
+        this.evaluation = evaluation;
+    }
 }

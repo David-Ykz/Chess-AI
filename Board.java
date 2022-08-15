@@ -16,6 +16,7 @@ class Board {
     private boolean castleQW = true;
     private boolean castleKB = true;
     private boolean castleQB = true;
+    EvaluationMaps evalMap = new EvaluationMaps();
     Board (int turn, HashMap<Integer, Integer> pieces) {
         this.turn = turn;
         this.pieces = new ConcurrentHashMap<>(pieces);
@@ -78,7 +79,6 @@ class Board {
     }
     public void changePiecePos(int oldPosition, int newPosition) {
         pieces.put(newPosition, pieces.remove(oldPosition));
-        checkPromotion();
     }
     public int movePiece(int oldPosition, int newPosition) {
         if (Math.abs(pieces.get(oldPosition)) == 6) { // CHECK IF INTEGER != INT
@@ -105,6 +105,8 @@ class Board {
             removedPiece = pieces.remove(newPosition);
         }
         changePiecePos(oldPosition, newPosition);
+        checkPromotion();
+
         return removedPiece;
     }
     public void castlePiece(int oldKingPos, int newKingPos, int oldRookPos, int newRookPos) {
@@ -136,6 +138,11 @@ class Board {
             }
         }
         changePiecePos(newPosition, oldPosition);
+        if (pieces.get(oldPosition) == 15) {
+            pieces.put(oldPosition, 1);
+        } else if (pieces.get(oldPosition) == -15) {
+            pieces.put(oldPosition, -1);
+        }
         if (capturedPiece != 0) {
             pieces.put(newPosition, capturedPiece);
         }
@@ -154,10 +161,10 @@ class Board {
         for (Integer position : pieces.keySet()) {
             if (pieces.get(position) == 1 && position % 10 == 1) { // White pawn
                 pieces.remove(position);
-                pieces.put(position, 5);
+                pieces.put(position, 15);
             } else if (pieces.get(position) == -1 && position % 10 == 8) { // Black pawn
                 pieces.remove(position);
-                pieces.put(position, -5);
+                pieces.put(position, -15);
             }
         }
     }
@@ -185,8 +192,6 @@ class Board {
     public void setCastleQB(boolean bool) {
         castleQB = bool;
     }
-
-
     // Piece Movement
     public void explore(int position, int direction, int color, boolean range, HashSet<Integer> moves) {
         position = position + direction;
@@ -345,12 +350,11 @@ class Board {
         }
         return legalMoves;
     }
-
     // Graphics
     public String toFEN() {
         String[][] chessboard = new String[8][8];
         for (Integer position : pieces.keySet()) {
-            String pieceCharacter = pieceNames.get(pieces.get(position));
+            String pieceCharacter = pieceNames.get(Math.abs(pieces.get(position)) % 10);
             if (pieceColor(position) > 0) {
                 pieceCharacter = pieceCharacter.toUpperCase();
             }
@@ -420,17 +424,15 @@ class Board {
         }
 
         for (Integer position : pieces.keySet()) {
-            g.drawImage(pieceSprites.get(pieces.get(position)), (position / 10 - 1) * GRIDSIZE, (position % 10 - 1) * GRIDSIZE, null);
+            g.drawImage(pieceSprites.get(pieces.get(position) % 10), (position / 10 - 1) * GRIDSIZE, (position % 10 - 1) * GRIDSIZE, null);
         }
     }
-
-    // Logic Methods
+    // Evaluation Methods
     public double evaluateBoard() {
         double evaluation = 0;
-        double developmentBoost = 0.1;
-        double pieceActivity = 0.02;
         for (Integer position : pieces.keySet()) {
-            evaluation += pieceValues.get(Math.abs(pieces.get(position))) * pieceColor(position);
+            evaluation += pieceValues.get(Math.abs(pieces.get(position) % 10)) * pieceColor(position);
+            evaluation += evalMap.openingEvaluation(position, pieces.get(position)) * pieceColor(position);
         }
         return evaluation;
     }

@@ -6,7 +6,6 @@ class Chess {
     static int selectedPiecePosition;
     static ChessAI chessAI = new ChessAI();
     static HashMap<Integer, HashMap<String, Integer>> evaluationData;
-    static ArrayList<ArrayList<String>> storeMinMax = new ArrayList<>();
 
     public static Board fenToBoard(String fen) {
         HashMap<Integer, Integer> pieces = new HashMap<>();
@@ -61,18 +60,15 @@ class Chess {
         return new Board(color, pieces);
     }
 
-
-
     public static void makeAIMove() {
         double start = System.nanoTime();
-        System.out.println("entering");
-        Move bestMove = chessAI.minmax(currentBoard, 3, currentBoard.getTurn() == 1, -Double.MAX_VALUE, Double.MAX_VALUE);
-
-
+//        Move bestMove = chessAI.minmax(currentBoard, 5, currentBoard.getTurn() == 1, -Double.MAX_VALUE, Double.MAX_VALUE);
+        Move bestMove = chessAI.findMove(currentBoard);
 
         currentBoard.movePiece(bestMove.getOldPosition(), bestMove.getNewPosition());
         double end = System.nanoTime();
-        System.out.println((end - start)/1000000000);
+//        System.out.println((end - start)/1000000000);
+        System.out.println("Evaluation: " + currentBoard.evaluateBoard());
     }
 
 
@@ -125,32 +121,10 @@ class Chess {
     }
 
     public static void main(String[] args) throws Exception {
-        storeMinMax.add(new ArrayList<>());
-        storeMinMax.add(new ArrayList<>());
-        storeMinMax.add(new ArrayList<>());
-        storeMinMax.add(new ArrayList<>());
-//        EvaluationReader evaluationReader = new EvaluationReader("chessData.csv");
-        //      evaluationData = evaluationReader.getEvaluations();
-//        HashMap<Integer, Piece> startingPieces = fillStartingPieces();
-//        HashMap<Integer, Piece> startingPieces = setupCustomBoard();
-//        currentBoard = fenToBoard("rnb1k2r/pppp1ppp/8/4N3/2B1n2q/8/PPPP2PP/RNBQK2R w kq - 2 7");
-//        currentBoard = fenToBoard("rnbqk2r/pppp1ppp/5n2/2b1p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4");
-//        currentBoard = fenToBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-//        currentBoard = fenToBoard("bk6/8/8/8/8/8/B7/K7 w - - 17 47");
-//        currentBoard = fenToBoard("7k/p7/1P6/8/8/8/8/1K6 w - - 17 47");
-        currentBoard = fenToBoard("7k/p7/8/1P6/8/8/8/1K6 w - - 17 47");
-        for (Integer pos : currentBoard.getPieces().keySet()) {
-            System.out.println(pos);
-        }
-//        HashMap<Integer, Integer> somePieces = new HashMap<>();
- //       somePieces.put(11, 4);
-  //      somePieces.put(54, 4);
-    //    currentBoard = new Board(1, somePieces);
+        EvaluationReader evaluationReader = new EvaluationReader("chessData.csv");
+        evaluationData = evaluationReader.getEvaluations();
+        currentBoard = fenToBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+        System.out.println("Finished Reading");
         ChessVisualizer visualizer = new ChessVisualizer(currentBoard);
-//        System.out.println(currentBoard.toFEN());
-
-//    for (int i = 0; i < currentBoard.getPieces().size(); i++) {
-//      selectedSquares.addAll(currentBoard.getPiece(i).findPossibleMoves(currentBoard));
-//    }
     }
 }

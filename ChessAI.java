@@ -47,7 +47,7 @@ class ChessAI {
         }
         HashSet<Move> moves = new HashSet<>(generatePositionMoves(board, turn));
         if (isMaximizingPlayer) {
-            Move bestMove = new Move(-1, -1, -Board.INFINITY);
+            Move bestMove = new Move(-1, -1, -Double.MAX_VALUE);
             for (Move move : moves) {
                 int capturedPiece = board.movePiece(move.getOldPosition(), move.getNewPosition());
                 Move newMove = new Move(move, minmax(board, depth - 1, false, alpha, beta).getEvaluation());
@@ -61,7 +61,7 @@ class ChessAI {
             }
             return bestMove;
         } else {
-            Move bestMove = new Move(-1, -1, Board.INFINITY);
+            Move bestMove = new Move(-1, -1, Double.MAX_VALUE);
             for (Move move : moves) {
                 int capturedPiece = board.movePiece(move.getOldPosition(), move.getNewPosition());
                 Move newMove = new Move(move, minmax(board, depth - 1, true, alpha, beta).getEvaluation());
@@ -73,6 +73,44 @@ class ChessAI {
                     return bestMove;
                 }
             }
+            return bestMove;
+        }
+    }
+
+    public Move findMove(Board board) {
+        Move bestMove;
+        int color = board.getTurn();
+        boolean foundMove = false;
+        HashSet<Move> moves = new HashSet<>(generatePositionMoves(board, color));
+        if (color > 0) {
+            bestMove = new Move(-1, -1, -Double.MAX_VALUE);
+            for (Move move : moves) {
+                int capturedPiece = board.movePiece(move.getOldPosition(), move.getNewPosition());
+                String fen = board.toFEN();
+                System.out.println(fen);
+                if (Chess.evaluationData.containsKey(board.getPieces().size()) && Chess.evaluationData.get(board.getPieces().size()).containsKey(fen)) {
+                    move.setEvaluation(Chess.evaluationData.get(board.getPieces().size()).get(fen));
+                    bestMove = maxMove(move, bestMove);
+                    foundMove = true;
+                }
+                board.revertMove(move.getOldPosition(), move.getNewPosition(), capturedPiece);
+            }
+        } else {
+            bestMove = new Move(-1, -1, Double.MAX_VALUE);
+            for (Move move : moves) {
+                int capturedPiece = board.movePiece(move.getOldPosition(), move.getNewPosition());
+                String fen = board.toFEN();
+                if (Chess.evaluationData.containsKey(board.getPieces().size()) && Chess.evaluationData.get(board.getPieces().size()).containsKey(fen)) {
+                    move.setEvaluation(Chess.evaluationData.get(board.getPieces().size()).get(fen));
+                    bestMove = minMove(move, bestMove);
+                    foundMove = true;
+                }
+                board.revertMove(move.getOldPosition(), move.getNewPosition(), capturedPiece);
+            }
+        }
+        if (!foundMove) {
+            return minmax(board, 5, color == 1, -Double.MAX_VALUE, Double.MAX_VALUE);
+        } else {
             return bestMove;
         }
     }

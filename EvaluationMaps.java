@@ -2,6 +2,9 @@ public class EvaluationMaps {
 
 
     public static double developmentWeight = 0.001;
+    public static double bishopOpeningWeight = 0.1;
+    public static double knightOpeningWeight = 0.2;
+    public static double majorPieceOpeningWeight = -0.05;
     public static int[][] developmentMap = {
             {0, 1, 2, 4, 2, 5, 3, 0},
             {0, 2, 3, 6, 6, 2, 2, 0},
@@ -14,74 +17,27 @@ public class EvaluationMaps {
     };
 
     public static double[] openingWeights = {0.002, 0.001, 0.002, 0.001, 0.001, 0.002};
-    public static int[][][] openingMap = {
-            {
-                    {0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 0, 0, 0, 0, 0, 0, 0},
-                    {2, 2, 4, 5, 5, 0, 0, 0},
-                    {1, 0, 1, 0, 0, 0, 0, 0},
-                    {1, 0, 0, 0, 0, 1, 1, 1},
-                    {0, 0, 0, 0, 0, 0, 0, 0}
-            },
-
-            {
-                    {0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 5, 0, 0, 0, 0, 5, 0},
-                    {0, 0, 4, 0, 0, 4, 0, 0},
-                    {0, 0, 0, 1, 1, 0, 0, 0},
-                    {0, 3, 0, 2, 2, 0, 3, 0},
-                    {0, 0, 0, 0, 0, 0, 0, 0}
-            },
-
-            {
-                    {0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 0, 2, 0, 0, 2, 0, 0},
-                    {0, 0, 0, 1, 1, 0, 0, 0},
-                    {0, 0, 0, 0, 0, 0, 0, 0}
-            },
-
-            {
-                    {0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 0, 0, 0, 0, 0, 0, 0},
-                    {1, 0, 0, 0, 0, 0, 0, 1}
-            },
-
-            {
-                    {0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 0, 0, 5, 0, 0, 0, 0}
-            },
-
-            {
-                    {0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 0, 0, 0, 0, 0, 0, 0},
-                    {0, 0, 2, 0, 1, 0, 3, 1}
-            }
+    public static int[][] bishopOpeningMap = {
+            {0, 0, 0, 0, 0, 0, 0, 0},
+            {0, -3, 0, -2, -2, 0, -3, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 5, -5, 0, 0, -5, 5, 0},
+            {0, -5, 5, 0, 0, 5, -5, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 3, 0, 2, 2, 0, 3, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0}
     };
 
+    public static int[][] knightOpeningMap = {
+            {0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, -2, -2, 0, 0, 0},
+            {0, 0, -3, 0, 0, -3, 0, 0},
+            {0, 0, 0, 0, 1, 0, 1, 0},
+            {0, 0, 0, 0, -1, 0, -1, 0},
+            {0, 0, 3, 0, 0, 3, 0, 0},
+            {0, 0, 0, 2, 2, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0}
+    };
 
 
 
@@ -89,10 +45,16 @@ public class EvaluationMaps {
         int xPos = pos/10 - 1;
         int yPos = pos%10 - 1;
 
-        if (piece > 0) {
-            return openingWeights[piece % 10 - 1] * openingMap[piece % 10 - 1][yPos][xPos];
+        if (Math.abs(piece) == 2) {
+            return bishopOpeningWeight * bishopOpeningMap[yPos][xPos];
+        } else if (Math.abs(piece) == 3) {
+            return knightOpeningWeight * knightOpeningMap[yPos][xPos];
+        } else if (piece > 0 && yPos + 1 != 8) {
+            return majorPieceOpeningWeight * piece;
+        } else if (piece < 0 && yPos + 1 != 1) {
+            return majorPieceOpeningWeight * piece;
         } else {
-            return openingWeights[Math.abs(piece % 10) - 1] * openingMap[Math.abs(piece % 10) - 1][7 - yPos][xPos];
+            return 0;
         }
     }
 

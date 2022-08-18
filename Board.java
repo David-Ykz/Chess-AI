@@ -16,6 +16,7 @@ class Board {
     private boolean castleQW = true;
     private boolean castleKB = true;
     private boolean castleQB = true;
+    private double evalSpaceWeight = 0.1;
     EvaluationMaps evalMap = new EvaluationMaps();
     Board (int turn, HashMap<Integer, Integer> pieces) {
         this.turn = turn;
@@ -78,13 +79,14 @@ class Board {
         return (!emptySquare(position) && pieceColor(position) == color);
     }
     public void changePiecePos(int oldPosition, int newPosition) {
-        try {
             pieces.put(newPosition, pieces.remove(oldPosition));
-        } catch (Exception e) {
-            System.out.println(e);
-            System.out.println("Old Position: " + oldPosition + " New Position: " + newPosition);
-            System.out.println(pieces.toString());
-        }
+//        try {
+//            pieces.put(newPosition, pieces.remove(oldPosition));
+//        } catch (Exception e) {
+//            System.out.println(e);
+//            System.out.println("Old Position: " + oldPosition + " New Position: " + newPosition);
+//            System.out.println(pieces.toString());
+//        }
     }
     public int movePiece(int oldPosition, int newPosition) {
         if (Math.abs(pieces.get(oldPosition)) == 6) { // CHECK IF INTEGER != INT
@@ -356,6 +358,39 @@ class Board {
         }
         return legalMoves;
     }
+    public HashSet<Integer> findCaptureMoves(int position) {
+        HashSet<Integer> moves = new HashSet<>();
+        if (Math.abs(pieces.get(position)) == 1) {
+            if (pieceColor(position) > 0) {
+                if (position / 10 > 1 && !emptySquare(position - 11)) {
+                    moves.add(position - 11);
+                }
+                if (position / 10 < 8 && !emptySquare(position + 9)) {
+                    moves.add(position + 9);
+                }
+            } else if (pieceColor(position) < 0) {
+                if (position / 10 > 1 && !emptySquare(position - 9)) {
+                    moves.add(position - 9);
+                }
+                if (position / 10 < 8 && !emptySquare(position + 11)) {
+                    moves.add(position + 11);
+                }
+            }
+        } else {
+            findPossibleMoves(position, moves);
+        }
+        HashSet<Integer> legalMoves = new HashSet<>();
+        for (Integer newPosition : moves) {
+            if (!friendlySquare(newPosition, pieceColor(position))) {
+                int capturedPiece = movePiece(position, newPosition);
+                if (capturedPiece != 0 && !findAllPossibleMoves(-1 * pieceColor(newPosition)).contains(findKingPos(pieceColor(newPosition)))) {
+                    legalMoves.add(newPosition);
+                }
+                revertMove(position, newPosition, capturedPiece);
+            }
+        }
+        return legalMoves;
+    }
     // Graphics
     public String toFEN() {
         String[][] chessboard = new String[8][8];
@@ -367,16 +402,15 @@ class Board {
             chessboard[position % 10 - 1][position / 10 - 1] = pieceCharacter;
         }
         String fen = "";
-        for (int i = 0; i < chessboard.length; i++) {
-            String[] row = chessboard[i];
+        for (String[] row : chessboard) {
             int counter = 0;
-            for (int j = 0; j < row.length; j++) {
-                if (row[j] == null) {
+            for (String s : row) {
+                if (s == null) {
                     counter++;
                 } else if (counter == 0) {
-                    fen += row[j];
+                    fen += s;
                 } else {
-                    fen += counter + row[j];
+                    fen += counter + s;
                     counter = 0;
                 }
             }
@@ -437,9 +471,18 @@ class Board {
     public double evaluateBoard() {
         double evaluation = 0;
         for (Integer position : pieces.keySet()) {
-            evaluation += pieceValues.get(Math.abs(pieces.get(position) % 10)) * pieceColor(position);
-            evaluation += evalMap.openingEvaluation(position, pieces.get(position)) * pieceColor(position);
+            int piece = pieces.get(position) % 10;
+            int color = pieceColor(position);
+            evaluation += pieceValues.get(Math.abs(piece)) * color;
+            if (piece == 1) {
+                evaluation += (7 - position % 10) * evalSpaceWeight;
+            } else if (piece == -1) {
+                evaluation -= (position % 10 - 2) * evalSpaceWeight;
+            } else {
+                evaluation += evalMap.openingEvaluation(position, piece);
+            }
         }
         return evaluation;
     }
+
 }

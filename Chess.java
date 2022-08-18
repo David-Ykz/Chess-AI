@@ -6,6 +6,7 @@ class Chess {
     static int selectedPiecePosition;
     static ChessAI chessAI = new ChessAI();
     static HashMap<Integer, HashMap<String, Integer>> evaluationData;
+    static int numPieces = 0;
 
     public static Board fenToBoard(String fen) {
         HashMap<Integer, Integer> pieces = new HashMap<>();
@@ -61,14 +62,18 @@ class Chess {
     }
 
     public static void makeAIMove() {
+        ChessAI.transpositions.clear();
+        ChessAI.numTranspositions = 0;
+        numPieces = currentBoard.getPieces().size();
         double start = System.nanoTime();
-//        Move bestMove = chessAI.minmax(currentBoard, 5, currentBoard.getTurn() == 1, -Double.MAX_VALUE, Double.MAX_VALUE);
-        Move bestMove = chessAI.findMove(currentBoard);
-
+        Move bestMove = chessAI.minmax(currentBoard, 5, currentBoard.getTurn() == 1, -Double.MAX_VALUE, Double.MAX_VALUE);
+//        Move bestMove = chessAI.findMove(currentBoard);
         currentBoard.movePiece(bestMove.getOldPosition(), bestMove.getNewPosition());
         double end = System.nanoTime();
-//        System.out.println((end - start)/1000000000);
-        System.out.println("Evaluation: " + currentBoard.evaluateBoard());
+        System.out.println("---------------------");
+        System.out.println("Time taken: " + (end - start)/1000000000);
+        System.out.println("Number of extended searches: " + ChessAI.numTranspositions);
+        System.out.println("Evaluation: " + Math.round(1000 * currentBoard.evaluateBoard())/1000.0);
     }
 
 
@@ -121,9 +126,11 @@ class Chess {
     }
 
     public static void main(String[] args) throws Exception {
-        EvaluationReader evaluationReader = new EvaluationReader("chessData.csv");
-        evaluationData = evaluationReader.getEvaluations();
+//        EvaluationReader evaluationReader = new EvaluationReader("chessData.csv");
+  //      evaluationData = evaluationReader.getEvaluations();
+        //      currentBoard = fenToBoard("6k1/pp6/4qp1r/2R3p1/bP2R1p1/4P1P1/5PBP/rQ4K1 w KQkq - 0 1");
         currentBoard = fenToBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+//        currentBoard = fenToBoard("2kr3r/pb1p3p/1bp1p3/4qp2/NP6/P2Q2P1/2P1BP1P/3RK2R b K - 8 21");
         System.out.println("Finished Reading");
         ChessVisualizer visualizer = new ChessVisualizer(currentBoard);
     }

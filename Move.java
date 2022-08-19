@@ -1,6 +1,7 @@
 public class Move {
     private int oldPosition;
     private int newPosition;
+    private int piece;
     private int capturedPiece;
     private double evaluation;
 
@@ -19,6 +20,13 @@ public class Move {
         this.oldPosition = oldPosition;
         this.newPosition = newPosition;
         this.evaluation = evaluation;
+    }
+
+    public Move(Move move, int piece, int capturedPiece) {
+        this.oldPosition = move.getOldPosition();
+        this.newPosition = move.getNewPosition();
+        this.piece = piece;
+        this.capturedPiece = capturedPiece;
     }
 
 

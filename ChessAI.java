@@ -3,6 +3,7 @@ import java.util.*;
 class ChessAI {
     public static HashMap<HashMap<Integer, Integer>, Double> transpositions = new HashMap<>();
     public static int numTranspositions = 0;
+    public static int numQuiescenceSearches = 0;
 
     ChessAI() {
     }
@@ -22,49 +23,20 @@ class ChessAI {
         }
     }
 
-    public HashSet<Move> generatePositionMoves(Board board, int color) {
-        HashSet<Move> moves = new HashSet<>();
-        HashSet<Integer> piecePositions = new HashSet<>(board.getPieces().keySet());
-        for (Integer oldPosition : piecePositions) {
-            if (board.pieceColor(oldPosition) == color) { // Finds all pieces of the turn player
-                for (int eachMove : board.findLegalMoves(oldPosition)) {
-                    moves.add(new Move(oldPosition, eachMove));
-                }
-            }
-        }
-        return moves;
-    }
-
-    public HashSet<Move> generateCaptureMoves(Board board, int color) {
-        HashSet<Move> moves = new HashSet<>();
-        HashSet<Integer> piecePositions = new HashSet<>(board.getPieces().keySet());
-        for (Integer oldPosition : piecePositions) {
-            if (board.pieceColor(oldPosition) == color) { // Finds all pieces of the turn player
-                for (int eachMove : board.findCaptureMoves(oldPosition)) {
-                    moves.add(new Move(oldPosition, eachMove));
-                }
-            }
-        }
-        return moves;
-    }
-
-    public Move quiescenceSearch(Board board, int depth, boolean isMaximizingPlayer, double alpha, double beta) {
-        if (depth == 0) {
-            return new Move(-1, -1, board.evaluateBoard());
-        }
+    public Move quiescenceSearch(Board board, boolean isMaximizingPlayer, double alpha, double beta) {
         int turn;
         if (isMaximizingPlayer) {
             turn = 1;
         } else {
             turn = -1;
         }
-        HashSet<Move> moves = new HashSet<>(generateCaptureMoves(board, turn));
+        HashSet<Move> moves = new HashSet<>(board.allCaptureMoves(turn));
         Move bestMove = new Move(-1, -1, board.evaluateBoard());
         if (isMaximizingPlayer) {
             for (Move move : moves) {
                 int capturedPiece = board.movePiece(move.getOldPosition(), move.getNewPosition());
                 Move newMove;
-                newMove = new Move(move, quiescenceSearch(board, depth - 1, false, alpha, beta).getEvaluation());
+                newMove = new Move(move, quiescenceSearch(board, false, alpha, beta).getEvaluation());
                 board.revertMove(move.getOldPosition(), move.getNewPosition(), capturedPiece);
                 bestMove = maxMove(bestMove, newMove);
                 alpha = Math.max(alpha, newMove.getEvaluation());
@@ -77,7 +49,7 @@ class ChessAI {
             for (Move move : moves) {
                 int capturedPiece = board.movePiece(move.getOldPosition(), move.getNewPosition());
                 Move newMove;
-                newMove = new Move(move, quiescenceSearch(board, depth - 1, true, alpha, beta).getEvaluation());
+                newMove = new Move(move, quiescenceSearch(board, true, alpha, beta).getEvaluation());
                 board.revertMove(move.getOldPosition(), move.getNewPosition(), capturedPiece);
                 bestMove = minMove(bestMove, newMove);
                 beta = Math.min(beta, newMove.getEvaluation());
@@ -92,8 +64,8 @@ class ChessAI {
     public Move minmax(Board board, int depth, boolean isMaximizingPlayer, double alpha, double beta) {
         if (depth == 0) {
             if (Chess.numPieces - board.getPieces().size() > 2) {
-                numTranspositions++;
-                return quiescenceSearch(board, 2, isMaximizingPlayer, alpha, beta);
+                numQuiescenceSearches++;
+                return quiescenceSearch(board, isMaximizingPlayer, alpha, beta);
             } else {
                 return new Move(-1, -1, board.evaluateBoard());
             }
@@ -105,20 +77,20 @@ class ChessAI {
         } else {
             turn = -1;
         }
-        HashSet<Move> moves = new HashSet<>(generatePositionMoves(board, turn));
+        HashSet<Move> moves = new HashSet<>(board.allLegalMovesMoves(turn));
         if (isMaximizingPlayer) {
             Move bestMove = new Move(-1, -1, -Double.MAX_VALUE);
             for (Move move : moves) {
                 int capturedPiece = board.movePiece(move.getOldPosition(), move.getNewPosition());
                 Move newMove;
-                newMove = new Move(move, minmax(board, depth - 1, false, alpha, beta).getEvaluation());
-//                if (transpositions.containsKey(board.getPieces())) {
-//                    newMove = new Move(move, transpositions.get(board.getPieces()));
-//                    numTranspositions++;
-//                } else {
-//                    newMove = new Move(move, minmax(board, depth - 1, false, alpha, beta).getEvaluation());
-//                    transpositions.put(new HashMap<>(board.getPieces()), newMove.getEvaluation());
-//                }
+//                newMove = new Move(move, minmax(board, depth - 1, false, alpha, beta).getEvaluation());
+                if (transpositions.containsKey(board.getPieces())) {
+                    newMove = new Move(move, transpositions.get(board.getPieces()));
+                    numTranspositions++;
+                } else {
+                    newMove = new Move(move, minmax(board, depth - 1, false, alpha, beta).getEvaluation());
+                    transpositions.put(new HashMap<>(board.getPieces()), newMove.getEvaluation());
+                }
                 board.revertMove(move.getOldPosition(), move.getNewPosition(), capturedPiece);
 
                 bestMove = maxMove(bestMove, newMove);
@@ -133,14 +105,14 @@ class ChessAI {
             for (Move move : moves) {
                 int capturedPiece = board.movePiece(move.getOldPosition(), move.getNewPosition());
                 Move newMove;
-                newMove = new Move(move, minmax(board, depth - 1, true, alpha, beta).getEvaluation());
-//                if (transpositions.containsKey(board.getPieces())) {
-//                    newMove = new Move(move, transpositions.get(board.getPieces()));
-//                    numTranspositions++;
-//                } else {
-//                    newMove = new Move(move, minmax(board, depth - 1, true, alpha, beta).getEvaluation());
-//                    transpositions.put(new HashMap<>(board.getPieces()), newMove.getEvaluation());
-//                }
+//                newMove = new Move(move, minmax(board, depth - 1, true, alpha, beta).getEvaluation());
+                if (transpositions.containsKey(board.getPieces())) {
+                    newMove = new Move(move, transpositions.get(board.getPieces()));
+                    numTranspositions++;
+                } else {
+                    newMove = new Move(move, minmax(board, depth - 1, true, alpha, beta).getEvaluation());
+                    transpositions.put(new HashMap<>(board.getPieces()), newMove.getEvaluation());
+                }
                 board.revertMove(move.getOldPosition(), move.getNewPosition(), capturedPiece);
 
                 bestMove = minMove(bestMove, newMove);
@@ -157,7 +129,7 @@ class ChessAI {
         Move bestMove;
         int color = board.getTurn();
         boolean foundMove = false;
-        HashSet<Move> moves = new HashSet<>(generatePositionMoves(board, color));
+        HashSet<Move> moves = new HashSet<>(board.allLegalMovesMoves(color));
         if (color > 0) {
             bestMove = new Move(-1, -1, -Double.MAX_VALUE);
             for (Move move : moves) {

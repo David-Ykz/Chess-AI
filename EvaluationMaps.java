@@ -2,10 +2,10 @@ public class EvaluationMaps {
 
 
     public static double developmentWeight = 0.001;
-    public static double bishopOpeningWeight = 0.1;
-    public static double knightOpeningWeight = 0.2;
-    public static double majorPieceOpeningWeight = -0.05;
-    public static int[][] developmentMap = {
+    public static double bishopOpeningWeight = 0.025;
+    public static double knightOpeningWeight = 0.05;
+    public static double majorPieceOpeningWeight = -0.1;
+    public static int[][] oldDevelopmentMap = {
             {0, 1, 2, 4, 2, 5, 3, 0},
             {0, 2, 3, 6, 6, 2, 2, 0},
             {2, 4, 8, 6, 7, 9, 4, 2},
@@ -16,7 +16,18 @@ public class EvaluationMaps {
             {0, 1, 2, 3, 2, 4, 3, 0}
     };
 
-    public static double[] openingWeights = {0.002, 0.001, 0.002, 0.001, 0.001, 0.002};
+    public static int[][] developmentMap = {
+            {0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 1, 1, 1, 1, 1, 1, 0},
+            {0, 1, 2, 2, 2, 2, 1, 0},
+            {0, 1, 2, 3, 3, 2, 1, 0},
+            {0, 1, 2, 3, 3, 2, 1, 0},
+            {0, 1, 2, 2, 2, 2, 1, 0},
+            {0, 1, 1, 1, 1, 1, 1, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0}
+    };
+    public static double[] openingWeights = {0.01, 0.01, 0.01, -0.001, -0.001, -0.001};
+
     public static int[][] bishopOpeningMap = {
             {0, 0, 0, 0, 0, 0, 0, 0},
             {0, -3, 0, -2, -2, 0, -3, 0},
@@ -40,6 +51,11 @@ public class EvaluationMaps {
     };
 
 
+    public double positionEvaluation(int pos, int piece) {
+        int xPos = pos/10 - 1;
+        int yPos = pos%10 - 1;
+        return developmentMap[yPos][xPos] * openingWeights[Math.abs(piece) - 1];
+    }
 
     public double openingEvaluation(int pos, int piece) {
         int xPos = pos/10 - 1;

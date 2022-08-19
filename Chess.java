@@ -64,15 +64,17 @@ class Chess {
     public static void makeAIMove() {
         ChessAI.transpositions.clear();
         ChessAI.numTranspositions = 0;
+        ChessAI.numQuiescenceSearches = 0;
         numPieces = currentBoard.getPieces().size();
         double start = System.nanoTime();
-        Move bestMove = chessAI.minmax(currentBoard, 5, currentBoard.getTurn() == 1, -Double.MAX_VALUE, Double.MAX_VALUE);
+        Move aiMove = chessAI.minmax(currentBoard, 3, currentBoard.getTurn() == 1, -Double.MAX_VALUE, Double.MAX_VALUE);
 //        Move bestMove = chessAI.findMove(currentBoard);
-        currentBoard.movePiece(bestMove.getOldPosition(), bestMove.getNewPosition());
+        currentBoard.makeMove(aiMove);
         double end = System.nanoTime();
         System.out.println("---------------------");
         System.out.println("Time taken: " + (end - start)/1000000000);
-        System.out.println("Number of extended searches: " + ChessAI.numTranspositions);
+        System.out.println("Number of transpositions: " + ChessAI.numTranspositions);
+        System.out.println("Number of quiescence searches: " + ChessAI.numQuiescenceSearches);
         System.out.println("Evaluation: " + Math.round(1000 * currentBoard.evaluateBoard())/1000.0);
     }
 
@@ -80,17 +82,8 @@ class Chess {
     public static void processClick(int position, Board board) {
         boolean foundPiece = false;
         if (selectedSquares.contains(position)) {
-            if (board.getPiece(selectedPiecePosition) == 4 && selectedPiecePosition == 18) {
-                board.setCastleQW(false);
-            } else if (board.getPiece(selectedPiecePosition) == 4 && selectedPiecePosition == 88) {
-                board.setCastleKW(false);
-            }
-            if (board.getPiece(selectedPiecePosition) == -4 && selectedPiecePosition == 11) {
-                board.setCastleQB(false);
-            } else if (board.getPiece(selectedPiecePosition) == -4 && selectedPiecePosition == 81) {
-                board.setCastleKB(false);
-            }
-            board.movePiece(selectedPiecePosition, position);
+            Move playerMove = new Move(selectedPiecePosition, position);
+            board.makeMove(playerMove);
             board.checkPromotion();
             board.changeTurn();
             if (board.isCheckmate()) {
@@ -98,12 +91,10 @@ class Chess {
             }
             int currentBoardTurn = board.getTurn();
             makeAIMove();
-//            chessAI.findMove(board); // Uses database
 
             if (currentBoardTurn == board.getTurn()) {
                 board.changeTurn();
             }
-//            board.changeTurn();
         } else {
             for (Integer piecePosition : board.getPieces().keySet()) {
                 if (piecePosition == position && board.pieceColor(piecePosition) == board.getTurn()) {

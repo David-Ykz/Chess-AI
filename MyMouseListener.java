@@ -14,7 +14,9 @@ class MyMouseListener implements MouseListener {
 
             Chess.processClick(xSquare * 10 + ySquare, Chess.currentBoard);
         } else if (e.getButton() == 3) {
-//            Chess.makeAIMove();
+            Chess.makeAIMove();
+            Chess.currentBoard.changeTurn();
+            Chess.makeAIMove();
         }
 
     }

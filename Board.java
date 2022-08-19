@@ -6,39 +6,33 @@ import java.awt.image.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 class Board {
-    public static final double INFINITY = 999;
+    public static final double INFINITY = 200;
     private int turn;
     private ConcurrentHashMap<Integer, Integer> pieces;
-    private HashMap<Integer, String> pieceNames = new HashMap<>();
+    private String[] pieceNames = {"p", "b", "n", "r", "q", "k"};
     private HashMap<Integer, BufferedImage> pieceSprites = new HashMap<>();
-    private HashMap<Integer, Double> pieceValues = new HashMap<>();
-    private boolean castleKW = true;
-    private boolean castleQW = true;
-    private boolean castleKB = true;
-    private boolean castleQB = true;
-    private double evalSpaceWeight = 0.1;
+    private double[] openingPieceValues = {1.1, 3.1, 3.0, 5.0, 9.0, 200.0};
+    private double[] midgamePieceValues = {1.0, 3.1, 3.0, 5.0, 9.0, 200.0};
+    private double[] endgamePieceValues = {1.5, 3.5, 3.0, 6, 9.0, 200.0};
+    private double nonKingPieceSum = sumArray(Arrays.copyOfRange(openingPieceValues, 0, 5));
+    private boolean[] validRook = {true, true, true, true}; // QB KB QW KW
+    private boolean[] validKing = {true, true}; // B W
+    private boolean[] aiValidRook = {true, true, true, true}; // QB KB QW KW
+    private boolean[] aiValidKing = {true, true}; // B W
+    private double mobilityWeight = 0.04;
+    private double threatWeight = 0.02;
+    private double pawnCenterWeight = 0.15;
     EvaluationMaps evalMap = new EvaluationMaps();
+    private Stack<Move> boardMoves = new Stack<>();
+    private HashSet<Integer> piecesMoved = new HashSet<>();
     Board (int turn, HashMap<Integer, Integer> pieces) {
         this.turn = turn;
         this.pieces = new ConcurrentHashMap<>(pieces);
-        pieceNames.put(6, "k");
-        pieceNames.put(5, "q");
-        pieceNames.put(4, "r");
-        pieceNames.put(3, "n");
-        pieceNames.put(2, "b");
-        pieceNames.put(1, "p");
-
-        pieceValues.put(6, INFINITY);
-        pieceValues.put(5, 9.0);
-        pieceValues.put(4, 5.0);
-        pieceValues.put(3, 3.0);
-        pieceValues.put(2, 3.0);
-        pieceValues.put(1, 1.0);
 
         try {
-            for (Integer piece : pieceNames.keySet()) {
-                pieceSprites.put(piece, ImageIO.read(new File(piece + ".png")));
-                pieceSprites.put(-piece, ImageIO.read(new File(-piece + ".png")));
+            for (int i = 1; i <= 6; i++) {
+                pieceSprites.put(i, ImageIO.read(new File(i + ".png")));
+                pieceSprites.put(-i, ImageIO.read(new File(-i + ".png")));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -115,6 +109,9 @@ class Board {
         changePiecePos(oldPosition, newPosition);
         checkPromotion();
 
+        updateRookStatus(aiValidRook, oldPosition, newPosition, pieces.get(newPosition) % 10, removedPiece);
+        updateKingStatus(aiValidKing, pieces.get(newPosition) % 10);
+
         return removedPiece;
     }
     public void castlePiece(int oldKingPos, int newKingPos, int oldRookPos, int newRookPos) {
@@ -154,6 +151,32 @@ class Board {
         if (capturedPiece != 0) {
             pieces.put(newPosition, capturedPiece);
         }
+
+        if (pieces.get(oldPosition) == -4 && oldPosition == 11) {
+            aiValidRook[0] = true;
+        } else if (pieces.get(oldPosition) == -4 && oldPosition == 81) {
+            aiValidRook[1] = true;
+        } else if (pieces.get(oldPosition) == 4 && oldPosition == 18) {
+            aiValidRook[2] = true;
+        } else if (pieces.get(oldPosition) == 4 && oldPosition == 88) {
+            aiValidRook[3] = true;
+        }
+
+        if (!aiValidKing[0] && pieces.get(oldPosition) == -6 && oldPosition == 51) {
+            aiValidKing[0] = true;
+        } else if (!aiValidKing[1] && pieces.get(oldPosition) == 6 && oldPosition == 58) {
+            aiValidKing[1] = true;
+        }
+
+        if (capturedPiece == -4 && newPosition == 11) {
+            aiValidRook[0] = true;
+        } else if (capturedPiece == -4 && newPosition == 81) {
+            aiValidRook[1] = true;
+        } else if (capturedPiece == 4 && newPosition == 18) {
+            aiValidRook[2] = true;
+        } else if (capturedPiece == 4 && newPosition == 88) {
+            aiValidRook[3] = true;
+        }
     }
     public boolean isCheckmate() {
         int numOfLegalMoves = 0;
@@ -176,30 +199,50 @@ class Board {
             }
         }
     }
-    public boolean getCastleKB() {
-        return castleKB;
+    public double sumArray(double[] array) {
+        double total = 0;
+        for (Double value : array) {
+            total += value;
+        }
+        return total;
     }
-    public boolean getCastleKW() {
-        return castleKW;
+    public void updateRookStatus(boolean[] array, int oldPos, int newPos, int piece, int capturedPiece) {
+        if (piece == -4) { // Black rook moved
+            if (oldPos == 11) {
+                array[0] = false; // QB
+            } else if (oldPos == 81) {
+                array[1] = false; // KB
+            }
+        } else if (piece == 4) { // White rook moved
+            if (oldPos == 18) {
+                array[2] = false; // QW
+            } else if (oldPos == 88) {
+                array[3] = false; // KW
+            }
+        }
+        if (capturedPiece == -4) { // Black rook captured
+            if (newPos == 11) {
+                array[0] = false; // QB
+            } else if (newPos == 81) {
+                array[1] = false; // KB
+            }
+        } else if (capturedPiece == 4) { // White rook captured
+            if (newPos == 18) {
+                array[2] = false; // QW
+            } else if (newPos == 88) {
+                array[3] = false; // KW
+            }
+        }
+
     }
-    public boolean getCastleQB() {
-        return castleQB;
+    public void updateKingStatus(boolean[] array, int piece) {
+        if (piece == -6) { // Black king moved
+            array[0] = false; // B
+        } else if (piece == 6) { // White king moved
+            array[1] = false; // W
     }
-    public boolean getCastleQW() {
-        return castleQW;
-    }
-    public void setCastleKW(boolean bool) {
-        castleKW = bool;
-    }
-    public void setCastleQW(boolean bool) {
-        castleQW = bool;
-    }
-    public void setCastleKB(boolean bool) {
-        castleKB = bool;
-    }
-    public void setCastleQB(boolean bool) {
-        castleQB = bool;
-    }
+
+}
     // Piece Movement
     public void explore(int position, int direction, int color, boolean range, HashSet<Integer> moves) {
         position = position + direction;
@@ -301,23 +344,25 @@ class Board {
         return friendlySquare(position, color) && pieces.get(position) == 4 * color;
     }
     public void kingCastleMoves(int position, HashSet<Integer> moves) {
-        if (pieceColor(position) > 0) {
-            if (castleKW && emptySquare(68) && emptySquare(78)
-            && !findAllPossibleMoves(-1).contains(68) && validRook(88, 1)) {
-                moves.add(78);
+        // Black king hasn't moved and isn't in check
+        if (pieceColor(position) < 0 && validKing[0] && aiValidKing[0] && !findAllPossibleMoves(1).contains(51)) {
+            // Queenside castle
+            if (validRook[0] && aiValidRook[0] && emptySquare(41) && emptySquare(31) && emptySquare(21)) {
+                moves.add(31);
             }
-            if (castleQW && emptySquare(48) && emptySquare(38)
-                    && !findAllPossibleMoves(-1).contains(48) && validRook(18, 1)) {
-                moves.add(38);
-            }
-        } else if (pieceColor(position) < 0) {
-            if (castleKB && emptySquare(61) && emptySquare(71)
-                    && !findAllPossibleMoves(1).contains(61) && validRook(18, -1)) {
+            // Kingside castle
+            if (validRook[1] && aiValidRook[1] && emptySquare(61) && emptySquare(71)) {
                 moves.add(71);
             }
-            if (castleKW && emptySquare(41) && emptySquare(31)
-                    && !findAllPossibleMoves(1).contains(41) && validRook(11, -1)) {
-                moves.add(31);
+        // White king hasn't moved and isn't in check
+        } else if (pieceColor(position) > 0 && validKing[1] && aiValidKing[1] && !findAllPossibleMoves(-1).contains(58)) {
+            // Queenside castle
+            if (validRook[2] && aiValidRook[2] && emptySquare(48) && emptySquare(38) && emptySquare(28)) {
+                moves.add(38);
+            }
+            // Kingside castle
+            if (validRook[3] && aiValidRook[3] && emptySquare(68) && emptySquare(78)) {
+                moves.add(78);
             }
         }
     }
@@ -391,11 +436,43 @@ class Board {
         }
         return legalMoves;
     }
+    public HashSet<Move> allLegalMovesMoves(int color) {
+        HashSet<Move> moves = new HashSet<>();
+        HashSet<Integer> piecePositions = new HashSet<>(pieces.keySet());
+        for (Integer oldPosition : piecePositions) {
+            if (pieceColor(oldPosition) == color) { // Finds all pieces of the turn player
+                for (int eachMove : findLegalMoves(oldPosition)) {
+                    moves.add(new Move(oldPosition, eachMove));
+                }
+            }
+        }
+        return moves;
+    }
+    public HashSet<Move> allCaptureMoves(int color) {
+        HashSet<Move> moves = new HashSet<>();
+        HashSet<Integer> piecePositions = new HashSet<>(getPieces().keySet());
+        for (Integer oldPosition : piecePositions) {
+            if (pieceColor(oldPosition) == color) { // Finds all pieces of the turn player
+                for (int eachMove : findCaptureMoves(oldPosition)) {
+                    moves.add(new Move(oldPosition, eachMove));
+                }
+            }
+        }
+        return moves;
+    }
+    public void makeMove(Move move) {
+        int piece = pieces.get(move.getOldPosition()) % 10;
+        int capturedPiece = movePiece(move.getOldPosition(), move.getNewPosition());
+        boardMoves.add(new Move(move, piece, capturedPiece));
+        piecesMoved.add(piece);
+        updateRookStatus(validRook, move.getOldPosition(), move.getNewPosition(), piece, capturedPiece);
+        updateKingStatus(validKing, piece);
+    }
     // Graphics
     public String toFEN() {
         String[][] chessboard = new String[8][8];
         for (Integer position : pieces.keySet()) {
-            String pieceCharacter = pieceNames.get(Math.abs(pieces.get(position)) % 10);
+            String pieceCharacter = pieceNames[Math.abs(pieces.get(position)) % 10 - 1];
             if (pieceColor(position) > 0) {
                 pieceCharacter = pieceCharacter.toUpperCase();
             }
@@ -470,19 +547,46 @@ class Board {
     // Evaluation Methods
     public double evaluateBoard() {
         double evaluation = 0;
+        double sumMaterial = -openingPieceValues[5] * 2;
+        for (Integer position : pieces.keySet()) {
+            evaluation += openingPieceValues[Math.abs(pieces.get(position) % 10) - 1] * pieceColor(position);
+            sumMaterial = openingPieceValues[Math.abs(pieces.get(position) % 10) - 1];
+//            evaluation += evalMap.positionEvaluation(position, piece) * color;
+        }
+        if (sumMaterial > nonKingPieceSum * 0.9) {
+            evaluation += openingEvaluation();
+        } else if (sumMaterial < nonKingPieceSum * 0.4 || boardMoves.size() > 40) {
+            evaluation += endgameEvaluation();
+        } else {
+            evaluation += midgameEvaluation();
+        }
+        return evaluation;
+    }
+
+    public double openingEvaluation() {
+        double evaluation = 0;
         for (Integer position : pieces.keySet()) {
             int piece = pieces.get(position) % 10;
             int color = pieceColor(position);
-            evaluation += pieceValues.get(Math.abs(piece)) * color;
-            if (piece == 1) {
-                evaluation += (7 - position % 10) * evalSpaceWeight;
-            } else if (piece == -1) {
-                evaluation -= (position % 10 - 2) * evalSpaceWeight;
+            if (piece == 1 && position / 10 > 2 && position / 10 < 6) {
+                evaluation += (7 - position % 10) * pawnCenterWeight;
+            } else if (piece == -1 && position / 10 > 2 && position / 10 < 6) {
+                evaluation -= (position % 10 - 2) * pawnCenterWeight;
             } else {
                 evaluation += evalMap.openingEvaluation(position, piece);
             }
         }
+        evaluation += mobilityWeight * (allLegalMovesMoves(1).size() - allLegalMovesMoves(-1).size());
+        evaluation += threatWeight * (allCaptureMoves(1).size() - allCaptureMoves(-1).size());
         return evaluation;
+    }
+
+    public double midgameEvaluation() {
+        return 0;
+    }
+
+    public double endgameEvaluation() {
+        return 0;
     }
 
 }

@@ -68,7 +68,7 @@
         <line-breakpoint enabled="true" type="java-line">
           <condition expression="pieces.containsKey(oldPosition) == false" language="JAVA" />
           <url>file://$PROJECT_DIR$/Board.java</url>
-          <line>81</line>
+          <line>75</line>
           <option name="timeStamp" value="6" />
         </line-breakpoint>
       </breakpoints>

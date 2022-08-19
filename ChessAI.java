@@ -104,7 +104,7 @@ class ChessAI {
         HashSet<Move> unsortedMoves = new HashSet<>(board.allLegalMoves(turn));
         if (unsortedMoves.size() == 0) { // If the turn player has no moves to make
             if (board.findAllPossibleMoves(-turn).contains(board.findKingPos(turn))) { // Checkmate
-                return new Move(-1, -1, Double.MAX_VALUE * -turn);
+                return new Move(-1, -1, Double.MAX_VALUE/2 * -turn);
             } else { // Stalemate
                 return new Move(-1, -1, 0);
             }

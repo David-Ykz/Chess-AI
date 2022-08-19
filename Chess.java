@@ -65,7 +65,15 @@ class Chess {
         chessAI.resetStatistics();
         numPieces = currentBoard.getPieces().size();
         double start = System.nanoTime();
-        Move aiMove = chessAI.minmax(currentBoard, 3, currentBoard.getTurn(), -Double.MAX_VALUE, Double.MAX_VALUE);
+        int depth;
+        if (currentBoard.getPieces().size() < 16) {
+            depth = 7;
+        } else if (currentBoard.getPieces().size() < 8) {
+            depth = 11;
+        } else {
+            depth = 5;
+        }
+        Move aiMove = chessAI.minmax(currentBoard, depth, currentBoard.getTurn(), -Double.MAX_VALUE, Double.MAX_VALUE);
 //        Move bestMove = chessAI.findMove(currentBoard);
         currentBoard.makeMove(aiMove);
         double end = System.nanoTime();
@@ -111,7 +119,8 @@ class Chess {
 //        EvaluationReader evaluationReader = new EvaluationReader("chessData.csv");
   //      evaluationData = evaluationReader.getEvaluations();
         //      currentBoard = fenToBoard("6k1/pp6/4qp1r/2R3p1/bP2R1p1/4P1P1/5PBP/rQ4K1 w KQkq - 0 1");
-        currentBoard = fenToBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+        currentBoard = fenToBoard("1nR2b1r/1p2p1p1/q2p3p/3k1p2/PP1Nn3/4B3/5PPP/3QR1K1 w - - 0 1");
+//        currentBoard = fenToBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 //        currentBoard = fenToBoard("2kr3r/pb1p3p/1bp1p3/4qp2/NP6/P2Q2P1/2P1BP1P/3RK2R b K - 8 21");
         System.out.println("Finished Reading");
         ChessVisualizer visualizer = new ChessVisualizer(currentBoard);

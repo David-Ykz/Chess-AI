@@ -36,6 +36,9 @@ class Board {
     public ConcurrentHashMap<Integer, Integer> getPieces() {
         return pieces;
     }
+    public Stack<Move> getBoardMoves() {
+        return this.boardMoves;
+    }
     public int getTurn() {
         return this.turn;
     }

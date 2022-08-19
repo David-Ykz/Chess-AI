@@ -63,12 +63,14 @@ class ChessAI {
 
     public Move minmax(Board board, int depth, boolean isMaximizingPlayer, double alpha, double beta) {
         if (depth == 0) {
-            if (Chess.numPieces - board.getPieces().size() > 2) {
-                numQuiescenceSearches++;
-                return quiescenceSearch(board, isMaximizingPlayer, alpha, beta);
-            } else {
-                return new Move(-1, -1, board.evaluateBoard());
-            }
+            numQuiescenceSearches++;
+            return quiescenceSearch(board, isMaximizingPlayer, alpha, beta);
+//            if (Chess.numPieces - board.getPieces().size() > 2) {
+//                numQuiescenceSearches++;
+//                return quiescenceSearch(board, isMaximizingPlayer, alpha, beta);
+//            } else {
+//                return new Move(-1, -1, board.evaluateBoard());
+//            }
         }
 
         int turn;
@@ -77,7 +79,7 @@ class ChessAI {
         } else {
             turn = -1;
         }
-        HashSet<Move> moves = new HashSet<>(board.allLegalMovesMoves(turn));
+        HashSet<Move> moves = new HashSet<>(board.allLegalMoves(turn));
         if (isMaximizingPlayer) {
             Move bestMove = new Move(-1, -1, -Double.MAX_VALUE);
             for (Move move : moves) {
@@ -129,7 +131,7 @@ class ChessAI {
         Move bestMove;
         int color = board.getTurn();
         boolean foundMove = false;
-        HashSet<Move> moves = new HashSet<>(board.allLegalMovesMoves(color));
+        HashSet<Move> moves = new HashSet<>(board.allLegalMoves(color));
         if (color > 0) {
             bestMove = new Move(-1, -1, -Double.MAX_VALUE);
             for (Move move : moves) {

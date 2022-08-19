@@ -340,28 +340,36 @@ class Board {
         }
         return -1;
     }
-    public boolean validRook(int position, int color) {
-        return friendlySquare(position, color) && pieces.get(position) == 4 * color;
+    public boolean validRook(int position) {
+        if (position == 11) { // Black queenside rook
+            return validRook[0] && aiValidRook[0] && pieces.containsKey(11) && pieces.get(11) == -4;
+        } else if (position == 81) {
+            return validRook[1] && aiValidRook[1] && pieces.containsKey(81) && pieces.get(81) == -4;
+        } else if (position == 18) {
+            return validRook[2] && aiValidRook[2] && pieces.containsKey(18) && pieces.get(18) == 4;
+        } else {
+            return validRook[3] && aiValidRook[3] && pieces.containsKey(88) && pieces.get(88) == 4;
+        }
     }
     public void kingCastleMoves(int position, HashSet<Integer> moves) {
         // Black king hasn't moved and isn't in check
         if (pieceColor(position) < 0 && validKing[0] && aiValidKing[0] && !findAllPossibleMoves(1).contains(51)) {
             // Queenside castle
-            if (validRook[0] && aiValidRook[0] && emptySquare(41) && emptySquare(31) && emptySquare(21)) {
+            if (validRook(11) && emptySquare(41) && emptySquare(31) && emptySquare(21)) {
                 moves.add(31);
             }
             // Kingside castle
-            if (validRook[1] && aiValidRook[1] && emptySquare(61) && emptySquare(71)) {
+            if (validRook(81) && emptySquare(61) && emptySquare(71)) {
                 moves.add(71);
             }
         // White king hasn't moved and isn't in check
         } else if (pieceColor(position) > 0 && validKing[1] && aiValidKing[1] && !findAllPossibleMoves(-1).contains(58)) {
             // Queenside castle
-            if (validRook[2] && aiValidRook[2] && emptySquare(48) && emptySquare(38) && emptySquare(28)) {
+            if (validRook(18) && emptySquare(48) && emptySquare(38) && emptySquare(28)) {
                 moves.add(38);
             }
             // Kingside castle
-            if (validRook[3] && aiValidRook[3] && emptySquare(68) && emptySquare(78)) {
+            if (validRook(88) && emptySquare(68) && emptySquare(78)) {
                 moves.add(78);
             }
         }
@@ -436,7 +444,7 @@ class Board {
         }
         return legalMoves;
     }
-    public HashSet<Move> allLegalMovesMoves(int color) {
+    public HashSet<Move> allLegalMoves(int color) {
         HashSet<Move> moves = new HashSet<>();
         HashSet<Integer> piecePositions = new HashSet<>(pieces.keySet());
         for (Integer oldPosition : piecePositions) {
@@ -576,7 +584,7 @@ class Board {
                 evaluation += evalMap.openingEvaluation(position, piece);
             }
         }
-        evaluation += mobilityWeight * (allLegalMovesMoves(1).size() - allLegalMovesMoves(-1).size());
+        evaluation += mobilityWeight * (allLegalMoves(1).size() - allLegalMoves(-1).size());
         evaluation += threatWeight * (allCaptureMoves(1).size() - allCaptureMoves(-1).size());
         return evaluation;
     }

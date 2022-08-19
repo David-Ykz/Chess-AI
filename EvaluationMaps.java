@@ -100,4 +100,48 @@ public class EvaluationMaps {
             {0, 0, 0, 0, 0, 0, 0, 0}
     };
 
+
+
+
+
+
+
+
+//    public double openingEvaluation() {
+//        double evaluation = 0;
+//        for (Integer position : pieces.keySet()) {
+//            int piece = pieces.get(position) % 10;
+//            int color = pieceColor(position);
+//            if (piece == 1 && position / 10 > 2 && position / 10 < 6) {
+//                evaluation += (7 - position % 10) * pawnCenterWeight;
+//            } else if (piece == -1 && position / 10 > 2 && position / 10 < 6) {
+//                evaluation -= (position % 10 - 2) * pawnCenterWeight;
+//            } else {
+//                evaluation += evalMap.openingEvaluation(position, piece);
+//            }
+//        }
+//        evaluation += mobilityWeight * (allLegalMoves(1).size() - allLegalMoves(-1).size());
+//        evaluation += threatWeight * (allCaptureMoves(1).size() - allCaptureMoves(-1).size());
+//        return evaluation;
+//    }
+//
+//    public double midgameEvaluation() {
+//        return 0;
+//    }
+//
+//    public double endgameEvaluation() {
+//        return 0;
+//    }
+
+
+
+
+
+
+
+
+
+
+
+
 }

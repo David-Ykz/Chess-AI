@@ -65,6 +65,7 @@ class Chess {
         ChessAI.transpositions.clear();
         ChessAI.numTranspositions = 0;
         ChessAI.numQuiescenceSearches = 0;
+        ChessAI.positionsSearched = 0;
         numPieces = currentBoard.getPieces().size();
         double start = System.nanoTime();
         Move aiMove = chessAI.minmax(currentBoard, 3, currentBoard.getTurn() == 1, -Double.MAX_VALUE, Double.MAX_VALUE);
@@ -75,7 +76,8 @@ class Chess {
         System.out.println("Time taken: " + (end - start)/1000000000);
         System.out.println("Number of transpositions: " + ChessAI.numTranspositions);
         System.out.println("Number of quiescence searches: " + ChessAI.numQuiescenceSearches);
-        System.out.println("Evaluation: " + Math.round(1000 * currentBoard.evaluateBoard())/1000.0);
+        System.out.println("Number of positions searched: " + ChessAI.positionsSearched);
+        System.out.println("Evaluation: " + Math.round(1000 * currentBoard.basicEvaluation())/1000.0);
     }
 
 
@@ -85,16 +87,10 @@ class Chess {
             Move playerMove = new Move(selectedPiecePosition, position);
             board.makeMove(playerMove);
             board.checkPromotion();
-            board.changeTurn();
             if (board.isCheckmate()) {
                 System.exit(0);
             }
-            int currentBoardTurn = board.getTurn();
             makeAIMove();
-
-            if (currentBoardTurn == board.getTurn()) {
-                board.changeTurn();
-            }
         } else {
             for (Integer piecePosition : board.getPieces().keySet()) {
                 if (piecePosition == position && board.pieceColor(piecePosition) == board.getTurn()) {

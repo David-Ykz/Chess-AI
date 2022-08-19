@@ -4,6 +4,7 @@ class ChessAI {
     public static HashMap<HashMap<Integer, Integer>, Double> transpositions = new HashMap<>();
     public static int numTranspositions = 0;
     public static int numQuiescenceSearches = 0;
+    public static int positionsSearched = 0;
 
     ChessAI() {
     }
@@ -24,6 +25,7 @@ class ChessAI {
     }
 
     public Move quiescenceSearch(Board board, boolean isMaximizingPlayer, double alpha, double beta) {
+        positionsSearched++;
         int turn;
         if (isMaximizingPlayer) {
             turn = 1;
@@ -31,7 +33,7 @@ class ChessAI {
             turn = -1;
         }
         HashSet<Move> moves = new HashSet<>(board.allCaptureMoves(turn));
-        Move bestMove = new Move(-1, -1, board.evaluateBoard());
+        Move bestMove = new Move(-1, -1, board.basicEvaluation());
         if (isMaximizingPlayer) {
             for (Move move : moves) {
                 int capturedPiece = board.movePiece(move.getOldPosition(), move.getNewPosition());
@@ -62,6 +64,8 @@ class ChessAI {
     }
 
     public Move minmax(Board board, int depth, boolean isMaximizingPlayer, double alpha, double beta) {
+        positionsSearched++;
+
         if (depth == 0) {
             numQuiescenceSearches++;
             return quiescenceSearch(board, isMaximizingPlayer, alpha, beta);
@@ -69,7 +73,7 @@ class ChessAI {
 //                numQuiescenceSearches++;
 //                return quiescenceSearch(board, isMaximizingPlayer, alpha, beta);
 //            } else {
-//                return new Move(-1, -1, board.evaluateBoard());
+//                return new Move(-1, -1, board.basicEvaluation());
 //            }
         }
 
@@ -80,6 +84,15 @@ class ChessAI {
             turn = -1;
         }
         HashSet<Move> moves = new HashSet<>(board.allLegalMoves(turn));
+        if (moves.size() == 0) { // If the turn player has no moves to make
+            if (board.findAllPossibleMoves(-turn).contains(board.findKingPos(turn))) { // Checkmate
+                return new Move(-1, -1, Double.MAX_VALUE * -turn);
+            } else { // Stalemate
+                return new Move(-1, -1, 0);
+            }
+        }
+        
+
         if (isMaximizingPlayer) {
             Move bestMove = new Move(-1, -1, -Double.MAX_VALUE);
             for (Move move : moves) {

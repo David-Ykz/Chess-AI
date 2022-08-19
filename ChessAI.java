@@ -5,8 +5,22 @@ class ChessAI {
     public static int numTranspositions = 0;
     public static int numQuiescenceSearches = 0;
     public static int positionsSearched = 0;
+    public static int captureSearches = 0;
 
     ChessAI() {
+    }
+    public void resetStatistics() {
+        transpositions.clear();
+        numTranspositions = 0;
+        numQuiescenceSearches = 0;
+        positionsSearched = 0;
+        captureSearches = 0;
+    }
+    public void printInfo() {
+        System.out.println("Number of transpositions: " + numTranspositions);
+        System.out.println("Number of quiescence searches: " + numQuiescenceSearches);
+        System.out.println("Number of positions searched: " + positionsSearched);
+        System.out.println("Number of captures searched: " + captureSearches);
     }
     public Move maxMove(Move a, Move b) {
         if (a.getEvaluation() >= b.getEvaluation()) {
@@ -15,7 +29,6 @@ class ChessAI {
             return b;
         }
     }
-
     public Move minMove(Move a, Move b) {
         if (a.getEvaluation() <= b.getEvaluation()) {
             return a;
@@ -23,123 +36,109 @@ class ChessAI {
             return b;
         }
     }
+    public ArrayList<Move> orderMoves(Board board, HashSet<Move> moves) {
+        ArrayList<Move> orderedMoves = new ArrayList<>(moves.size());
 
-    public Move quiescenceSearch(Board board, boolean isMaximizingPlayer, double alpha, double beta) {
-        positionsSearched++;
-        int turn;
-        if (isMaximizingPlayer) {
-            turn = 1;
-        } else {
-            turn = -1;
-        }
-        HashSet<Move> moves = new HashSet<>(board.allCaptureMoves(turn));
-        Move bestMove = new Move(-1, -1, board.basicEvaluation());
-        if (isMaximizingPlayer) {
-            for (Move move : moves) {
-                int capturedPiece = board.movePiece(move.getOldPosition(), move.getNewPosition());
-                Move newMove;
-                newMove = new Move(move, quiescenceSearch(board, false, alpha, beta).getEvaluation());
-                board.revertMove(move.getOldPosition(), move.getNewPosition(), capturedPiece);
-                bestMove = maxMove(bestMove, newMove);
-                alpha = Math.max(alpha, newMove.getEvaluation());
-                if (beta <= alpha) {
-                    return bestMove;
-                }
+        for (Move move : moves) {
+            int moveScore = 0;
+            int piece = board.getPieces().get(move.getOldPosition()) % 10;
+            if (board.getPieces().containsKey(move.getNewPosition())) {
+                int capturedPiece = board.getPieces().get(move.getNewPosition());
+                moveScore = 10 * (int)board.pieceValues[Math.abs(capturedPiece % 10) - 1] - (int)board.pieceValues[Math.abs(piece % 10) - 1];
             }
-            return bestMove;
-        } else {
-            for (Move move : moves) {
-                int capturedPiece = board.movePiece(move.getOldPosition(), move.getNewPosition());
-                Move newMove;
-                newMove = new Move(move, quiescenceSearch(board, true, alpha, beta).getEvaluation());
-                board.revertMove(move.getOldPosition(), move.getNewPosition(), capturedPiece);
-                bestMove = minMove(bestMove, newMove);
-                beta = Math.min(beta, newMove.getEvaluation());
-                if (beta <= alpha) {
-                    return bestMove;
-                }
-            }
-            return bestMove;
+            move.setMoveScore(moveScore);
+            orderedMoves.add(move);
         }
+        Collections.sort(orderedMoves);
+        return orderedMoves;
     }
 
-    public Move minmax(Board board, int depth, boolean isMaximizingPlayer, double alpha, double beta) {
-        positionsSearched++;
+    public Move quiescenceSearch(Board board, int turn, double alpha, double beta) {
+        captureSearches++;
 
-        if (depth == 0) {
-            numQuiescenceSearches++;
-            return quiescenceSearch(board, isMaximizingPlayer, alpha, beta);
-//            if (Chess.numPieces - board.getPieces().size() > 2) {
-//                numQuiescenceSearches++;
-//                return quiescenceSearch(board, isMaximizingPlayer, alpha, beta);
-//            } else {
-//                return new Move(-1, -1, board.basicEvaluation());
-//            }
-        }
-
-        int turn;
-        if (isMaximizingPlayer) {
-            turn = 1;
+        Move bestMove = new Move(-1, -1, board.basicEvaluation());
+        if (turn > 0) {
+            alpha = Math.max(alpha, bestMove.getEvaluation());
         } else {
-            turn = -1;
+            beta = Math.min(beta, bestMove.getEvaluation());
         }
-        HashSet<Move> moves = new HashSet<>(board.allLegalMoves(turn));
-        if (moves.size() == 0) { // If the turn player has no moves to make
+        if (beta <= alpha) {
+            return bestMove;
+        }
+
+
+        HashSet<Move> unsortedMoves = new HashSet<>(board.allCaptureMoves(turn));
+        if (unsortedMoves.size() == 0) { // If the turn player has no moves to make
             if (board.findAllPossibleMoves(-turn).contains(board.findKingPos(turn))) { // Checkmate
                 return new Move(-1, -1, Double.MAX_VALUE * -turn);
             } else { // Stalemate
                 return new Move(-1, -1, 0);
             }
         }
-        
+        ArrayList<Move> moves = orderMoves(board, unsortedMoves);
 
-        if (isMaximizingPlayer) {
-            Move bestMove = new Move(-1, -1, -Double.MAX_VALUE);
-            for (Move move : moves) {
-                int capturedPiece = board.movePiece(move.getOldPosition(), move.getNewPosition());
-                Move newMove;
-//                newMove = new Move(move, minmax(board, depth - 1, false, alpha, beta).getEvaluation());
-                if (transpositions.containsKey(board.getPieces())) {
-                    newMove = new Move(move, transpositions.get(board.getPieces()));
-                    numTranspositions++;
-                } else {
-                    newMove = new Move(move, minmax(board, depth - 1, false, alpha, beta).getEvaluation());
-                    transpositions.put(new HashMap<>(board.getPieces()), newMove.getEvaluation());
-                }
-                board.revertMove(move.getOldPosition(), move.getNewPosition(), capturedPiece);
-
+        for (Move move : moves) {
+            int capturedPiece = board.movePiece(move.getOldPosition(), move.getNewPosition());
+            Move newMove = new Move(move, quiescenceSearch(board, -turn, alpha, beta).getEvaluation());
+            board.revertMove(move.getOldPosition(), move.getNewPosition(), capturedPiece);
+            if (turn > 0) {
                 bestMove = maxMove(bestMove, newMove);
                 alpha = Math.max(alpha, newMove.getEvaluation());
-                if (beta <= alpha) {
-                    return bestMove;
-                }
-            }
-            return bestMove;
-        } else {
-            Move bestMove = new Move(-1, -1, Double.MAX_VALUE);
-            for (Move move : moves) {
-                int capturedPiece = board.movePiece(move.getOldPosition(), move.getNewPosition());
-                Move newMove;
-//                newMove = new Move(move, minmax(board, depth - 1, true, alpha, beta).getEvaluation());
-                if (transpositions.containsKey(board.getPieces())) {
-                    newMove = new Move(move, transpositions.get(board.getPieces()));
-                    numTranspositions++;
-                } else {
-                    newMove = new Move(move, minmax(board, depth - 1, true, alpha, beta).getEvaluation());
-                    transpositions.put(new HashMap<>(board.getPieces()), newMove.getEvaluation());
-                }
-                board.revertMove(move.getOldPosition(), move.getNewPosition(), capturedPiece);
-
+            } else {
                 bestMove = minMove(bestMove, newMove);
                 beta = Math.min(beta, newMove.getEvaluation());
-                if (beta <= alpha) {
-                    return bestMove;
-                }
             }
-            return bestMove;
+            if (beta <= alpha) {
+                return bestMove;
+            }
         }
+        return bestMove;
     }
+    public Move minmax(Board board, int depth, int turn, double alpha, double beta) {
+        positionsSearched++;
+        if (depth == 0) {
+            numQuiescenceSearches++;
+            return quiescenceSearch(board, turn, alpha, beta);
+        }
 
+        HashSet<Move> unsortedMoves = new HashSet<>(board.allLegalMoves(turn));
+        if (unsortedMoves.size() == 0) { // If the turn player has no moves to make
+            if (board.findAllPossibleMoves(-turn).contains(board.findKingPos(turn))) { // Checkmate
+                return new Move(-1, -1, Double.MAX_VALUE * -turn);
+            } else { // Stalemate
+                return new Move(-1, -1, 0);
+            }
+        }
+        ArrayList<Move> moves = orderMoves(board, unsortedMoves);
+
+        Move bestMove = new Move(-1, -1, Double.MAX_VALUE * -turn);
+        // Goes through each move trying to find the best move among them
+        for (Move move : moves) {
+            int capturedPiece = board.movePiece(move.getOldPosition(), move.getNewPosition());
+            Move newMove;
+            // If the position is not found in the transposition table, it will recursively call itself
+            if (transpositions.containsKey(board.getPieces())) {
+                newMove = new Move(move, transpositions.get(board.getPieces()));
+                numTranspositions++;
+            } else {
+                newMove = new Move(move, minmax(board, depth - 1, -turn, alpha, beta).getEvaluation());
+                transpositions.put(new HashMap<>(board.getPieces()), newMove.getEvaluation());
+            }
+            board.revertMove(move.getOldPosition(), move.getNewPosition(), capturedPiece);
+            if (turn > 0) {
+                bestMove = maxMove(bestMove, newMove);
+                alpha = Math.max(alpha, newMove.getEvaluation());
+            } else {
+                bestMove = minMove(bestMove, newMove);
+                beta = Math.min(beta, newMove.getEvaluation());
+            }
+            if (beta <= alpha) {
+                return bestMove;
+            }
+        }
+        return bestMove;
+
+    }
     public Move findMove(Board board) {
         Move bestMove;
         int color = board.getTurn();
@@ -172,7 +171,7 @@ class ChessAI {
             }
         }
         if (!foundMove) {
-            return minmax(board, 4, color == 1, -Double.MAX_VALUE, Double.MAX_VALUE);
+            return minmax(board, 4, color, -Double.MAX_VALUE, Double.MAX_VALUE);
         } else {
             return bestMove;
         }

@@ -6,11 +6,11 @@ import java.awt.image.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 class Board {
+    public String[] pieceNames = {"p", "b", "n", "r", "q", "k"};
+    public double[] pieceValues = {1.0, 3.0, 3.0, 5.0, 9.0, 200.0};
+    public HashMap<Integer, BufferedImage> pieceSprites = new HashMap<>();
     private int turn;
     private ConcurrentHashMap<Integer, Integer> pieces;
-    private String[] pieceNames = {"p", "b", "n", "r", "q", "k"};
-    private double[] pieceValues = {1.0, 3.0, 3.0, 5.0, 9.0, 200.0};
-    private HashMap<Integer, BufferedImage> pieceSprites = new HashMap<>();
     private boolean[] validRook = {true, true, true, true}; // QB KB QW KW
     private boolean[] validKing = {true, true}; // B W
     private boolean[] aiValidRook = {true, true, true, true}; // QB KB QW KW

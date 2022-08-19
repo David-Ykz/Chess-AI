@@ -62,21 +62,16 @@ class Chess {
     }
 
     public static void makeAIMove() {
-        ChessAI.transpositions.clear();
-        ChessAI.numTranspositions = 0;
-        ChessAI.numQuiescenceSearches = 0;
-        ChessAI.positionsSearched = 0;
+        chessAI.resetStatistics();
         numPieces = currentBoard.getPieces().size();
         double start = System.nanoTime();
-        Move aiMove = chessAI.minmax(currentBoard, 3, currentBoard.getTurn() == 1, -Double.MAX_VALUE, Double.MAX_VALUE);
+        Move aiMove = chessAI.minmax(currentBoard, 3, currentBoard.getTurn(), -Double.MAX_VALUE, Double.MAX_VALUE);
 //        Move bestMove = chessAI.findMove(currentBoard);
         currentBoard.makeMove(aiMove);
         double end = System.nanoTime();
         System.out.println("---------------------");
         System.out.println("Time taken: " + (end - start)/1000000000);
-        System.out.println("Number of transpositions: " + ChessAI.numTranspositions);
-        System.out.println("Number of quiescence searches: " + ChessAI.numQuiescenceSearches);
-        System.out.println("Number of positions searched: " + ChessAI.positionsSearched);
+        chessAI.printInfo();
         System.out.println("Evaluation: " + Math.round(1000 * currentBoard.basicEvaluation())/1000.0);
     }
 

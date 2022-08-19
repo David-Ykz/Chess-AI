@@ -1,27 +1,25 @@
-public class Move {
+public class Move implements Comparable<Move> {
     private int oldPosition;
     private int newPosition;
     private int piece;
     private int capturedPiece;
     private double evaluation;
+    private int moveScore;
 
     public Move(int oldPosition, int newPosition) {
         this.oldPosition = oldPosition;
         this.newPosition = newPosition;
     }
-
     public Move(Move move, double evaluation) {
         this.oldPosition = move.getOldPosition();
         this.newPosition = move.getNewPosition();
         this.evaluation = evaluation;
     }
-
     public Move(int oldPosition, int newPosition, double evaluation) {
         this.oldPosition = oldPosition;
         this.newPosition = newPosition;
         this.evaluation = evaluation;
     }
-
     public Move(Move move, int piece, int capturedPiece) {
         this.oldPosition = move.getOldPosition();
         this.newPosition = move.getNewPosition();
@@ -29,24 +27,23 @@ public class Move {
         this.capturedPiece = capturedPiece;
     }
 
+    public int getOldPosition() { return this.oldPosition; }
+    public int getNewPosition() { return this.newPosition; }
+    public int getCapturedPiece() { return this.capturedPiece; }
+    public double getEvaluation() { return this.evaluation; }
+    public int getMoveScore() { return moveScore; }
 
-    public int getOldPosition() {
-        return this.oldPosition;
-    }
+    public void setEvaluation(double evaluation) { this.evaluation = evaluation; }
+    public void setMoveScore(int score) { this.moveScore = score; }
 
-    public int getNewPosition() {
-        return this.newPosition;
-    }
-
-    public int getCapturedPiece() {
-        return this.capturedPiece;
-    }
-
-    public double getEvaluation() {
-        return evaluation;
-    }
-
-    public void setEvaluation(double evaluation) {
-        this.evaluation = evaluation;
+    @Override
+    public int compareTo(Move move) {
+        if (this.moveScore > move.moveScore) {
+            return -1;
+        } else if (this.moveScore < move.moveScore) {
+            return 1;
+        } else {
+            return 0;
+        }
     }
 }

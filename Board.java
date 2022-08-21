@@ -128,6 +128,10 @@ class Board {
         updateRookStatus(validRook, move.getOldPosition(), move.getNewPosition(), piece, capturedPiece);
         updateKingStatus(validKing, piece);
         turn = turn * -1;
+
+        if (Math.abs(pieces.get(move.getNewPosition())) > 10) {
+            pieces.put(move.getNewPosition(), pieces.remove(move.getNewPosition()) % 10);
+        }
     }
     public void revertMove(int oldPosition, int newPosition, int capturedPiece) {
         if (Math.abs(pieces.get(newPosition)) == 6) { // CHECK IF INTEGER != INT
@@ -549,10 +553,26 @@ class Board {
         return evaluation;
     }
 
+    public double endgameEvaluation() {
+        double evaluation = 0;
+        if (basicEvaluation() > 0) {
+            evaluation += 4.7 * evalMap.findCMD(findKingPos(-1));
+            evaluation += 1.6 * (14 - evalMap.findMD(findKingPos(1), findKingPos(-1)));
+        } else {
+            evaluation -= 4.7 * evalMap.findCMD(findKingPos(1));
+            evaluation -= 1.6 * (14 - evalMap.findMD(findKingPos(1), findKingPos(-1)));
+        }
+        return 0.01 * evaluation;
+    }
+
     public double evaluateBoard() {
         double evaluation = 0;
         evaluation += basicEvaluation();
-        evaluation += openingEvaluation();
+        if (pieces.size() > 5) {
+            evaluation += openingEvaluation();
+        } else {
+            evaluation += endgameEvaluation();
+        }
         return evaluation;
     }
 

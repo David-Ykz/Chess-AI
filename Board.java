@@ -247,21 +247,27 @@ class Board {
         // Black king hasn't moved and isn't in check
         if (pieceColor(position) < 0 && validKing[0] && aiValidKing[0] && !findAllPossibleMoves(1).contains(51)) {
             // Queenside castle
-            if (validRook(11) && emptySquare(41) && emptySquare(31) && emptySquare(21)) {
+            HashSet<Integer> allWhiteSquares = findAllPossibleMoves(1);
+            if (validRook(11) && emptySquare(41) && emptySquare(31) && emptySquare(21)
+            && !allWhiteSquares.contains(41) && !allWhiteSquares.contains(31)) {
                 moves.add(31);
             }
             // Kingside castle
-            if (validRook(81) && emptySquare(61) && emptySquare(71)) {
+            if (validRook(81) && emptySquare(61) && emptySquare(71)
+            && !allWhiteSquares.contains(61)) {
                 moves.add(71);
             }
             // White king hasn't moved and isn't in check
         } else if (pieceColor(position) > 0 && validKing[1] && aiValidKing[1] && !findAllPossibleMoves(-1).contains(58)) {
+            HashSet<Integer> allBlackSquares = findAllPossibleMoves(-1);
             // Queenside castle
-            if (validRook(18) && emptySquare(48) && emptySquare(38) && emptySquare(28)) {
+            if (validRook(18) && emptySquare(48) && emptySquare(38) && emptySquare(28)
+            && !allBlackSquares.contains(48) && !allBlackSquares.contains(38)) {
                 moves.add(38);
             }
             // Kingside castle
-            if (validRook(88) && emptySquare(68) && emptySquare(78)) {
+            if (validRook(88) && emptySquare(68) && emptySquare(78)
+            && !allBlackSquares.contains(68)) {
                 moves.add(78);
             }
         }
@@ -535,5 +541,19 @@ class Board {
         return evaluation;
     }
 
+    public double openingEvaluation() {
+        double evaluation = 0;
+        for (Integer position : pieces.keySet()) {
+            evaluation += evalMap.openingEvaluation(position, pieces.get(position) % 10);
+        }
+        return evaluation;
+    }
+
+    public double evaluateBoard() {
+        double evaluation = 0;
+        evaluation += basicEvaluation();
+        evaluation += openingEvaluation();
+        return evaluation;
+    }
 
 }

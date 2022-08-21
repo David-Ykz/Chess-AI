@@ -69,7 +69,7 @@ class Chess {
         if (currentBoard.getPieces().size() < 16) {
             depth = 7;
         } else if (currentBoard.getPieces().size() < 8) {
-            depth = 11;
+            depth = 9;
         } else {
             depth = 5;
         }
@@ -80,7 +80,8 @@ class Chess {
         System.out.println("---------------------");
         System.out.println("Time taken: " + (end - start)/1000000000);
         chessAI.printInfo();
-        System.out.println("Evaluation: " + Math.round(1000 * currentBoard.basicEvaluation())/1000.0);
+        System.out.println("Static Evaluation: " + Math.round(1000 * currentBoard.evaluateBoard())/1000.0);
+        System.out.println("MinMax Evaluation: " + Math.round(1000 * aiMove.getEvaluation())/1000.0);
     }
 
 
@@ -119,8 +120,11 @@ class Chess {
 //        EvaluationReader evaluationReader = new EvaluationReader("chessData.csv");
   //      evaluationData = evaluationReader.getEvaluations();
         //      currentBoard = fenToBoard("6k1/pp6/4qp1r/2R3p1/bP2R1p1/4P1P1/5PBP/rQ4K1 w KQkq - 0 1");
-        currentBoard = fenToBoard("1nR2b1r/1p2p1p1/q2p3p/3k1p2/PP1Nn3/4B3/5PPP/3QR1K1 w - - 0 1");
-//        currentBoard = fenToBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+//        currentBoard = fenToBoard("r1bqkbn1/2pp2pr/2p1p2p/3p4/1P6/2N1BN2/2PQ1PPP/2KR3R w - - 1 1");
+        currentBoard = fenToBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+//        currentBoard = fenToBoard("rnb1kb1r/ppp1pppp/8/8/3Pq3/8/PPP2PPP/R1BQKBNR w - - 0 1");
+//        currentBoard = fenToBoard("8/8/8/k7/8/p4n2/1P4K1/8 w - - 0 1");
+//        currentBoard = fenToBoard("7k/p7/1P6/8/8/5n2/6K1/8 w - - 0 1");
 //        currentBoard = fenToBoard("2kr3r/pb1p3p/1bp1p3/4qp2/NP6/P2Q2P1/2P1BP1P/3RK2R b K - 8 21");
         System.out.println("Finished Reading");
         ChessVisualizer visualizer = new ChessVisualizer(currentBoard);

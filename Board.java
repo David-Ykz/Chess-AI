@@ -4,6 +4,7 @@ import java.util.*;
 import java.io.*;
 import java.awt.image.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 class Board {
     public String[] pieceNames = {"p", "b", "n", "r", "q", "k"};
@@ -132,6 +133,7 @@ class Board {
         if (Math.abs(pieces.get(move.getNewPosition())) > 10) {
             pieces.put(move.getNewPosition(), pieces.remove(move.getNewPosition()) % 10);
         }
+
     }
     public void revertMove(int oldPosition, int newPosition, int capturedPiece) {
         if (Math.abs(pieces.get(newPosition)) == 6) { // CHECK IF INTEGER != INT
@@ -556,11 +558,11 @@ class Board {
     public double endgameEvaluation() {
         double evaluation = 0;
         if (basicEvaluation() > 0) {
-            evaluation += 4 * evalMap.findCMD(findKingPos(-1));
-            evaluation += (14 - evalMap.findMD(findKingPos(1), findKingPos(-1)));
+            evaluation += 4.7 * evalMap.findCMD(findKingPos(-1));
+            evaluation += 1.6 * (14 - evalMap.findMD(findKingPos(1), findKingPos(-1)));
         } else {
-            evaluation -= 4 * evalMap.findCMD(findKingPos(1));
-            evaluation -= (14 - evalMap.findMD(findKingPos(1), findKingPos(-1)));
+            evaluation -= 4.7 * evalMap.findCMD(findKingPos(1));
+            evaluation -= 1.6 * (14 - evalMap.findMD(findKingPos(1), findKingPos(-1)));
         }
         return 0.1 * evaluation;
     }

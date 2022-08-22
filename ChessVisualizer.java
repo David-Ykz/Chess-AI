@@ -1,5 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
+import java.util.concurrent.TimeUnit;
 
 public class ChessVisualizer extends JFrame{
     GamePanel panel;
@@ -25,6 +26,11 @@ public class ChessVisualizer extends JFrame{
             board.drawBoard(g, GRIDSIZE);
 //        board.drawEvaluation(g, GRIDSIZE);
             this.repaint();
+            if (board.isCheckmate()) {
+                g.setFont (new Font ("TimesRoman", Font.BOLD | Font.PLAIN, 75));
+                g.setColor(new Color(0, 0, 0));
+                g.drawString("Checkmate", 5, 2 * MAX_Y/3 - 120);
+            }
         }
 
 

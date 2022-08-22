@@ -1,4 +1,5 @@
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 class Chess {
     static Board currentBoard;
@@ -88,11 +89,8 @@ class Chess {
         if (selectedSquares.contains(position)) {
             Move playerMove = new Move(selectedPiecePosition, position);
             board.makeMove(playerMove);
-            board.checkPromotion();
-            if (board.isCheckmate()) {
-                System.exit(0);
-            }
             makeAIMove();
+
         } else {
             for (Integer piecePosition : board.getPieces().keySet()) {
                 if (piecePosition == position && board.pieceColor(piecePosition) == board.getTurn()) {
@@ -119,7 +117,7 @@ class Chess {
   //      evaluationData = evaluationReader.getEvaluations();
 //        currentBoard = fenToBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 //        currentBoard = fenToBoard("7k/8/8/8/8/8/p7/7K w - - 0 1");
-        currentBoard = fenToBoard("4r3/4r3/4k3/8/8/8/8/4K3 w - - 0 1");
+        currentBoard = fenToBoard("2r5/1r6/4k3/8/8/K7/8/8 w - - 0 1");
         System.out.println("Finished Reading");
         ChessVisualizer visualizer = new ChessVisualizer(currentBoard);
     }

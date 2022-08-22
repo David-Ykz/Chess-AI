@@ -5,6 +5,7 @@ class ChessAI {
     public static int positionsSearched = 0;
     public static int captureSearches = 0;
     public static int positionsPruned = 0;
+    public static int checkmatesFound = 0;
 
     ChessAI() {
     }
@@ -13,12 +14,14 @@ class ChessAI {
         positionsSearched = 0;
         captureSearches = 0;
         positionsPruned = 0;
+        checkmatesFound = 0;
     }
     public void printInfo() {
         System.out.println("Number of quiescence searches: " + numQuiescenceSearches);
         System.out.println("Number of positions searched: " + positionsSearched);
         System.out.println("Number of captures searched: " + captureSearches);
         System.out.println("Number of positions pruned: " + positionsPruned);
+        System.out.println("Number of checkmates found: " + checkmatesFound);
     }
     public Move maxMove(Move a, Move b) {
         if (a.getEvaluation() >= b.getEvaluation()) {
@@ -66,6 +69,7 @@ class ChessAI {
             beta = Math.min(beta, bestMove.getEvaluation());
         }
         if (beta <= alpha) {
+            positionsPruned++;
             return bestMove;
         }
 
@@ -103,7 +107,8 @@ class ChessAI {
         HashSet<Move> unsortedMoves = new HashSet<>(board.allLegalMoves(turn));
         if (unsortedMoves.size() == 0) { // If the turn player has no moves to make
             if (board.findAllPossibleMoves(-turn).contains(board.findKingPos(turn))) { // Checkmate
-                return new Move(-1, -1, Double.MAX_VALUE/2 * -turn);
+                checkmatesFound++;
+                return new Move(-1, -1, (99999 + depth * 100) * -turn);
             } else { // Stalemate
                 return new Move(-1, -1, 0);
             }
@@ -129,7 +134,10 @@ class ChessAI {
                 return bestMove;
             }
         }
-//        System.out.println("Old pos: " + bestMove.getOldPosition() + " New pos: " + bestMove.getNewPosition() + " Evaluation: " + bestMove.getEvaluation());
+
+        if (bestMove.getOldPosition() == 31 && bestMove.getNewPosition() == 11) {
+//            System.out.println("Old pos: " + bestMove.getOldPosition() + " New pos: " + bestMove.getNewPosition() + " Evaluation: " + bestMove.getEvaluation());
+        }
         return bestMove;
 
     }

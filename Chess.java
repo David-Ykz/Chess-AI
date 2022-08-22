@@ -66,10 +66,8 @@ class Chess {
         numPieces = currentBoard.getPieces().size();
         double start = System.nanoTime();
         int depth;
-        if (currentBoard.getPieces().size() < 16) {
+        if (currentBoard.getPieces().size() < 6) {
             depth = 7;
-        } else if (currentBoard.getPieces().size() < 8) {
-            depth = 9;
         } else {
             depth = 5;
         }
@@ -120,7 +118,8 @@ class Chess {
 //        EvaluationReader evaluationReader = new EvaluationReader("chessData.csv");
   //      evaluationData = evaluationReader.getEvaluations();
 //        currentBoard = fenToBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-        currentBoard = fenToBoard("7k/8/8/8/8/8/p7/7K w - - 0 1");
+//        currentBoard = fenToBoard("7k/8/8/8/8/8/p7/7K w - - 0 1");
+        currentBoard = fenToBoard("4r3/4r3/4k3/8/8/8/8/4K3 w - - 0 1");
         System.out.println("Finished Reading");
         ChessVisualizer visualizer = new ChessVisualizer(currentBoard);
     }

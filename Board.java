@@ -556,13 +556,13 @@ class Board {
     public double endgameEvaluation() {
         double evaluation = 0;
         if (basicEvaluation() > 0) {
-            evaluation += 4.7 * evalMap.findCMD(findKingPos(-1));
-            evaluation += 1.6 * (14 - evalMap.findMD(findKingPos(1), findKingPos(-1)));
+            evaluation += 4 * evalMap.findCMD(findKingPos(-1));
+            evaluation += (14 - evalMap.findMD(findKingPos(1), findKingPos(-1)));
         } else {
-            evaluation -= 4.7 * evalMap.findCMD(findKingPos(1));
-            evaluation -= 1.6 * (14 - evalMap.findMD(findKingPos(1), findKingPos(-1)));
+            evaluation -= 4 * evalMap.findCMD(findKingPos(1));
+            evaluation -= (14 - evalMap.findMD(findKingPos(1), findKingPos(-1)));
         }
-        return 0.01 * evaluation;
+        return 0.1 * evaluation;
     }
 
     public double evaluateBoard() {

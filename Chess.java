@@ -1,3 +1,4 @@
+import java.awt.*;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -8,6 +9,8 @@ class Chess {
     static ChessAI chessAI = new ChessAI();
     static HashMap<Integer, HashMap<String, Integer>> evaluationData;
     static int numPieces = 0;
+    static double timeTaken = 0;
+    static double trueEval = 0;
 
     public static Board fenToBoard(String fen) {
         HashMap<Integer, Integer> pieces = new HashMap<>();
@@ -76,11 +79,13 @@ class Chess {
 //        Move bestMove = chessAI.findMove(currentBoard);
         currentBoard.makeMove(aiMove);
         double end = System.nanoTime();
-        System.out.println("---------------------");
-        System.out.println("Time taken: " + (end - start)/1000000000);
-        chessAI.printInfo();
-        System.out.println("Static Evaluation: " + Math.round(1000 * currentBoard.evaluateBoard())/1000.0);
-        System.out.println("MinMax Evaluation: " + Math.round(1000 * aiMove.getEvaluation())/1000.0);
+        timeTaken = (end - start)/1000000000;
+        trueEval = Math.round(1000 * aiMove.getEvaluation())/1000.0;
+//        System.out.println("---------------------");
+//        System.out.println("Time taken: " + (end - start)/1000000000);
+//        chessAI.printInfo();
+//        System.out.println("Static Evaluation: " + Math.round(1000 * currentBoard.evaluateBoard())/1000.0);
+//        System.out.println("MinMax Evaluation: " + Math.round(1000 * aiMove.getEvaluation())/1000.0);
     }
 
 
@@ -112,12 +117,29 @@ class Chess {
         selectedSquares.addAll(board.findLegalMoves(position));
     }
 
+    public static void displayInfo(Graphics g, int boardX, int boardY) {
+        int textSize = 24;
+        int offSet = 30;
+        g.setFont (new Font ("SansSerif", Font.PLAIN | Font.PLAIN, textSize - 4));
+        g.setColor(Colors.textRed);
+        g.drawString("Time taken: " + timeTaken, boardX, offSet);
+        g.setColor(Colors.textOrange);
+        g.drawString("Number of positions searched: " + ChessAI.positionsSearched, boardX, offSet + textSize);
+        g.setColor(Colors.textGreen);
+        g.drawString("Number of captures searched: " + ChessAI.captureSearches, boardX, offSet + 2 * textSize);
+        g.setColor(Colors.textBlue);
+        g.drawString("Number of checkmates found: " + ChessAI.checkmatesFound, boardX, offSet + 3 * textSize);
+        g.setColor(Colors.textPurple);
+        g.drawString("Evaluation: " + trueEval, boardX, offSet + 4 * textSize);
+    }
+
+
     public static void main(String[] args) throws Exception {
 //        EvaluationReader evaluationReader = new EvaluationReader("chessData.csv");
   //      evaluationData = evaluationReader.getEvaluations();
-//        currentBoard = fenToBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+        currentBoard = fenToBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 //        currentBoard = fenToBoard("7k/8/8/8/8/8/p7/7K w - - 0 1");
-        currentBoard = fenToBoard("2r5/1r6/4k3/8/8/K7/8/8 w - - 0 1");
+//        currentBoard = fenToBoard("2r5/1r6/4k3/8/8/K7/8/8 w - - 0 1");
         System.out.println("Finished Reading");
         ChessVisualizer visualizer = new ChessVisualizer(currentBoard);
     }

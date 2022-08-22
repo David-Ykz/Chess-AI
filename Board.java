@@ -510,23 +510,19 @@ class Board {
         return fen;
     }
     public void drawBoard(Graphics g, int GRIDSIZE) {
-        Color lightSquare = new Color(241, 217, 182);
-        Color darkSquare = new Color(181, 137, 99);
-        Color highlightedLightSquare = new Color(205, 210, 106);
-        Color highlightedDarkSquare = new Color(170, 162, 58);
         for (int y = 0; y < 8; y++) {
             for (int x = 0; x < 8; x++) {
                 if ((x + y) % 2 == 0) {
                     if (Chess.selectedSquares.contains(10 * (x + 1) + y + 1)) {
-                        g.setColor(highlightedLightSquare);
+                        g.setColor(Colors.highlightedLightSquare);
                     } else {
-                        g.setColor(lightSquare);
+                        g.setColor(Colors.lightSquare);
                     }
                 } else {
                     if (Chess.selectedSquares.contains(10 * (x + 1) + y + 1)) {
-                        g.setColor(highlightedDarkSquare);
+                        g.setColor(Colors.highlightedDarkSquare);
                     } else {
-                        g.setColor(darkSquare);
+                        g.setColor(Colors.darkSquare);
                     }
                 }
                 g.fillRect(x * GRIDSIZE, y * GRIDSIZE, GRIDSIZE, GRIDSIZE);

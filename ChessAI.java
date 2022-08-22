@@ -1,3 +1,4 @@
+import java.awt.*;
 import java.util.*;
 
 class ChessAI {
@@ -6,6 +7,7 @@ class ChessAI {
     public static int captureSearches = 0;
     public static int positionsPruned = 0;
     public static int checkmatesFound = 0;
+
 
     ChessAI() {
     }
@@ -23,6 +25,8 @@ class ChessAI {
         System.out.println("Number of positions pruned: " + positionsPruned);
         System.out.println("Number of checkmates found: " + checkmatesFound);
     }
+
+
     public Move maxMove(Move a, Move b) {
         if (a.getEvaluation() >= b.getEvaluation()) {
             return a;

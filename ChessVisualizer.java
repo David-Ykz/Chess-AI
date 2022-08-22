@@ -7,8 +7,8 @@ public class ChessVisualizer extends JFrame{
     Board board;
     final int MAX_X = (int)getToolkit().getScreenSize().getWidth();
     final int MAX_Y = (int)getToolkit().getScreenSize().getHeight();
-    //    final int GRIDSIZE = MAX_Y/16;
     static final int GRIDSIZE = 67;
+    final int BOARD_SIZE = GRIDSIZE * 8;
     ChessVisualizer(Board board) {
         MyMouseListener mouseListener = new MyMouseListener();
         this.addMouseListener(mouseListener);
@@ -16,20 +16,23 @@ public class ChessVisualizer extends JFrame{
         this.panel = new GamePanel();
         this.getContentPane().add(BorderLayout.CENTER, panel);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setSize(MAX_X/2, 2*MAX_Y/3);
+        this.setSize(BOARD_SIZE + 400, BOARD_SIZE + 40);
         this.setVisible(true);
     }
     private class GamePanel extends JPanel {
         @Override
         public void paintComponent(Graphics g) {
             super.paintComponent(g);
+            Color background = new Color(80, 80, 80);
+            g.fillRect(0, 0, MAX_X, MAX_Y);
             board.drawBoard(g, GRIDSIZE);
+            Chess.displayInfo(g, BOARD_SIZE + 5, BOARD_SIZE + 10);
 //        board.drawEvaluation(g, GRIDSIZE);
             this.repaint();
             if (board.isCheckmate()) {
-                g.setFont (new Font ("TimesRoman", Font.BOLD | Font.PLAIN, 75));
+                g.setFont (new Font ("SansSerif", Font.BOLD | Font.PLAIN, 75));
                 g.setColor(new Color(0, 0, 0));
-                g.drawString("Checkmate", 5, 2 * MAX_Y/3 - 120);
+                g.drawString("Checkmate", 5, BOARD_SIZE + 5);
             }
         }
 

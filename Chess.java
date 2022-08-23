@@ -77,7 +77,9 @@ class Chess {
         }
         Move aiMove = chessAI.minmax(currentBoard, depth, currentBoard.getTurn(), -Double.MAX_VALUE, Double.MAX_VALUE);
 //        Move bestMove = chessAI.findMove(currentBoard);
-        currentBoard.makeMove(aiMove);
+        if (aiMove.getOldPosition() != -1) {
+            currentBoard.makeMove(aiMove);
+        }
         double end = System.nanoTime();
         timeTaken = (end - start)/1000000000;
         trueEval = Math.round(1000 * aiMove.getEvaluation())/1000.0;

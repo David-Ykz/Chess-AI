@@ -16,7 +16,7 @@ public class Colors {
     public static final Color textWhite = new Color(250, 250, 250);
 
     // Background color
-    public static final Color background = new Color(40, 40, 40);
+    public static final Color background = new Color(50, 50, 50);
 
 
 }

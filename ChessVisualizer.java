@@ -23,16 +23,16 @@ public class ChessVisualizer extends JFrame{
         @Override
         public void paintComponent(Graphics g) {
             super.paintComponent(g);
-            Color background = new Color(80, 80, 80);
+            g.setColor(Colors.background);
             g.fillRect(0, 0, MAX_X, MAX_Y);
             board.drawBoard(g, GRIDSIZE);
-            Chess.displayInfo(g, BOARD_SIZE + 5, BOARD_SIZE + 10);
+            Chess.displayInfo(g, BOARD_SIZE + 10, BOARD_SIZE + 10);
 //        board.drawEvaluation(g, GRIDSIZE);
             this.repaint();
             if (board.isCheckmate()) {
-                g.setFont (new Font ("SansSerif", Font.BOLD | Font.PLAIN, 75));
-                g.setColor(new Color(0, 0, 0));
-                g.drawString("Checkmate", 5, BOARD_SIZE + 5);
+                g.setFont (new Font ("SansSerif", Font.BOLD | Font.PLAIN, 65));
+                g.setColor(Colors.textWhite);
+                g.drawString("Checkmate!", BOARD_SIZE + 10, BOARD_SIZE - 20);
             }
         }
 

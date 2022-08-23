@@ -11,6 +11,10 @@ class Chess {
     static int numPieces = 0;
     static double timeTaken = 0;
     static double trueEval = 0;
+    static ChessVisualizer visualizer;
+    static boolean isAIMove = false;
+    static boolean drawnBoard = false;
+
 
     public static Board fenToBoard(String fen) {
         HashMap<Integer, Integer> pieces = new HashMap<>();
@@ -83,11 +87,8 @@ class Chess {
         double end = System.nanoTime();
         timeTaken = (end - start)/1000000000;
         trueEval = Math.round(1000 * aiMove.getEvaluation())/1000.0;
-//        System.out.println("---------------------");
-//        System.out.println("Time taken: " + (end - start)/1000000000);
-//        chessAI.printInfo();
-//        System.out.println("Static Evaluation: " + Math.round(1000 * currentBoard.evaluateBoard())/1000.0);
-//        System.out.println("MinMax Evaluation: " + Math.round(1000 * aiMove.getEvaluation())/1000.0);
+        isAIMove = false;
+        drawnBoard = false;
     }
 
 
@@ -96,7 +97,7 @@ class Chess {
         if (selectedSquares.contains(position)) {
             Move playerMove = new Move(selectedPiecePosition, position);
             board.makeMove(playerMove);
-            makeAIMove();
+            isAIMove = true;
 
         } else {
             for (Integer piecePosition : board.getPieces().keySet()) {
@@ -143,6 +144,6 @@ class Chess {
 //        currentBoard = fenToBoard("7k/8/8/8/8/8/p7/7K w - - 0 1");
 //        currentBoard = fenToBoard("2r5/1r6/4k3/8/8/K7/8/8 w - - 0 1");
         System.out.println("Finished Reading");
-        ChessVisualizer visualizer = new ChessVisualizer(currentBoard);
+        visualizer = new ChessVisualizer(currentBoard);
     }
 }

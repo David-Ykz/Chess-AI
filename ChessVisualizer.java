@@ -27,12 +27,17 @@ public class ChessVisualizer extends JFrame{
             g.fillRect(0, 0, MAX_X, MAX_Y);
             board.drawBoard(g, GRIDSIZE);
             Chess.displayInfo(g, BOARD_SIZE + 10, BOARD_SIZE + 10);
-//        board.drawEvaluation(g, GRIDSIZE);
-            this.repaint();
             if (board.isCheckmate()) {
                 g.setFont (new Font ("SansSerif", Font.BOLD | Font.PLAIN, 65));
                 g.setColor(Colors.textWhite);
                 g.drawString("Checkmate!", BOARD_SIZE + 10, BOARD_SIZE - 20);
+            }
+            this.repaint();
+            if (Chess.drawnBoard) {
+                Chess.makeAIMove();
+            }
+            if (Chess.isAIMove) {
+                Chess.drawnBoard = true;
             }
         }
 

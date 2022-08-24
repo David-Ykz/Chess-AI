@@ -17,6 +17,7 @@ public class ChessVisualizer extends JFrame{
         this.getContentPane().add(BorderLayout.CENTER, panel);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(BOARD_SIZE + 400, BOARD_SIZE + 40);
+        this.setResizable (false);
         this.setVisible(true);
     }
     private class GamePanel extends JPanel {

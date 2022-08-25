@@ -41,20 +41,20 @@ class ChessAI {
             return b;
         }
     }
-    public ArrayList<Move> orderMoves(Board board, HashSet<Move> moves) {
+    public ArrayList<Move> orderMoves(Board board, HashSet<Move> moves, int color) {
         ArrayList<Move> orderedMoves = new ArrayList<>(moves.size());
-
         for (Move move : moves) {
             int moveScore = 0;
             int piece = board.getPieces().get(move.getOldPosition()) % 10;
             if (board.getPieces().containsKey(move.getNewPosition())) {
                 int capturedPiece = board.getPieces().get(move.getNewPosition());
-//                moveScore += (int)board.pieceValues[Math.abs(capturedPiece % 10) - 1];
                 moveScore += 10 * (int)board.pieceValues[Math.abs(capturedPiece % 10) - 1] - (int)board.pieceValues[Math.abs(piece % 10) - 1];
-//                moveScore = 10 * (int)board.pieceValues[Math.abs(capturedPiece % 10) - 1];
                 if (Math.abs(piece) % 10 == 6) {
                     moveScore += (int)board.pieceValues[Math.abs(piece % 10) - 1];
                 }
+            }
+            if (board.allPawnSquares(-color).contains(move.getNewPosition())) {
+                moveScore -= 1;
             }
             move.setMoveScore(moveScore);
             orderedMoves.add(move);
@@ -82,7 +82,7 @@ class ChessAI {
         if (unsortedMoves.size() == 0) { // If the turn player has no captures to make
             return bestMove;
         }
-        ArrayList<Move> moves = orderMoves(board, unsortedMoves);
+        ArrayList<Move> moves = orderMoves(board, unsortedMoves, turn);
 
         for (Move move : moves) {
             int capturedPiece = board.movePiece(move.getOldPosition(), move.getNewPosition());
@@ -117,7 +117,7 @@ class ChessAI {
                 return new Move(-1, -1, 0);
             }
         }
-        ArrayList<Move> moves = orderMoves(board, unsortedMoves);
+        ArrayList<Move> moves = orderMoves(board, unsortedMoves, turn);
 
         Move bestMove = new Move(-1, -1, Double.MAX_VALUE * -turn);
         // Goes through each move trying to find the best move among them

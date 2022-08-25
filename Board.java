@@ -11,6 +11,7 @@ class Board {
     public double[] pieceValues = {1.0, 3.0, 3.0, 5.0, 9.0, 200.0};
     public HashMap<Integer, BufferedImage> pieceSprites = new HashMap<>();
     private int turn;
+    private int playerColor;
     private ConcurrentHashMap<Integer, Integer> pieces;
     private boolean[] validRook = {true, true, true, true}; // QB KB QW KW
     private boolean[] validKing = {true, true}; // B W
@@ -19,9 +20,10 @@ class Board {
     EvaluationMaps evalMap = new EvaluationMaps();
     private Stack<Move> boardMoves = new Stack<>();
     private HashSet<Integer> piecesMoved = new HashSet<>();
-    Board (int turn, HashMap<Integer, Integer> pieces) {
+    Board (int turn, HashMap<Integer, Integer> pieces, int playerColor) {
         this.turn = turn;
         this.pieces = new ConcurrentHashMap<>(pieces);
+        this.playerColor = playerColor;
 
         try {
             for (int i = 1; i <= 6; i++) {
@@ -42,6 +44,9 @@ class Board {
     }
     public int getTurn() {
         return this.turn;
+    }
+    public int getPlayerColor() {
+        return this.playerColor;
     }
     public int pieceColor(int position) {
         try {
@@ -510,6 +515,14 @@ class Board {
         return fen;
     }
     public void drawBoard(Graphics g, int GRIDSIZE) {
+//        HashSet<Integer> selectedSquares = new HashSet<>();
+//        for (Integer pos : Chess.selectedSquares) {
+//            if (playerColor > 0) {
+//                selectedSquares.add(pos);
+//            } else {
+//                selectedSquares.add((9 - pos / 10) + 9 - pos % 10);
+//            }
+//        }
         for (int y = 0; y < 8; y++) {
             for (int x = 0; x < 8; x++) {
                 if ((x + y) % 2 == 0) {
@@ -530,7 +543,11 @@ class Board {
         }
 
         for (Integer position : pieces.keySet()) {
-            g.drawImage(pieceSprites.get(pieces.get(position) % 10), (position / 10 - 1) * GRIDSIZE, (position % 10 - 1) * GRIDSIZE, null);
+            if (playerColor > 0) {
+                g.drawImage(pieceSprites.get(pieces.get(position) % 10), (position / 10 - 1) * GRIDSIZE, (position % 10 - 1) * GRIDSIZE, null);
+            } else {
+                g.drawImage(pieceSprites.get(pieces.get(position) % 10), (8 - position / 10) * GRIDSIZE, (8 - position % 10) * GRIDSIZE, null);
+            }
         }
     }
 

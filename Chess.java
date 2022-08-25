@@ -18,7 +18,7 @@ class Chess {
     Chess(int color) {
 //        EvaluationReader evaluationReader = new EvaluationReader("chessData.csv");
         //      evaluationData = evaluationReader.getEvaluations();
-        currentBoard = fenToBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+        currentBoard = fenToBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", color);
 //        currentBoard = fenToBoard("7k/8/8/8/8/8/p7/7K w - - 0 1");
 //        currentBoard = fenToBoard("2r5/1r6/4k3/8/8/K7/8/8 w - - 0 1");
         System.out.println("Finished Reading");
@@ -29,7 +29,7 @@ class Chess {
     }
 
 
-    public static Board fenToBoard(String fen) {
+    public static Board fenToBoard(String fen, int playerColor) {
         HashMap<Integer, Integer> pieces = new HashMap<>();
         HashMap<String, Integer> nameToValue = new HashMap<>();
         nameToValue.put("K", 6);
@@ -73,13 +73,13 @@ class Chess {
                 }
             }
         }
-        int color;
+        int turn;
         if (fen.substring(0, 1).equals("w")) {
-            color = 1;
+            turn = 1;
         } else {
-            color = -1;
+            turn = -1;
         }
-        return new Board(color, pieces);
+        return new Board(turn, pieces, playerColor);
     }
 
     public static void makeAIMove() {
@@ -108,11 +108,16 @@ class Chess {
     public static void processClick(int position, Board board) {
         boolean foundPiece = false;
         if (selectedSquares.contains(position)) {
+            if (currentBoard.getPlayerColor() < 0) {
+                position = (9 - position/10) * 10 + 9 - position%10;
+            }
             Move playerMove = new Move(selectedPiecePosition, position);
             board.makeMove(playerMove);
             isAIMove = true;
-
         } else {
+            if (currentBoard.getPlayerColor() < 0) {
+                position = (9 - position/10) * 10 + 9 - position%10;
+            }
             for (Integer piecePosition : board.getPieces().keySet()) {
                 if (piecePosition == position && board.pieceColor(piecePosition) == board.getTurn()) {
                     selectedPiecePosition = position;
@@ -130,7 +135,15 @@ class Chess {
 
     public static void displaySelectedMoves(int position, Board board) {
         selectedSquares.clear();
-        selectedSquares.addAll(board.findLegalMoves(position));
+        HashSet<Integer> legalMoves = board.findLegalMoves(position);
+//        selectedSquares.addAll(board.findLegalMoves(position));
+        for (Integer move : legalMoves) {
+            if (board.getPlayerColor() > 0) {
+                selectedSquares.add(move);
+            } else {
+                selectedSquares.add((9 - move/10) * 10 + 9 - move%10);
+            }
+        }
     }
 
     public static void displayInfo(Graphics g, int boardX, int boardY) {
@@ -153,7 +166,7 @@ class Chess {
     public static void main(String[] args) throws Exception {
 //        EvaluationReader evaluationReader = new EvaluationReader("chessData.csv");
   //      evaluationData = evaluationReader.getEvaluations();
-        currentBoard = fenToBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+        currentBoard = fenToBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", 1);
 //        currentBoard = fenToBoard("7k/8/8/8/8/8/p7/7K w - - 0 1");
 //        currentBoard = fenToBoard("2r5/1r6/4k3/8/8/K7/8/8 w - - 0 1");
         System.out.println("Finished Reading");

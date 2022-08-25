@@ -12,7 +12,12 @@ class MyMouseListener implements MouseListener {
             int xSquare = e.getX()/ChessVisualizer.GRIDSIZE + 1;
             int ySquare = (e.getY() - 30)/ChessVisualizer.GRIDSIZE + 1;
 
-            Chess.processClick(xSquare * 10 + ySquare, Chess.currentBoard);
+                Chess.processClick(xSquare * 10 + ySquare, Chess.currentBoard);
+//            if (Chess.currentBoard.getPlayerColor() > 0) {
+//                Chess.processClick(xSquare * 10 + ySquare, Chess.currentBoard);
+//            } else {
+//                Chess.processClick((9 - xSquare) * 10 + 9 - ySquare, Chess.currentBoard);
+//            }
         } else if (e.getButton() == 3) {
             Chess.makeAIMove();
             Chess.makeAIMove();

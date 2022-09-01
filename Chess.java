@@ -17,7 +17,10 @@ class Chess {
     Chess(int color) {
 //        EvaluationReader evaluationReader = new EvaluationReader("chessData.csv");
         //      evaluationData = evaluationReader.getEvaluations();
-        currentBoard = fenToBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", color);
+        //        currentBoard = fenToBoard("7k/8/8/8/8/8/1p6/7K w - - 0 1", color);
+//        currentBoard = fenToBoard("7k/b6p/8/8/8/1R4RQ/5pRK/7N w - - 0 1", color);
+        currentBoard = fenToBoard("7k/b6p/8/8/8/1R4RQ/5pRK/6BN w - - 0 1", color);
+//        currentBoard = fenToBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", color);
 //        currentBoard = fenToBoard("7k/8/8/8/8/8/p7/7K w - - 0 1");
 //        currentBoard = fenToBoard("2r5/1r6/4k3/8/8/K7/8/8 w - - 0 1");
         System.out.println("Finished Reading");
@@ -26,7 +29,6 @@ class Chess {
             isAIMove = true;
         }
     }
-
 
     public static Board fenToBoard(String fen, int playerColor) {
         HashMap<Integer, Integer> pieces = new HashMap<>();
@@ -48,11 +50,9 @@ class Chess {
             int buffer = 0;
             if (i < 7) {
                 row = fen.substring(0, fen.indexOf('/'));
-                System.out.println(row);
                 fen = fen.substring(fen.indexOf('/') + 1);
             } else {
                 row = fen.substring(0, fen.indexOf(' '));
-                System.out.println(row);
                 fen = fen.substring(fen.indexOf(' ') + 1);
             }
 
@@ -80,7 +80,6 @@ class Chess {
         }
         return new Board(turn, pieces, playerColor);
     }
-
     public static void makeAIMove() {
         chessAI.resetStatistics();
         numPieces = currentBoard.getPieces().size();
@@ -135,7 +134,6 @@ class Chess {
     public static void displaySelectedMoves(int position, Board board) {
         selectedSquares.clear();
         HashSet<Integer> legalMoves = board.findLegalMoves(position);
-//        selectedSquares.addAll(board.findLegalMoves(position));
         for (Integer move : legalMoves) {
             if (board.getPlayerColor() > 0) {
                 selectedSquares.add(move);
@@ -148,7 +146,7 @@ class Chess {
     public static void displayInfo(Graphics g, int boardX, int boardY) {
         int textSize = 24;
         int offSet = 30;
-        g.setFont (new Font ("SansSerif", Font.PLAIN | Font.PLAIN, textSize - 4));
+        g.setFont (new Font ("SansSerif", Font.PLAIN, textSize - 4));
         g.setColor(Colors.textRed);
         g.drawString("Time taken: " + timeTaken, boardX, offSet);
         g.setColor(Colors.textOrange);

@@ -1,4 +1,3 @@
-import java.awt.*;
 import java.util.*;
 
 class ChessAI {
@@ -7,7 +6,6 @@ class ChessAI {
     public static int captureSearches = 0;
     public static int positionsPruned = 0;
     public static int checkmatesFound = 0;
-
 
     ChessAI() {
     }
@@ -56,6 +54,7 @@ class ChessAI {
             if (board.allPawnSquares(-color).contains(move.getNewPosition())) {
                 moveScore -= 1;
             }
+            moveScore += Math.abs(move.getPromotedPiece() % 10);
             move.setMoveScore(moveScore);
             orderedMoves.add(move);
         }
@@ -104,7 +103,6 @@ class ChessAI {
     public Move minmax(Board board, int depth, int turn, double alpha, double beta) {
         positionsSearched++;
         if (depth == 0) {
-//            return new Move(-1, -1, board.evaluateBoard());
             numQuiescenceSearches++;
             return quiescenceSearch(board, turn, alpha, beta);
         }
@@ -112,9 +110,9 @@ class ChessAI {
         if (unsortedMoves.size() == 0) { // If the turn player has no moves to make
             if (board.findAllPossibleMoves(-turn).contains(board.findKingPos(turn))) { // Checkmate
                 checkmatesFound++;
-                return new Move(-1, -1, (99999 + depth * 100) * -turn);
+                return new Move(-1, -1, (99999 + depth * 100) * -turn * 1.0);
             } else { // Stalemate
-                return new Move(-1, -1, 0);
+                return new Move(-1, -1, 0.0);
             }
         }
         ArrayList<Move> moves = orderMoves(board, unsortedMoves, turn);
@@ -122,8 +120,8 @@ class ChessAI {
         Move bestMove = new Move(-1, -1, Double.MAX_VALUE * -turn);
         // Goes through each move trying to find the best move among them
         for (Move move : moves) {
-            int capturedPiece = board.movePiece(move.getOldPosition(), move.getNewPosition());
             Move newMove;
+            int capturedPiece = board.movePiece(move);
             newMove = new Move(move, minmax(board, depth - 1, -turn, alpha, beta).getEvaluation());
             board.revertMove(move.getOldPosition(), move.getNewPosition(), capturedPiece);
             if (turn > 0) {
@@ -138,13 +136,9 @@ class ChessAI {
                 return bestMove;
             }
         }
-
-        if (bestMove.getOldPosition() == 31 && bestMove.getNewPosition() == 11) {
-//            System.out.println("Old pos: " + bestMove.getOldPosition() + " New pos: " + bestMove.getNewPosition() + " Evaluation: " + bestMove.getEvaluation());
-        }
         return bestMove;
-
     }
+
     public Move findMove(Board board) {
         Move bestMove;
         int color = board.getTurn();
@@ -184,3 +178,8 @@ class ChessAI {
     }
 
 }
+
+
+
+
+

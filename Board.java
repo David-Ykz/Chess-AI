@@ -1,3 +1,5 @@
+import jdk.jfr.StackTrace;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.util.*;
@@ -68,22 +70,27 @@ class Board {
         }
         return numOfLegalMoves == 0;
     }
-    public void checkPromotion() {
-        for (Integer position : pieces.keySet()) {
-            if (pieces.get(position) == 1 && position % 10 == 1) { // White pawn
-                pieces.remove(position);
-                pieces.put(position, 15);
-            } else if (pieces.get(position) == -1 && position % 10 == 8) { // Black pawn
-                pieces.remove(position);
-                pieces.put(position, -15);
-            }
+    public boolean checkPromotion(int oldPosition, int newPosition) {
+        if (Math.abs(pieces.get(oldPosition)) != 1) {
+            return false;
         }
+        if (newPosition % 10 == 1 || newPosition % 10 == 8) {
+            return true;
+        }
+        return false;
     }
 
     // Alter board state
     public void changePiecePos(int oldPosition, int newPosition) {
         pieces.put(newPosition, pieces.remove(oldPosition));
     }
+    public int movePiece(Move move) {
+        if (move.getPromotedPiece() != 0) {
+            promotePawn(move.getOldPosition(), move.getPromotedPiece());
+        }
+        return movePiece(move.getOldPosition(), move.getNewPosition());
+    }
+
     public int movePiece(int oldPosition, int newPosition) {
         if (Math.abs(pieces.get(oldPosition)) == 6) {
             if (oldPosition == 58) {
@@ -109,14 +116,13 @@ class Board {
             removedPiece = pieces.remove(newPosition);
         }
         changePiecePos(oldPosition, newPosition);
-        checkPromotion();
         updateRookStatus(aiValidRook, oldPosition, newPosition, pieces.get(newPosition) % 10, removedPiece);
         updateKingStatus(aiValidKing, pieces.get(newPosition) % 10);
         return removedPiece;
     }
     public void makeMove(Move move) {
         int piece = pieces.get(move.getOldPosition()) % 10;
-        int capturedPiece = movePiece(move.getOldPosition(), move.getNewPosition());
+        int capturedPiece = movePiece(move);
         boardMoves.add(new Move(move, piece, capturedPiece));
         piecesMoved.add(piece);
         updateRookStatus(validRook, move.getOldPosition(), move.getNewPosition(), piece, capturedPiece);
@@ -144,9 +150,9 @@ class Board {
             }
         }
         changePiecePos(newPosition, oldPosition);
-        if (pieces.get(oldPosition) == 15) {
+        if (pieces.get(oldPosition) > 10) {
             pieces.put(oldPosition, 1);
-        } else if (pieces.get(oldPosition) == -15) {
+        } else if (pieces.get(oldPosition) < -10) {
             pieces.put(oldPosition, -1);
         }
         if (capturedPiece != 0) {
@@ -175,6 +181,10 @@ class Board {
         } else if (capturedPiece == 4 && newPosition == 88) {
             aiValidRook[3] = true;
         }
+    }
+    public void promotePawn(int position, int piece) {
+        pieces.remove(position);
+        pieces.put(position, piece);
     }
 
     // Castling
@@ -259,26 +269,26 @@ class Board {
     }
 
     // Piece Movement
-    public void explore(int position, int direction, int color, boolean range, HashSet<Integer> moves) {
+    public void explore(int position, int direction, boolean range, HashSet<Integer> moves) {
         position = position + direction;
         if (position / 10 < 9 && position / 10 > 0 && position % 10 > 0 && position % 10 < 9) {
             moves.add(position);
             if (emptySquare(position) && range) {
-                explore(position, direction, color, range, moves);
+                explore(position, direction, range, moves);
             }
         }
     }
     public void cardinalMoves(int position, boolean range, HashSet<Integer> moves) {
-        explore(position, -1, pieceColor(position), range, moves); // N
-        explore(position, 1, pieceColor(position), range, moves); // S
-        explore(position, -10, pieceColor(position), range, moves); // W
-        explore(position, 10, pieceColor(position), range, moves); // E
+        explore(position, -1, range, moves); // N
+        explore(position, 1, range, moves); // S
+        explore(position, -10, range, moves); // W
+        explore(position, 10, range, moves); // E
     }
     public void diagonalMoves(int position, boolean range, HashSet<Integer> moves) {
-        explore(position, -11, pieceColor(position), range, moves); // NW
-        explore(position, 9, pieceColor(position), range, moves); // NE
-        explore(position, -9, pieceColor(position), range, moves); // SW
-        explore(position, 11, pieceColor(position), range, moves); // SE
+        explore(position, -11, range, moves); // NW
+        explore(position, 9, range, moves); // NE
+        explore(position, -9, range, moves); // SW
+        explore(position, 11, range, moves); // SE
     }
     public void pawnCaptureMoves(int position, HashSet<Integer> moves) {
         if (pieceColor(position) > 0) {
@@ -299,14 +309,14 @@ class Board {
     }
     public void pawnForwardMoves(int position, HashSet<Integer> moves) {
         if (pieceColor(position) > 0) {
-            if (emptySquare(position - 1)) {
+            if (emptySquare(position - 1) && position % 10 > 1) {
                 moves.add(position - 1);
             }
             if (position % 10 == 7 && emptySquare(position - 1) && emptySquare(position - 2)) {
                 moves.add(position - 2);
             }
         } else {
-            if (emptySquare(position + 1)) {
+            if (emptySquare(position + 1) && position % 10 < 8) {
                 moves.add(position + 1);
             }
             if (position % 10 == 2 && emptySquare(position + 1) && emptySquare(position + 2)) {
@@ -317,13 +327,13 @@ class Board {
     public void knightMoves(int position, HashSet<Integer> moves) {
         int[] knightSquares = { -8, 12, 21, 19, 8, -12, -21, -19};
         for (int direction : knightSquares) {
-            explore(position, direction, pieceColor(position), false, moves);
+            explore(position, direction, false, moves);
         }
     }
 
     // Move generation
     public void findPossibleMoves(int position, HashSet<Integer> moves) {
-        int piece = Math.abs(pieces.get(position));
+        int piece = Math.abs(pieces.get(position)) % 10;
         if (piece == 1) { // Pawn
             pawnCaptureMoves(position, moves);
         } else if (piece == 2) {
@@ -433,7 +443,14 @@ class Board {
         for (Integer oldPosition : piecePositions) {
             if (pieceColor(oldPosition) == color) { // Finds all pieces of the turn player
                 for (int eachMove : findLegalMoves(oldPosition)) {
-                    moves.add(new Move(oldPosition, eachMove));
+                    if (checkPromotion(oldPosition, eachMove)) {
+                        for (int i = 2; i < 6; i++) {
+                            Move move = new Move(oldPosition, eachMove, (i + 10) * color);
+                            moves.add(move);
+                        }
+                    } else {
+                        moves.add(new Move(oldPosition, eachMove));
+                    }
                 }
             }
         }
@@ -499,14 +516,6 @@ class Board {
         return fen;
     }
     public void drawBoard(Graphics g, int GRIDSIZE) {
-//        HashSet<Integer> selectedSquares = new HashSet<>();
-//        for (Integer pos : Chess.selectedSquares) {
-//            if (playerColor > 0) {
-//                selectedSquares.add(pos);
-//            } else {
-//                selectedSquares.add((9 - pos / 10) + 9 - pos % 10);
-//            }
-//        }
         for (int y = 0; y < 8; y++) {
             for (int x = 0; x < 8; x++) {
                 if ((x + y) % 2 == 0) {
@@ -525,7 +534,6 @@ class Board {
                 g.fillRect(x * GRIDSIZE, y * GRIDSIZE, GRIDSIZE, GRIDSIZE);
             }
         }
-
         for (Integer position : pieces.keySet()) {
             if (playerColor > 0) {
                 g.drawImage(pieceSprites.get(pieces.get(position) % 10), (position / 10 - 1) * GRIDSIZE, (position % 10 - 1) * GRIDSIZE, null);
@@ -543,7 +551,6 @@ class Board {
         }
         return evaluation;
     }
-
     public double openingEvaluation() {
         double evaluation = 0;
         for (Integer position : pieces.keySet()) {
@@ -551,7 +558,6 @@ class Board {
         }
         return evaluation;
     }
-
     public double endgameEvaluation() {
         double evaluation = 0;
         if (basicEvaluation() > 0) {
@@ -563,7 +569,6 @@ class Board {
         }
         return 0.1 * evaluation;
     }
-
     public double evaluateBoard() {
         double evaluation = 0;
         evaluation += basicEvaluation();
@@ -574,5 +579,4 @@ class Board {
         }
         return evaluation;
     }
-
 }

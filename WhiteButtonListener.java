@@ -1,7 +1,7 @@
 import javax.swing.JFrame;
 import java.awt.event.ActionEvent;
 
-class WhiteButtonListener extends StartButtonListener {
+class WhiteButtonListener extends ButtonListener {
     JFrame parentFrame;
     WhiteButtonListener(JFrame parent) {
         super (parent);

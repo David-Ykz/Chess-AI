@@ -1,7 +1,7 @@
 import javax.swing.JFrame;
 import java.awt.event.ActionEvent;
 
-class RandomButtonListener extends StartButtonListener {
+class RandomButtonListener extends ButtonListener {
     JFrame parentFrame;
     RandomButtonListener(JFrame parent) {
         super (parent);

@@ -1,7 +1,7 @@
 import javax.swing.JFrame;
 import java.awt.event.ActionEvent;
 
-class BlackButtonListener extends StartButtonListener {
+class BlackButtonListener extends ButtonListener {
     JFrame parentFrame;
     BlackButtonListener(JFrame parent) {
         super (parent);

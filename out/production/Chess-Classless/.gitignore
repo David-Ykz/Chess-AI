@@ -2,3 +2,7 @@
 *.xml
 *.class
 *.csv
+*.class
+.idea/workspace.xml
+out/production/Chess-Classless/Board.class
+*.class

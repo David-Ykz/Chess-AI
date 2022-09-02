@@ -90,7 +90,6 @@ class Board {
         }
         return movePiece(move.getOldPosition(), move.getNewPosition());
     }
-
     public int movePiece(int oldPosition, int newPosition) {
         if (Math.abs(pieces.get(oldPosition)) == 6) {
             if (oldPosition == 58) {

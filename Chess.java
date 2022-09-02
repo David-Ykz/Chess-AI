@@ -13,15 +13,16 @@ class Chess {
     static ChessVisualizer visualizer;
     static boolean isAIMove = false;
     static boolean drawnBoard = false;
+    static int promotedPiece = -1;
 
     Chess(int color) {
 //        EvaluationReader evaluationReader = new EvaluationReader("chessData.csv");
         //      evaluationData = evaluationReader.getEvaluations();
         //        currentBoard = fenToBoard("7k/8/8/8/8/8/1p6/7K w - - 0 1", color);
 //        currentBoard = fenToBoard("7k/b6p/8/8/8/1R4RQ/5pRK/7N w - - 0 1", color);
-        currentBoard = fenToBoard("7k/b6p/8/8/8/1R4RQ/5pRK/6BN w - - 0 1", color);
+//        currentBoard = fenToBoard("7k/b6p/8/8/8/1R4RQ/5pRK/6BN w - - 0 1", color);
 //        currentBoard = fenToBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", color);
-//        currentBoard = fenToBoard("7k/8/8/8/8/8/p7/7K w - - 0 1");
+        currentBoard = fenToBoard("7k/8/8/8/8/8/p7/7K w - - 0 1", color);
 //        currentBoard = fenToBoard("2r5/1r6/4k3/8/8/K7/8/8 w - - 0 1");
         System.out.println("Finished Reading");
         visualizer = new ChessVisualizer(currentBoard);
@@ -109,9 +110,12 @@ class Chess {
             if (currentBoard.getPlayerColor() < 0) {
                 position = (9 - position/10) * 10 + 9 - position%10;
             }
-            Move playerMove = new Move(selectedPiecePosition, position);
-            board.makeMove(playerMove);
-            isAIMove = true;
+            Move playerMove;
+            if (board.checkPromotion(selectedPiecePosition, position)) {
+                PromotionMenu promotionMenu = new PromotionMenu(board.getTurn(), selectedPiecePosition, position);
+            } else {
+                processMove(board, selectedPiecePosition, position, 0);
+            }
         } else {
             if (currentBoard.getPlayerColor() < 0) {
                 position = (9 - position/10) * 10 + 9 - position%10;
@@ -129,6 +133,18 @@ class Chess {
             selectedPiecePosition = -1;
         }
     }
+
+    public static void processMove(Board board, int oldPosition, int newPosition, int promotedPiece) {
+        Move playerMove;
+        if (promotedPiece != 0) {
+            playerMove = new Move(oldPosition, newPosition, promotedPiece);
+        } else {
+            playerMove = new Move(oldPosition, newPosition);
+        }
+        board.makeMove(playerMove);
+        isAIMove = true;
+    }
+
 
 
     public static void displaySelectedMoves(int position, Board board) {

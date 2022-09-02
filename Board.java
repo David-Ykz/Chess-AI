@@ -477,7 +477,7 @@ class Board {
         }
         return moves;
     }
-
+    
     // Graphics
     public String toFEN() {
         String[][] chessboard = new String[8][8];
@@ -559,10 +559,10 @@ class Board {
     }
     public double endgameEvaluation() {
         double evaluation = 0;
-        if (basicEvaluation() > 0) {
+        if (basicEvaluation() > 2) {
             evaluation += 4.7 * evalMap.findCMD(findKingPos(-1));
             evaluation += 1.6 * (14 - evalMap.findMD(findKingPos(1), findKingPos(-1)));
-        } else {
+        } else if (basicEvaluation() < -2) {
             evaluation -= 4.7 * evalMap.findCMD(findKingPos(1));
             evaluation -= 1.6 * (14 - evalMap.findMD(findKingPos(1), findKingPos(-1)));
         }

@@ -33,6 +33,11 @@ public class ChessVisualizer extends JFrame{
                 g.setColor(Colors.textWhite);
                 g.drawString("Checkmate!", BOARD_SIZE + 10, BOARD_SIZE - 20);
             }
+            if (board.isStalemate()) {
+                g.setFont (new Font ("SansSerif", Font.BOLD | Font.PLAIN, 65));
+                g.setColor(Colors.textWhite);
+                g.drawString("Stalemate!", BOARD_SIZE + 10, BOARD_SIZE - 20);
+            }
             this.repaint();
             if (Chess.drawnBoard) {
                 Chess.makeAIMove();

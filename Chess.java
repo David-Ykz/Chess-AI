@@ -6,25 +6,25 @@ class Chess {
     static HashSet<Integer> selectedSquares = new HashSet<>();
     static int selectedPiecePosition;
     static ChessAI chessAI = new ChessAI();
-    static HashMap<Integer, HashMap<String, Integer>> evaluationData;
+    static HashMap<String, Integer> evaluationData = new HashMap<>();
     static int numPieces = 0;
     static double timeTaken = 0;
     static double trueEval = 0;
     static ChessVisualizer visualizer;
     static boolean isAIMove = false;
     static boolean drawnBoard = false;
-    static int promotedPiece = -1;
 
     Chess(int color) {
-//        EvaluationReader evaluationReader = new EvaluationReader("chessData.csv");
-        //      evaluationData = evaluationReader.getEvaluations();
-        //        currentBoard = fenToBoard("7k/8/8/8/8/8/1p6/7K w - - 0 1", color);
-//        currentBoard = fenToBoard("7k/b6p/8/8/8/1R4RQ/5pRK/7N w - - 0 1", color);
-//        currentBoard = fenToBoard("7k/b6p/8/8/8/1R4RQ/5pRK/6BN w - - 0 1", color);
-//        currentBoard = fenToBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", color);
-        currentBoard = fenToBoard("7k/8/8/8/8/8/p7/7K w - - 0 1", color);
-//        currentBoard = fenToBoard("2r5/1r6/4k3/8/8/K7/8/8 w - - 0 1");
-        System.out.println("Finished Reading");
+        currentBoard = fenToBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", color);
+        if (OpeningMenu.loadDatabase) {
+            double start = System.nanoTime();
+            EvaluationReader evaluationReader = new EvaluationReader("chessData.csv");
+            evaluationData = evaluationReader.getEvaluations();
+            double end = System.nanoTime();
+            System.out.println("Finished Reading");
+            System.out.println("Number of positions: " + evaluationData.size());
+            System.out.println("Time taken: " + (end - start)/1000000000);
+        }
         visualizer = new ChessVisualizer(currentBoard);
         if (color < 0) {
             isAIMove = true;
@@ -85,14 +85,8 @@ class Chess {
         chessAI.resetStatistics();
         numPieces = currentBoard.getPieces().size();
         double start = System.nanoTime();
-        int depth;
-        if (currentBoard.getPieces().size() < 6) {
-            depth = 7;
-        } else {
-            depth = 5;
-        }
-        Move aiMove = chessAI.minmax(currentBoard, depth, currentBoard.getTurn(), -Double.MAX_VALUE, Double.MAX_VALUE);
-//        Move bestMove = chessAI.findMove(currentBoard);
+//        Move aiMove = chessAI.minmax(currentBoard, depth, currentBoard.getTurn(), -Double.MAX_VALUE, Double.MAX_VALUE);
+        Move aiMove = chessAI.findMove(currentBoard);
         if (aiMove.getOldPosition() != -1) {
             currentBoard.makeMove(aiMove);
         }
@@ -177,8 +171,6 @@ class Chess {
 
 
     public static void main(String[] args) throws Exception {
-//        EvaluationReader evaluationReader = new EvaluationReader("chessData.csv");
-  //      evaluationData = evaluationReader.getEvaluations();
         currentBoard = fenToBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", 1);
 //        currentBoard = fenToBoard("7k/8/8/8/8/8/p7/7K w - - 0 1");
 //        currentBoard = fenToBoard("2r5/1r6/4k3/8/8/K7/8/8 w - - 0 1");

@@ -150,8 +150,8 @@ class ChessAI {
                 int capturedPiece = board.movePiece(move.getOldPosition(), move.getNewPosition());
                 String fen = board.toFEN();
                 System.out.println(fen);
-                if (Chess.evaluationData.containsKey(board.getPieces().size()) && Chess.evaluationData.get(board.getPieces().size()).containsKey(fen)) {
-                    move.setEvaluation(Chess.evaluationData.get(board.getPieces().size()).get(fen));
+                if (Chess.evaluationData.containsKey(fen)) {
+                    move.setEvaluation(Chess.evaluationData.get(fen) / 100.0);
                     bestMove = maxMove(move, bestMove);
                     foundMove = true;
                 }
@@ -162,8 +162,8 @@ class ChessAI {
             for (Move move : moves) {
                 int capturedPiece = board.movePiece(move.getOldPosition(), move.getNewPosition());
                 String fen = board.toFEN();
-                if (Chess.evaluationData.containsKey(board.getPieces().size()) && Chess.evaluationData.get(board.getPieces().size()).containsKey(fen)) {
-                    move.setEvaluation(Chess.evaluationData.get(board.getPieces().size()).get(fen));
+                if (Chess.evaluationData.containsKey(fen)) {
+                    move.setEvaluation(Chess.evaluationData.get(fen) / 100.0);
                     bestMove = minMove(move, bestMove);
                     foundMove = true;
                 }
@@ -171,7 +171,13 @@ class ChessAI {
             }
         }
         if (!foundMove) {
-            return minmax(board, 4, color, -Double.MAX_VALUE, Double.MAX_VALUE);
+            int depth;
+            if (board.getPieces().size() < 6) {
+                depth = 7;
+            } else {
+                depth = 5;
+            }
+            return minmax(board, depth, color, -Double.MAX_VALUE, Double.MAX_VALUE);
         } else {
             return bestMove;
         }

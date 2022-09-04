@@ -68,7 +68,17 @@ class Board {
                 numOfLegalMoves += findLegalMoves(position).size();
             }
         }
-        return numOfLegalMoves == 0;
+        return numOfLegalMoves == 0 && findAllPossibleMoves(-turn).contains(findKingPos(turn));
+    }
+    public boolean isStalemate() {
+        int numOfLegalMoves = 0;
+        HashSet<Integer> positions = new HashSet<>(pieces.keySet());
+        for (Integer position : positions) {
+            if (pieceColor(position) == turn) {
+                numOfLegalMoves += findLegalMoves(position).size();
+            }
+        }
+        return numOfLegalMoves == 0 && !findAllPossibleMoves(-turn).contains(findKingPos(turn));
     }
     public boolean checkPromotion(int oldPosition, int newPosition) {
         if (Math.abs(pieces.get(oldPosition)) != 1) {
@@ -477,7 +487,7 @@ class Board {
         }
         return moves;
     }
-    
+
     // Graphics
     public String toFEN() {
         String[][] chessboard = new String[8][8];

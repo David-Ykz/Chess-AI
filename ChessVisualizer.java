@@ -1,6 +1,10 @@
+/**
+ * Graphical display of the board
+ * @author David Ye
+ */
+
 import javax.swing.*;
 import java.awt.*;
-import java.util.concurrent.TimeUnit;
 
 public class ChessVisualizer extends JFrame{
     GamePanel panel;
@@ -22,6 +26,7 @@ public class ChessVisualizer extends JFrame{
     }
     private class GamePanel extends JPanel {
         @Override
+        // Called every loop to redraw the screen
         public void paintComponent(Graphics g) {
             super.paintComponent(g);
             g.setColor(Colors.background);

@@ -1,8 +1,14 @@
+/**
+ * Listeners for any player inputs and transmits them to be processed
+ * @author David Ye
+ */
+
 import java.awt.event.MouseListener;
 import java.awt.event.MouseEvent;
 
 class MyMouseListener implements MouseListener {
     public void mousePressed(MouseEvent e) {
+        // If the left mouse button is pressed
         if (e.getButton() == 1) {
             int xSquare = e.getX()/ChessVisualizer.GRIDSIZE + 1;
             int ySquare = (e.getY() - 30)/ChessVisualizer.GRIDSIZE + 1;

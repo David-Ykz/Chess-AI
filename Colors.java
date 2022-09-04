@@ -1,3 +1,8 @@
+/**
+ * Class with all the colors used
+ * @author David Ye
+ */
+
 import java.awt.*;
 
 public class Colors {

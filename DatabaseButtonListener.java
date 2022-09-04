@@ -1,3 +1,8 @@
+/**
+ * Button for enabling/disabling the database from loading
+ * @author David Ye
+ */
+
 import javax.swing.JFrame;
 import java.awt.event.ActionEvent;
 

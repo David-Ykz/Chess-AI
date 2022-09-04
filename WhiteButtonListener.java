@@ -1,3 +1,8 @@
+/**
+ * Class for the button that gives the player the white pieces
+ * @author David Ye
+ */
+
 import javax.swing.JFrame;
 import java.awt.event.ActionEvent;
 

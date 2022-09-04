@@ -1,9 +1,12 @@
+/**
+ * Stores a move, with the old position, new position, evaluation of the move, and the promoted piece for the move
+ * @author David Ye
+ */
+
 public class Move implements Comparable<Move> {
     private int oldPosition;
     private int newPosition;
-    private int piece;
     private int promotedPiece = 0;
-    private int capturedPiece;
     private double evaluation;
     private int moveScore;
 
@@ -27,24 +30,16 @@ public class Move implements Comparable<Move> {
         this.newPosition = newPosition;
         this.evaluation = evaluation;
     }
-    public Move(Move move, int piece, int capturedPiece) {
-        this.oldPosition = move.getOldPosition();
-        this.newPosition = move.getNewPosition();
-        this.piece = piece;
-        this.capturedPiece = capturedPiece;
-    }
 
     public int getOldPosition() { return this.oldPosition; }
     public int getNewPosition() { return this.newPosition; }
-    public int getCapturedPiece() { return this.capturedPiece; }
     public double getEvaluation() { return this.evaluation; }
     public int getPromotedPiece() { return this.promotedPiece; }
-    public int getMoveScore() { return moveScore; }
-
     public void setEvaluation(double evaluation) { this.evaluation = evaluation; }
     public void setMoveScore(int score) { this.moveScore = score; }
 
     @Override
+    // Uses a compare to for move score when ordering moves
     public int compareTo(Move move) {
         if (this.moveScore > move.moveScore) {
             return -1;

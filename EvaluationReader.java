@@ -1,12 +1,12 @@
+/**
+ * Reads and translates the opening database from a csv
+ * Stores fen strings and their respective evaluations into a hashmap
+ * @author David Ye
+ */
+
 import java.io.File;
 import java.util.HashMap;
 import java.util.Scanner;
-
-
-import java.io.PrintWriter;
-
-
-
 
 public class EvaluationReader {
     private HashMap<String, Integer> evaluations = new HashMap<>();
@@ -16,6 +16,7 @@ public class EvaluationReader {
             File file = new File(fileName);
             Scanner input = new Scanner(file);
             input.nextLine();
+            // Reads through each line and splits apart the fen string and evaluations
             while (input.hasNext()) {
                 String rawMessage = input.nextLine();
                 String[] message = rawMessage.split(",", -1);
@@ -47,11 +48,6 @@ public class EvaluationReader {
 
     public HashMap<String, Integer> getEvaluations() {
         return this.evaluations;
-    }
-
-    public static void main(String[]args) {
-        EvaluationReader evaluationReader = new EvaluationReader("chessData.csv");
-
     }
 
 }

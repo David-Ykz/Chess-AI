@@ -1,6 +1,10 @@
+/**
+ * Displays the different pieces that a player can promote to
+ * @author David Ye
+ */
+
 import javax.swing.*;
 import java.awt.*;
-import java.util.concurrent.TimeUnit;
 
 public class PromotionMenu extends JFrame{
     JPanel panel;
@@ -8,10 +12,10 @@ public class PromotionMenu extends JFrame{
     final int MAX_Y = (int)getToolkit().getScreenSize().getHeight();
     String[] names = {"Bishop", "Knight", "Rook", "Queen"};
     PromotionMenu(int color, int oldPosition, int newPosition) {
-//        this.getContentPane().add(BorderLayout.CENTER, panel);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(MAX_X / 4, MAX_Y / 8);
-        this.setLocationRelativeTo(null); //start the frame in the center of the screen
+        // Start the frame in the center of the screen
+        this.setLocationRelativeTo(null);
         this.setResizable(false);
         this.setVisible(true);
         this.panel = new JPanel() {
@@ -23,6 +27,7 @@ public class PromotionMenu extends JFrame{
                 this.repaint();
             }
         };
+        // Adds all the buttons for the different promotable pieces
         for (int i = 0; i < 4; i++) {
             JButton button = new JButton(names[i]);
             button.addActionListener(new PromotionButtonListener(this, i + 2, color, oldPosition, newPosition));

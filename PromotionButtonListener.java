@@ -1,3 +1,8 @@
+/**
+ * Class for the button that allows the player to select which piece they want to promote to
+ * @author David Ye
+ */
+
 import javax.swing.JFrame;
 import java.awt.event.ActionEvent;
 
@@ -18,6 +23,5 @@ class PromotionButtonListener extends ButtonListener {
     public void actionPerformed(ActionEvent event)  {
         parentFrame.dispose();
         Chess.processMove(Chess.currentBoard, oldPosition, newPosition, (piece + 10) * color);
-//        Chess.promotedPiece = (piece + 10) * color;
     }
 }

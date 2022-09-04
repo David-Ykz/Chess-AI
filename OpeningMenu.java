@@ -1,6 +1,11 @@
+/**
+ * Displays the opening menu for the player upon running the program
+ * Gives the option to select color and database preferences
+ * @author David Ye
+ */
+
 import javax.swing.*;
 import java.awt.*;
-import java.util.concurrent.TimeUnit;
 
 public class OpeningMenu extends JFrame{
     JPanel panel;
@@ -16,29 +21,21 @@ public class OpeningMenu extends JFrame{
                 super.paintComponent(g);
                 g.setColor(Colors.background);
                 g.fillRect(0, 0, MAX_X, MAX_Y);
-
                 if (loadDatabase) {
                     database.setText("Disable");
                 } else {
                     database.setText("Enable");
                 }
-
                 this.repaint();
             }
         };
-
         panel.setLayout(null);
-
         JLabel title = new JLabel("Chess AI");
         title.setForeground(Colors.textWhite);
         title.setFont(new Font("Verdana",1,32));
         title.setBounds(110,0, 200,50);
         panel.add(title);
-
-
-
-
-
+        // Buttons for player color
         JButton white = new JButton("White");
         JButton black = new JButton("Black");
         JButton random = new JButton("Random");
@@ -51,20 +48,17 @@ public class OpeningMenu extends JFrame{
         panel.add(white);
         panel.add(black);
         panel.add(random);
-
-
-
+        // Button for database preference
         database = new JButton("Disable");
         database.setBounds(290,175, 80,30);
         database.addActionListener(new DatabaseButtonListener(this));
         panel.add(database);
-
+        // Description of the database button
         JLabel description = new JLabel("Enables/Disables opening database");
         description.setForeground(Colors.textWhite);
         description.setFont(new Font("Verdana", Font.PLAIN,10));
         description.setBounds(10,160, 300,50);
         panel.add(description);
-
         JLabel warning = new JLabel("Enabling database may take some time to load");
         warning.setForeground(Colors.textWhite);
         warning.setFont(new Font("Verdana",Font.PLAIN,10));
@@ -74,16 +68,12 @@ public class OpeningMenu extends JFrame{
         this.add(panel);
         this.setVisible(true);
         this.requestFocusInWindow();
-
         this.setSize(400, 300);
-        this.setLocationRelativeTo(null); //start the frame in the center of the screen
+        // Start the frame in the center of the screen
+        this.setLocationRelativeTo(null);
         this.setResizable(false);
         this.setVisible(true);
-
-
-
     }
-
 
     public static void main(String[] args) {
         new OpeningMenu();

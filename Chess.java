@@ -1,3 +1,8 @@
+/**
+ * Main class for managing all elements of the program
+ * @author David Ye
+ */
+
 import java.awt.*;
 import java.util.*;
 
@@ -15,9 +20,11 @@ class Chess {
     static boolean drawnBoard = false;
 
     Chess(int color) {
+        // Loads the board with the starting position
         currentBoard = fenToBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", color);
         if (OpeningMenu.loadDatabase) {
             double start = System.nanoTime();
+            // Reads an opening database
             EvaluationReader evaluationReader = new EvaluationReader("chessData.csv");
             evaluationData = evaluationReader.getEvaluations();
             double end = System.nanoTime();
@@ -25,12 +32,14 @@ class Chess {
             System.out.println("Number of positions: " + evaluationData.size());
             System.out.println("Time taken: " + (end - start)/1000000000);
         }
+        // Initializes the graphical display
         visualizer = new ChessVisualizer(currentBoard);
         if (color < 0) {
             isAIMove = true;
         }
     }
 
+    // Converts fen strings to a board
     public static Board fenToBoard(String fen, int playerColor) {
         HashMap<Integer, Integer> pieces = new HashMap<>();
         HashMap<String, Integer> nameToValue = new HashMap<>();
@@ -46,6 +55,7 @@ class Chess {
         nameToValue.put("n", -3);
         nameToValue.put("b", -2);
         nameToValue.put("p", -1);
+        // Iterates through the fen string and places pieces into a hashmap
         for (int i = 0; i < 8; i++) {
             String row;
             int buffer = 0;
@@ -81,11 +91,12 @@ class Chess {
         }
         return new Board(turn, pieces, playerColor);
     }
+
+    // Starts a move search for the Chess AI
     public static void makeAIMove() {
         chessAI.resetStatistics();
         numPieces = currentBoard.getPieces().size();
         double start = System.nanoTime();
-//        Move aiMove = chessAI.minmax(currentBoard, depth, currentBoard.getTurn(), -Double.MAX_VALUE, Double.MAX_VALUE);
         Move aiMove = chessAI.findMove(currentBoard);
         if (aiMove.getOldPosition() != -1) {
             currentBoard.makeMove(aiMove);
@@ -97,20 +108,22 @@ class Chess {
         drawnBoard = false;
     }
 
-
+    // Processes any clicks performed by the user (either moving a piece or showing the moves a piece can make)
     public static void processClick(int position, Board board) {
         boolean foundPiece = false;
+        // Moves the piece
         if (selectedSquares.contains(position)) {
             if (currentBoard.getPlayerColor() < 0) {
                 position = (9 - position/10) * 10 + 9 - position%10;
             }
-            Move playerMove;
+            // Checks for promotions, and if there are any, opens up a separate window
             if (board.checkPromotion(selectedPiecePosition, position)) {
                 PromotionMenu promotionMenu = new PromotionMenu(board.getTurn(), selectedPiecePosition, position);
             } else {
                 processMove(board, selectedPiecePosition, position, 0);
             }
         } else {
+            // Displays the squares a selected piece can be moved to
             if (currentBoard.getPlayerColor() < 0) {
                 position = (9 - position/10) * 10 + 9 - position%10;
             }
@@ -128,6 +141,7 @@ class Chess {
         }
     }
 
+    // Moves the piece on the board and calls the AI to move
     public static void processMove(Board board, int oldPosition, int newPosition, int promotedPiece) {
         Move playerMove;
         if (promotedPiece != 0) {
@@ -139,8 +153,7 @@ class Chess {
         isAIMove = true;
     }
 
-
-
+    // Adds legal moves to be displayed on screen
     public static void displaySelectedMoves(int position, Board board) {
         selectedSquares.clear();
         HashSet<Integer> legalMoves = board.findLegalMoves(position);
@@ -153,6 +166,7 @@ class Chess {
         }
     }
 
+    // Displays information about the board and chess AI on the screen
     public static void displayInfo(Graphics g, int boardX, int boardY) {
         int textSize = 24;
         int offSet = 30;
@@ -167,14 +181,5 @@ class Chess {
         g.drawString("Number of checkmates found: " + ChessAI.checkmatesFound, boardX, offSet + 3 * textSize);
         g.setColor(Colors.textPurple);
         g.drawString("Evaluation: " + trueEval, boardX, offSet + 4 * textSize);
-    }
-
-
-    public static void main(String[] args) throws Exception {
-        currentBoard = fenToBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", 1);
-//        currentBoard = fenToBoard("7k/8/8/8/8/8/p7/7K w - - 0 1");
-//        currentBoard = fenToBoard("2r5/1r6/4k3/8/8/K7/8/8 w - - 0 1");
-        System.out.println("Finished Reading");
-        visualizer = new ChessVisualizer(currentBoard);
     }
 }

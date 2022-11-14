@@ -29,9 +29,6 @@ public class EvaluationReader {
                 } else {
                     evaluation = evaluationToInt(message[1]);
                 }
-                if (message[1].contains("-")) {
-                    evalution = -evaluation;
-                }
                 evaluations.put(fen, evaluation);
             }
             input.close();
@@ -42,7 +39,7 @@ public class EvaluationReader {
 
     public int evaluationToInt(String message) {
         if (message.contains("-")) {
-            return Integer.parseInt(message.substring(message.indexOf("-") + 1));
+            return -Integer.parseInt(message.substring(message.indexOf("-") + 1));
         } else if (message.contains("+")) {
             return Integer.parseInt(message.substring(message.indexOf("+") + 1));
         }

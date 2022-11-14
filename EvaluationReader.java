@@ -29,6 +29,9 @@ public class EvaluationReader {
                 } else {
                     evaluation = evaluationToInt(message[1]);
                 }
+                if (message[1].contains("-")) {
+                    evalution = -evaluation;
+                }
                 evaluations.put(fen, evaluation);
             }
             input.close();

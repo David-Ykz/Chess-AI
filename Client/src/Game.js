@@ -40,7 +40,7 @@ function Game({ players, room, orientation, cleanup }) {
     }
 
     function revertMove() {
-        if ((previousMoves.length > 0) && (chess.turn() === playerColor)) {
+        if ((previousMoves.length > 1) && (chess.turn() === playerColor.substring(0,1))) {
             previousMoves.pop();
             const oldFen = previousMoves[previousMoves.length - 1];
             console.log(oldFen);

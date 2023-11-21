@@ -70,7 +70,7 @@ function Game({ players, room, orientation, cleanup }) {
     }
 
     function getData(fen) {
-        const url = "https://main.d3kqvs59i8mifl.amplifyapp.com/move"
+        const url = "/move"
         axios.post(url, fen)
             .then(response => {
                 console.log(response.data);

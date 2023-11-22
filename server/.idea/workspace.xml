@@ -5,36 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7e482143-faf7-4e4e-877f-3fddf9f08f76" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.graphqlconfig.yml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/amplify/#current-cloud-backend/amplify-meta.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/amplify/#current-cloud-backend/tags.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/amplify/.config/project-config.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/amplify/backend/amplify-meta.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/amplify/backend/api/ChessAI/cli-inputs.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/amplify/backend/api/ChessAI/parameters.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/amplify/backend/api/ChessAI/resolvers/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/amplify/backend/api/ChessAI/schema.graphql" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/amplify/backend/api/ChessAI/stacks/CustomResources.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/amplify/backend/api/ChessAI/transform.conf.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/amplify/backend/backend-config.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/amplify/backend/tags.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/amplify/backend/types/amplify-dependent-resources-ref.d.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/amplify/cli.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/amplify/team-provider-info.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/graphql/mutations.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/graphql/queries.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/graphql/subscriptions.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ui-components/TodoCreateForm.d.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ui-components/TodoCreateForm.jsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ui-components/TodoUpdateForm.d.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ui-components/TodoUpdateForm.jsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ui-components/index.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ui-components/studioTheme.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ui-components/studioTheme.js.d.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ui-components/utils.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/server/ChessController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/server/ChessController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/amplify/#current-cloud-backend/amplify-meta.json" beforeDir="false" afterPath="$PROJECT_DIR$/amplify/#current-cloud-backend/amplify-meta.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/amplify/backend/amplify-meta.json" beforeDir="false" afterPath="$PROJECT_DIR$/amplify/backend/amplify-meta.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/amplify/backend/backend-config.json" beforeDir="false" afterPath="$PROJECT_DIR$/amplify/backend/backend-config.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/amplify/backend/types/amplify-dependent-resources-ref.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/amplify/backend/types/amplify-dependent-resources-ref.d.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/amplify/cli.json" beforeDir="false" afterPath="$PROJECT_DIR$/amplify/cli.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/amplify/team-provider-info.json" beforeDir="false" afterPath="$PROJECT_DIR$/amplify/team-provider-info.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -92,7 +69,7 @@
     "project.structure.last.edited": "Modules",
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.2",
-    "settings.editor.selected.configurable": "configurable.group.build",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>

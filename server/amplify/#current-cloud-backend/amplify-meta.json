@@ -14,33 +14,33 @@
   },
   "api": {
     "ChessAI": {
-      "service": "AppSync",
-      "providerPlugin": "awscloudformation",
       "dependsOn": [],
       "output": {
         "authConfig": {
-          "defaultAuthentication": {
-            "authenticationType": "API_KEY",
-            "apiKeyConfig": {
-              "apiKeyExpirationDays": 30,
-              "description": "api key description"
-            }
-          },
           "additionalAuthenticationProviders": [
             {
               "authenticationType": "AWS_IAM"
             }
-          ]
+          ],
+          "defaultAuthentication": {
+            "apiKeyConfig": {
+              "apiKeyExpirationDays": 30,
+              "description": "api key description"
+            },
+            "authenticationType": "API_KEY"
+          }
         },
         "GraphQLAPIIdOutput": "ffwqwuqcsfdmfmr2ehltqjekrm",
         "GraphQLAPIEndpointOutput": "https://cwa2pnvuenb6jbiqehskmvk63e.appsync-api.us-east-2.amazonaws.com/graphql",
         "GraphQLAPIKeyOutput": "da2-qmsafr5aordktgng4zce3mjk2u"
       },
+      "providerPlugin": "awscloudformation",
+      "service": "AppSync",
+      "lastPushTimeStamp": "2023-11-21T23:46:03.373Z",
       "providerMetadata": {
         "s3TemplateURL": "https://s3.amazonaws.com/amplify-amplifydeccb4b8187e4-staging-31009-deployment/amplify-cfn-templates/api/cloudformation-template.json",
         "logicalId": "apiChessAI"
       },
-      "lastPushTimeStamp": "2023-11-21T20:56:51.336Z",
       "lastPushDirHash": "HuhLUltLOy/IFlOksBdwzP68DiY="
     }
   }

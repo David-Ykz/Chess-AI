@@ -40,8 +40,29 @@
         "s3TemplateURL": "https://s3.amazonaws.com/amplify-amplifydeccb4b8187e4-staging-31009-deployment/amplify-cfn-templates/api/cloudformation-template.json",
         "logicalId": "apiChessAI"
       },
-      "lastPushTimeStamp": "2023-11-21T21:00:32.783Z",
+      "lastPushTimeStamp": "2023-11-22T00:08:51.173Z",
       "lastPushDirHash": "HuhLUltLOy/IFlOksBdwzP68DiY="
+    },
+    "move": {
+      "service": "API Gateway",
+      "providerPlugin": "awscloudformation",
+      "dependsOn": [
+        {
+          "category": "function",
+          "resourceName": "chessai7d200e92",
+          "attributes": [
+            "Name",
+            "Arn"
+          ]
+        }
+      ]
+    }
+  },
+  "function": {
+    "chessai7d200e92": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
     }
   }
 }

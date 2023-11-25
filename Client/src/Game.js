@@ -70,7 +70,7 @@ function Game({ players, room, orientation, cleanup }) {
     }
 
     function getData(fen) {
-        const url = "/move"
+        const url = "3.133.93.27/move"
         axios.post(url, fen)
             .then(response => {
                 console.log(response.data);

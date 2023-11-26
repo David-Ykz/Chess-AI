@@ -72,8 +72,9 @@ function Game({ players, room, orientation, cleanup }) {
     function getData(fen) {
         const backendIP = "3.133.93.27";
         const backendPort = "8080"; // 80, 443
-//        const url = `https://${backendIP}:${backendPort}/move`
-        const url = "https://main.d3kqvs59i8mifl.amplifyapp.com/move";
+        const url = `http://${backendIP}:${backendPort}/move`
+//        //const url = "https://main.d3kqvs59i8mifl.amplifyapp.com/move";
+    //    const url = "https://ec2-3-133-93-27.us-east-2.compute.amazonaws.com/move";
         axios.post(url, fen)
             .then(response => {
                 console.log(response.data);

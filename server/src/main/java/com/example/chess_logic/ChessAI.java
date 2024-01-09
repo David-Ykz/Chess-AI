@@ -1,5 +1,5 @@
 /**
- * Finds the most optimal moves to play in a situration
+ * Finds the most optimal moves to play in a situation
  * @author David Ye
  */
 
@@ -14,8 +14,8 @@ public class ChessAI {
     public static int positionsPruned = 0;
     public static int checkmatesFound = 0;
 
-    public ChessAI() {
-    }
+
+    public ChessAI() {}
     public void resetStatistics() {
         numQuiescenceSearches = 0;
         positionsSearched = 0;
@@ -31,24 +31,12 @@ public class ChessAI {
         System.out.println("Number of checkmates found: " + checkmatesFound);
     }
 
-    // Find the move with the highest evaluation
     public Move maxMove(Move a, Move b) {
-        if (a.getEvaluation() >= b.getEvaluation()) {
-            return a;
-        } else {
-            return b;
-        }
+        return a.getEvaluation() >= b.getEvaluation() ? a:b;
     }
-    // Finds the move with the lowest evaluation
     public Move minMove(Move a, Move b) {
-        if (a.getEvaluation() <= b.getEvaluation()) {
-            return a;
-        } else {
-            return b;
-        }
+        return a.getEvaluation() <= b.getEvaluation() ? a:b;
     }
-
-    // Sorts the moves so better moves are searched first
     public ArrayList<Move> orderMoves(Board board, HashSet<Move> moves, int color) {
         ArrayList<Move> orderedMoves = new ArrayList<>(moves.size());
         for (Move move : moves) {
@@ -79,11 +67,11 @@ public class ChessAI {
     }
 
     // Searches all captures until no captures can be made or all captures put the player in a worse state
-    public Move quiescenceSearch(Board board, int turn, double alpha, double beta) {
+    public Move quiescenceSearch(Board board, int turn, double alpha, double beta, double currentEvaluation) {
         captureSearches++;
         // Represents the option to not make a capture
-        Move bestMove = new Move(-1, -1, board.evaluateBoard());
-        // Prunes the move
+        Move bestMove = new Move(-1, -1, currentEvaluation);
+
         if (turn > 0) {
             alpha = Math.max(alpha, bestMove.getEvaluation());
         } else {
@@ -94,9 +82,8 @@ public class ChessAI {
             return bestMove;
         }
 
-        // Finds and sorts all moves that result in a capture
         HashSet<Move> unsortedMoves = new HashSet<>(board.allCaptureMoves(turn));
-        if (unsortedMoves.size() == 0) { // If the turn player has no captures to make
+        if (unsortedMoves.isEmpty()) { // If the turn player has no captures to make
             return bestMove;
         }
         ArrayList<Move> moves = orderMoves(board, unsortedMoves, turn);
@@ -104,7 +91,7 @@ public class ChessAI {
         // Iterates through each move, recursively calling itself
         for (Move move : moves) {
             int capturedPiece = board.movePiece(move.getOldPosition(), move.getNewPosition());
-            Move newMove = new Move(move, quiescenceSearch(board, -turn, alpha, beta).getEvaluation());
+            Move newMove = new Move(move, quiescenceSearch(board, -turn, alpha, beta, currentEvaluation - capturedPiece).getEvaluation());
             board.revertMove(move.getOldPosition(), move.getNewPosition(), capturedPiece);
             // Compares the capture move with the option to not capture
             if (turn > 0) {
@@ -120,17 +107,16 @@ public class ChessAI {
         }
         return bestMove;
     }
-
     // Finds the best move by searching all legal moves down to a specified depth
     public Move minmax(Board board, int depth, int turn, double alpha, double beta) {
         positionsSearched++;
         // Searches all captures upon reaching the lowest depth
         if (depth == 0) {
             numQuiescenceSearches++;
-            return quiescenceSearch(board, turn, alpha, beta);
+            return quiescenceSearch(board, turn, alpha, beta, board.evaluateBoard());
         }
         HashSet<Move> unsortedMoves = new HashSet<>(board.allLegalMoves(turn));
-        if (unsortedMoves.size() == 0) { // If the turn player has no moves to make
+        if (unsortedMoves.isEmpty()) { // If the turn player has no moves to make
             if (board.findAllPossibleMoves(-turn).contains(board.findKingPos(turn))) { // Checkmate
                 checkmatesFound++;
                 // Encourages the moves that lead to the fastest checkmate
@@ -163,7 +149,6 @@ public class ChessAI {
         }
         return bestMove;
     }
-
     // Searches the opening database to find a move to make
     public Move findMove(Board board) {
         Move bestMove;
@@ -210,6 +195,177 @@ public class ChessAI {
             return bestMove;
         }
     }
+
+
+    public Move qSearch1(Board board, int turn, double alpha, double beta) {
+        captureSearches++;
+        // Represents the option to not make a capture
+        Move bestMove = new Move(-1, -1, board.evaluateBoard());
+
+        if (turn > 0) {
+            alpha = Math.max(alpha, bestMove.getEvaluation());
+        } else {
+            beta = Math.min(beta, bestMove.getEvaluation());
+        }
+        if (beta <= alpha) {
+            positionsPruned++;
+            return bestMove;
+        }
+
+        HashSet<Move> unsortedMoves = new HashSet<>(board.allCaptureMoves(turn));
+        if (unsortedMoves.isEmpty()) { // If the turn player has no captures to make
+            return bestMove;
+        }
+        ArrayList<Move> moves = orderMoves(board, unsortedMoves, turn);
+
+        // Iterates through each move, recursively calling itself
+        for (Move move : moves) {
+            int capturedPiece = board.movePiece(move.getOldPosition(), move.getNewPosition());
+            Move newMove = new Move(move, qSearch1(board, -turn, alpha, beta).getEvaluation());
+            board.revertMove(move.getOldPosition(), move.getNewPosition(), capturedPiece);
+            // Compares the capture move with the option to not capture
+            if (turn > 0) {
+                bestMove = maxMove(bestMove, newMove);
+                alpha = Math.max(alpha, newMove.getEvaluation());
+            } else {
+                bestMove = minMove(bestMove, newMove);
+                beta = Math.min(beta, newMove.getEvaluation());
+            }
+            if (beta <= alpha) {
+                return bestMove;
+            }
+        }
+        return bestMove;
+    }
+    public Move mSearch1(Board board, int depth, int turn, double alpha, double beta) {
+        positionsSearched++;
+        // Searches all captures upon reaching the lowest depth
+        if (depth == 0) {
+            numQuiescenceSearches++;
+            return qSearch1(board, turn, alpha, beta);
+        }
+        HashSet<Move> unsortedMoves = new HashSet<>(board.allLegalMoves(turn));
+        if (unsortedMoves.isEmpty()) { // If the turn player has no moves to make
+            if (board.findAllPossibleMoves(-turn).contains(board.findKingPos(turn))) { // Checkmate
+                checkmatesFound++;
+                // Encourages the moves that lead to the fastest checkmate
+                return new Move(-1, -1, (99999 + depth * 100) * -turn * 1.0);
+            } else { // Stalemate
+                return new Move(-1, -1, 0.0);
+            }
+        }
+        ArrayList<Move> moves = orderMoves(board, unsortedMoves, turn);
+
+        Move bestMove = new Move(-1, -1, Double.MAX_VALUE * -turn);
+        // Goes through each move trying to find the best move among them
+        for (Move move : moves) {
+            Move newMove;
+            int capturedPiece = board.movePiece(move);
+            newMove = new Move(move, mSearch1(board, depth - 1, -turn, alpha, beta).getEvaluation());
+            board.revertMove(move.getOldPosition(), move.getNewPosition(), capturedPiece);
+            // Compares and prunes the moves
+            if (turn > 0) {
+                bestMove = maxMove(bestMove, newMove);
+                alpha = Math.max(alpha, newMove.getEvaluation());
+            } else {
+                bestMove = minMove(bestMove, newMove);
+                beta = Math.min(beta, newMove.getEvaluation());
+            }
+            if (beta <= alpha) {
+                positionsPruned++;
+                return bestMove;
+            }
+        }
+        return bestMove;
+    }
+    public Move qSearch2(Board board, int turn, double alpha, double beta, double currentEvaluation) {
+        captureSearches++;
+        // Represents the option to not make a capture
+        Move bestMove = new Move(-1, -1, currentEvaluation);
+
+        if (turn > 0) {
+            alpha = Math.max(alpha, bestMove.getEvaluation());
+        } else {
+            beta = Math.min(beta, bestMove.getEvaluation());
+        }
+        if (beta <= alpha) {
+            positionsPruned++;
+            return bestMove;
+        }
+
+        HashSet<Move> unsortedMoves = new HashSet<>(board.allCaptureMoves(turn));
+        if (unsortedMoves.isEmpty()) { // If the turn player has no captures to make
+            return bestMove;
+        }
+        ArrayList<Move> moves = orderMoves(board, unsortedMoves, turn);
+
+        // Iterates through each move, recursively calling itself
+        for (Move move : moves) {
+            int capturedPiece = board.movePiece(move.getOldPosition(), move.getNewPosition());
+            Move newMove = new Move(move, qSearch2(board, -turn, alpha, beta, currentEvaluation - capturedPiece).getEvaluation());
+            board.revertMove(move.getOldPosition(), move.getNewPosition(), capturedPiece);
+            // Compares the capture move with the option to not capture
+            if (turn > 0) {
+                bestMove = maxMove(bestMove, newMove);
+                alpha = Math.max(alpha, newMove.getEvaluation());
+            } else {
+                bestMove = minMove(bestMove, newMove);
+                beta = Math.min(beta, newMove.getEvaluation());
+            }
+            if (beta <= alpha) {
+                return bestMove;
+            }
+        }
+        return bestMove;
+    }
+    public Move mSearch2(Board board, int depth, int turn, double alpha, double beta) {
+        positionsSearched++;
+        // Searches all captures upon reaching the lowest depth
+        if (depth == 0) {
+            numQuiescenceSearches++;
+            return quiescenceSearch(board, turn, alpha, beta, board.evaluateBoard());
+        }
+        HashSet<Move> unsortedMoves = new HashSet<>(board.allLegalMoves(turn));
+        if (unsortedMoves.isEmpty()) { // If the turn player has no moves to make
+            if (board.findAllPossibleMoves(-turn).contains(board.findKingPos(turn))) { // Checkmate
+                checkmatesFound++;
+                // Encourages the moves that lead to the fastest checkmate
+                return new Move(-1, -1, (99999 + depth * 100) * -turn * 1.0);
+            } else { // Stalemate
+                return new Move(-1, -1, 0.0);
+            }
+        }
+        ArrayList<Move> moves = orderMoves(board, unsortedMoves, turn);
+
+        Move bestMove = new Move(-1, -1, Double.MAX_VALUE * -turn);
+        // Goes through each move trying to find the best move among them
+        for (Move move : moves) {
+            Move newMove;
+            int capturedPiece = board.movePiece(move);
+            newMove = new Move(move, mSearch2(board, depth - 1, -turn, alpha, beta).getEvaluation());
+            board.revertMove(move.getOldPosition(), move.getNewPosition(), capturedPiece);
+            // Compares and prunes the moves
+            if (turn > 0) {
+                bestMove = maxMove(bestMove, newMove);
+                alpha = Math.max(alpha, newMove.getEvaluation());
+            } else {
+                bestMove = minMove(bestMove, newMove);
+                beta = Math.min(beta, newMove.getEvaluation());
+            }
+            if (beta <= alpha) {
+                positionsPruned++;
+                return bestMove;
+            }
+        }
+        return bestMove;
+    }
+
+
+
+
+
+
+
 }
 
 

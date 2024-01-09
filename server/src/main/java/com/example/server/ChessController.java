@@ -20,6 +20,7 @@ public class ChessController {
         return board.toFEN();
     }
     @CrossOrigin(origins = "https://main.d3kqvs59i8mifl.amplifyapp.com/")
+//    @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/move")
     public String processRequest(@RequestBody String fen) {
         String output = fenAfterAIMove(exchangeStringToBoard(fen));

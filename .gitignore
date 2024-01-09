@@ -5848,3 +5848,6 @@ node_modules/stylis/src/Utility.js
 *.xml
 .idea/inspectionProfiles/Project_Default.xml
 *.xml
+*.csv
+server/src/main/java/com/example/chess_logic/EngineTester.java
+server/src/main/java/com/example/chess_logic/chessData.csv

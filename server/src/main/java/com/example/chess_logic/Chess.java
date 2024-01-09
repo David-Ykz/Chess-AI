@@ -26,7 +26,7 @@ class Chess {
         if (OpeningMenu.loadDatabase) {
             double start = System.nanoTime();
             // Reads an opening database
-            EvaluationReader evaluationReader = new EvaluationReader("chessData.csv");
+            EvaluationReader evaluationReader = new EvaluationReader("src/main/java/com/example/chess_logic/chessData.csv");
             evaluationData = evaluationReader.getEvaluations();
             double end = System.nanoTime();
             System.out.println("Finished Reading");

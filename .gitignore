@@ -5851,3 +5851,5 @@ node_modules/stylis/src/Utility.js
 *.csv
 server/src/main/java/com/example/chess_logic/EngineTester.java
 server/src/main/java/com/example/chess_logic/chessData.csv
+server/out/artifacts/server_jar/server.jar
+server/.idea/workspace.xml

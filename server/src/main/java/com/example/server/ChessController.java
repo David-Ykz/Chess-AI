@@ -12,11 +12,13 @@ public class ChessController {
     public String fenAfterAIMove(Board board) {
         ChessAI chessAI = new ChessAI();
         double start = System.nanoTime();
-        Move aiMove = chessAI.findMove(board);
+        Move aiMove = chessAI.minmax(board, 3, board.getTurn(), -Double.MAX_VALUE, Double.MAX_VALUE);
         if (aiMove.getOldPosition() != -1) {
             board.makeMove(aiMove);
         }
         double end = System.nanoTime();
+        System.out.print("Time Taken: ");
+        System.out.println((end-start)/1000000000);
         return board.toFEN();
     }
     @CrossOrigin(origins = "https://main.d3kqvs59i8mifl.amplifyapp.com/")

@@ -183,14 +183,7 @@ public class ChessAI {
         }
         // Calls minmax to find a move if no moves are found
         if (!foundMove) {
-            int depth;
-            // Searches to a deeper depth if there are fewer pieces on the board
-            if (board.getPieces().size() < 6) {
-                depth = 7;
-            } else {
-                depth = 5;
-            }
-            return minmax(board, depth, color, -Double.MAX_VALUE, Double.MAX_VALUE);
+            return minmax(board, 3, color, -Double.MAX_VALUE, Double.MAX_VALUE);
         } else {
             return bestMove;
         }

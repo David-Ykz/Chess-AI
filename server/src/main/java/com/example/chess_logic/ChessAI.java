@@ -7,6 +7,9 @@
 package com.example.chess_logic;
 import com.github.bhlangonijr.chesslib.*;
 import com.github.bhlangonijr.chesslib.move.Move;
+import org.springframework.core.metrics.StartupStep;
+
+import javax.swing.plaf.synth.SynthTextAreaUI;
 import java.util.*;
 
 public class ChessAI {
@@ -16,6 +19,11 @@ public class ChessAI {
     public EvaluationMap evalMap = new EvaluationMap();
 
     public ChessAI() {
+    }
+
+    public void printPerformanceInfo() {
+        System.out.println("Nodes searched: " + nodesSearched);
+        System.out.println("Nodes Pruned: " + numPruned);
     }
 
     public int evaluate(Board board) {
@@ -130,7 +138,9 @@ public class ChessAI {
                 bestMove = minMove(bestMove, newMove);
                 beta = Math.min(beta, newMove.eval);
             }
-            if (beta <= alpha) return bestMove;
+            if (beta <= alpha) {
+                return bestMove;
+            }
 
         }
         return bestMove;
@@ -141,14 +151,19 @@ public class ChessAI {
         nodesSearched++;
         int turn = board.getSideToMove() == Side.WHITE ? 1 : -1;
         if (depth == 0) return quiescenceSearch(board, alpha, beta);
-
         List<Move> legalMoves = board.legalMoves();
         if (board.isMated()) {
             return new EvalMove((9999 + depth * 100) * turn);
         } else if (board.isDraw()){
             return new EvalMove(0);
         }
-        EvalMove bestMove = new EvalMove(Integer.MAX_VALUE * -turn);
+
+        EvalMove bestMove;
+        if (turn > 0) {
+            bestMove = new EvalMove(Integer.MIN_VALUE);
+        } else {
+            bestMove = new EvalMove(Integer.MAX_VALUE);
+        }
         // Goes through each move trying to find the best move among them
         for (Move move : legalMoves) {
             board.doMove(move);

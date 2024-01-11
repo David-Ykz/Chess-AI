@@ -24,7 +24,7 @@ public class ChessController {
     public String makeMove(Board board) {
         ChessAI chessAI = new ChessAI();
         double start = System.nanoTime();
-        EvalMove aiMove = chessAI.minmax(board, 3, Integer.MAX_VALUE, Integer.MIN_VALUE);
+        EvalMove aiMove = chessAI.minmax(board, 5, Integer.MIN_VALUE, Integer.MAX_VALUE);
         if (aiMove.move.getFrom() != Square.NONE) {
             board.doMove(aiMove.move);
         } else {
@@ -33,6 +33,8 @@ public class ChessController {
         double end = System.nanoTime();
         System.out.print("Time Taken: ");
         System.out.println((end-start)/1000000000);
+        chessAI.printPerformanceInfo();
+        System.out.println("Evaluation: " + aiMove.eval/100.0);
         return board.getFen();
     }
 //    @CrossOrigin(origins = "https://main.d3kqvs59i8mifl.amplifyapp.com/")

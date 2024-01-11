@@ -35,8 +35,8 @@ public class Board {
         // Loads all sprites
         try {
             for (int i = 1; i <= 6; i++) {
-                pieceSprites.put(i, ImageIO.read(new File("src/main/java/com/example/chess_logic/Pieces/" + i + ".png")));
-                pieceSprites.put(-i, ImageIO.read(new File("src/main/java/com/example/chess_logic/Pieces/" + -i + ".png")));
+                pieceSprites.put(i, ImageIO.read(new File("Pieces/" + i + ".png")));
+                pieceSprites.put(-i, ImageIO.read(new File("Pieces/" + -i + ".png")));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -98,18 +98,25 @@ public class Board {
     public int getPlayerColor() {
         return this.playerColor;
     }
-    public int pieceColor(int position) {
-        return pieces.get(position) > 0 ? 1:-1;
+    public int pieceColor(int position) { // Returns the color of a piece
+        if (pieces.get(position) > 0) {
+            return 1;
+        } else {
+            return -1;
+        }
     }
+    // Returns true if the square is empty
     public boolean emptySquare(int position) {
         return !this.pieces.containsKey(position);
     }
+    // Returns true if the square is occupied by a friendly piece
     public boolean friendlySquare(int position, int color) {
         return (!emptySquare(position) && pieceColor(position) == color);
     }
     public boolean isCheckmate() {
         int numOfLegalMoves = 0;
-        for (Integer position : pieces.keySet()) {
+        HashSet<Integer> positions = new HashSet<>(pieces.keySet());
+        for (Integer position : positions) {
             if (pieceColor(position) == turn) {
                 numOfLegalMoves += findLegalMoves(position).size();
             }
@@ -118,30 +125,37 @@ public class Board {
     }
     public boolean isStalemate() {
         int numOfLegalMoves = 0;
-        for (Integer position : pieces.keySet()) {
+        HashSet<Integer> positions = new HashSet<>(pieces.keySet());
+        for (Integer position : positions) {
             if (pieceColor(position) == turn) {
                 numOfLegalMoves += findLegalMoves(position).size();
             }
         }
         return numOfLegalMoves == 0 && !findAllPossibleMoves(-turn).contains(findKingPos(turn));
     }
+    // Checks if a pawn is being promoted or not
     public boolean checkPromotion(int oldPosition, int newPosition) {
         if (Math.abs(pieces.get(oldPosition)) != 1) {
             return false;
         }
-        return newPosition % 10 == 1 || newPosition % 10 == 8;
+        if (newPosition % 10 == 1 || newPosition % 10 == 8) {
+            return true;
+        }
+        return false;
     }
 
     // Alter board state //
     public void changePiecePos(int oldPosition, int newPosition) {
         pieces.put(newPosition, pieces.remove(oldPosition));
     }
+    // Checks for promotions before moving the piece
     public int movePiece(Move move) {
         if (move.getPromotedPiece() != 0) {
             promotePawn(move.getOldPosition(), move.getPromotedPiece());
         }
         return movePiece(move.getOldPosition(), move.getNewPosition());
     }
+    // Moves the piece on the board
     public int movePiece(int oldPosition, int newPosition) {
         // Checks for any castling
         if (Math.abs(pieces.get(oldPosition)) == 6) {
@@ -180,7 +194,7 @@ public class Board {
         updateRookStatus(validRook, move.getOldPosition(), move.getNewPosition(), piece, capturedPiece);
         updateKingStatus(validKing, piece);
         // Changes the player turn
-        turn = -turn;
+        turn = turn * -1;
         // Converts any temporarily promoted pieces into regular pieces
         if (Math.abs(pieces.get(move.getNewPosition())) > 10) {
             pieces.put(move.getNewPosition(), pieces.remove(move.getNewPosition()) % 10);
@@ -301,12 +315,12 @@ public class Board {
             // Queenside castle
             HashSet<Integer> allWhiteSquares = findAllPossibleMoves(1);
             if (validRook(11) && emptySquare(41) && emptySquare(31) && emptySquare(21)
-            && !allWhiteSquares.contains(41) && !allWhiteSquares.contains(31)) {
+                    && !allWhiteSquares.contains(41) && !allWhiteSquares.contains(31)) {
                 moves.add(31);
             }
             // Kingside castle
             if (validRook(81) && emptySquare(61) && emptySquare(71)
-            && !allWhiteSquares.contains(61)) {
+                    && !allWhiteSquares.contains(61)) {
                 moves.add(71);
             }
             // White king hasn't moved and isn't in check
@@ -314,12 +328,12 @@ public class Board {
             HashSet<Integer> allBlackSquares = findAllPossibleMoves(-1);
             // Queenside castle
             if (validRook(18) && emptySquare(48) && emptySquare(38) && emptySquare(28)
-            && !allBlackSquares.contains(48) && !allBlackSquares.contains(38)) {
+                    && !allBlackSquares.contains(48) && !allBlackSquares.contains(38)) {
                 moves.add(38);
             }
             // Kingside castle
             if (validRook(88) && emptySquare(68) && emptySquare(78)
-            && !allBlackSquares.contains(68)) {
+                    && !allBlackSquares.contains(68)) {
                 moves.add(78);
             }
         }
@@ -328,7 +342,7 @@ public class Board {
     // Piece Movement //
     // Recursively calls itself in a direction until it moves off the board or is blocked by a piece
     public void explore(int position, int direction, boolean range, HashSet<Integer> moves) {
-        position += direction;
+        position = position + direction;
         if (position / 10 < 9 && position / 10 > 0 && position % 10 > 0 && position % 10 < 9) {
             moves.add(position);
             if (emptySquare(position) && range) {
@@ -348,6 +362,7 @@ public class Board {
         explore(position, -9, range, moves); // SW
         explore(position, 11, range, moves); // SE
     }
+    // Searches all capture moves that a pawn can make
     public void pawnCaptureMoves(int position, HashSet<Integer> moves) {
         if (pieceColor(position) > 0) {
             if (position / 10 > 1) {
@@ -365,6 +380,7 @@ public class Board {
             }
         }
     }
+    // Searches all forward moves that a pawn can make (without capturing)
     public void pawnForwardMoves(int position, HashSet<Integer> moves) {
         if (pieceColor(position) > 0) {
             if (emptySquare(position - 1) && position % 10 > 1) {
@@ -390,6 +406,7 @@ public class Board {
     }
 
     // Move generation //
+    // Returns all squares that a piece attacks
     public void findPossibleMoves(int position, HashSet<Integer> moves) {
         int piece = Math.abs(pieces.get(position)) % 10;
         if (piece == 1) { // Pawn
@@ -408,6 +425,7 @@ public class Board {
             diagonalMoves(position, false, moves);
         }
     }
+    // Returns all squares that a side can attack
     public HashSet<Integer> findAllPossibleMoves(int color) {
         HashSet<Integer> moves = new HashSet<>();
         for (Integer position : pieces.keySet()) {
@@ -417,6 +435,7 @@ public class Board {
         }
         return moves;
     }
+    // Returns a king's position
     public int findKingPos(int color) {
         for (Integer position : pieces.keySet()) {
             if (pieces.get(position) == 6 * color) {
@@ -425,6 +444,7 @@ public class Board {
         }
         return -1;
     }
+    // Returns all squares that a piece could legally move to
     public HashSet<Integer> findLegalMoves(int position) {
         HashSet<Integer> moves = new HashSet<>();
         if (Math.abs(pieces.get(position)) == 1) {
@@ -466,6 +486,7 @@ public class Board {
         }
         return legalMoves;
     }
+    // Finds all legal moves a piece can make that captures another piece
     public HashSet<Integer> findCaptureMoves(int position) {
         HashSet<Integer> moves = new HashSet<>();
         if (Math.abs(pieces.get(position)) == 1) {
@@ -499,9 +520,11 @@ public class Board {
         }
         return legalMoves;
     }
+    // Returns all legal moves a side can make
     public HashSet<Move> allLegalMoves(int color) {
         HashSet<Move> moves = new HashSet<>();
-        for (Integer oldPosition : pieces.keySet()) {
+        HashSet<Integer> piecePositions = new HashSet<>(pieces.keySet());
+        for (Integer oldPosition : piecePositions) {
             if (pieceColor(oldPosition) == color) { // Finds all pieces of the turn player
                 for (int eachMove : findLegalMoves(oldPosition)) {
                     // Adds extra moves for the different pieces that can be promoted to
@@ -518,17 +541,20 @@ public class Board {
         }
         return moves;
     }
+    // Returns all legal moves for a side that captures a piece
     public HashSet<Move> allCaptureMoves(int color) {
         HashSet<Move> moves = new HashSet<>();
-        for (Integer oldPosition : getPieces().keySet()) {
+        HashSet<Integer> piecePositions = new HashSet<>(getPieces().keySet());
+        for (Integer oldPosition : piecePositions) {
             if (pieceColor(oldPosition) == color) { // Finds all pieces of the turn player
-                for (int newPosition : findCaptureMoves(oldPosition)) {
-                    moves.add(new Move(oldPosition, newPosition));
+                for (int eachMove : findCaptureMoves(oldPosition)) {
+                    moves.add(new Move(oldPosition, eachMove));
                 }
             }
         }
         return moves;
     }
+    // Returns all squares that a side's pawns attack
     public HashSet<Integer> allPawnSquares(int color) {
         HashSet<Integer> moves = new HashSet<>();
         for (Integer position : pieces.keySet()) {
@@ -541,6 +567,7 @@ public class Board {
     }
 
     // Graphics //
+    // Converts the board to a fen string
     public String toFEN() {
         String[][] chessboard = new String[8][8];
         for (Integer position : pieces.keySet()) {
@@ -591,6 +618,7 @@ public class Board {
 
         return fen;
     }
+    // Draws the board, pieces, and any highlighted squares
     public void drawBoard(Graphics g, int GRIDSIZE) {
         for (int y = 0; y < 8; y++) {
             for (int x = 0; x < 8; x++) {
@@ -620,6 +648,7 @@ public class Board {
     }
 
     // Evaluation Methods //
+    // Returns a rough evaluation based on the values of pieces on the board
     public double basicEvaluation() {
         double evaluation = 0;
         for (Integer position : pieces.keySet()) {
@@ -627,6 +656,7 @@ public class Board {
         }
         return evaluation;
     }
+    // Adds/subtracts evaluation for pieces that well/poorly positioned
     public double openingEvaluation() {
         double evaluation = 0;
         for (Integer position : pieces.keySet()) {
@@ -634,8 +664,10 @@ public class Board {
         }
         return evaluation;
     }
+    // Uses the location of kings to encourage moves that force the enemy king into the corner
     public double endgameEvaluation() {
         double evaluation = 0;
+        // Starts to corner the king once a piece has been promoted (to encourage promoting first)
         if (basicEvaluation() > 2) {
             evaluation += 4.7 * evalMap.findCMD(findKingPos(-1));
             evaluation += 1.6 * (14 - evalMap.findMD(findKingPos(1), findKingPos(-1)));
@@ -645,6 +677,8 @@ public class Board {
         }
         return 0.1 * evaluation;
     }
+    // Full evaluation method that uses opening/endgame evaluation based on the number of pieces on the board
+    // Positive evaluations favour white while negative evaluations favour black
     public double evaluateBoard() {
         double evaluation = 0;
         evaluation += basicEvaluation();

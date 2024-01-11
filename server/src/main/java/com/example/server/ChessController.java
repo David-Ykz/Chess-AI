@@ -12,7 +12,7 @@ public class ChessController {
     public String fenAfterAIMove(Board board) {
         ChessAI chessAI = new ChessAI();
         double start = System.nanoTime();
-        Move aiMove = chessAI.minmax(board, 3, board.getTurn(), -Double.MAX_VALUE, Double.MAX_VALUE);
+        Move aiMove = chessAI.findMove(board);
         if (aiMove.getOldPosition() != -1) {
             board.makeMove(aiMove);
         }

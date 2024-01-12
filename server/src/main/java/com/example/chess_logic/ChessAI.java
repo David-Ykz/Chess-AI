@@ -76,34 +76,32 @@ public class ChessAI {
     }
 
     // Sorts the moves so better moves are searched first
-//    public ArrayList<Move> orderMoves(Board board, List<Move> moves) {
-//        ArrayList<Move> orderedMoves = new ArrayList<>(moves.size());
-//        for (Move move : moves) {
-//            board.getPiece(.getFrom()
-//            int moveScore = 0;
-//            int piece = board.getPieces().get(move.getOldPosition()) % 10;
-//            if (board.getPieces().containsKey(move.getNewPosition())) {
-//                int capturedPiece = board.getPieces().get(move.getNewPosition());
-//                // Capturing a piece with a piece of less value is a bonus
-//                moveScore += 10 * (int)board.pieceValues[Math.abs(capturedPiece % 10) - 1] - (int)board.pieceValues[Math.abs(piece % 10) - 1];
-//                // An exception is made for the king, as any legal capture with the king is good
-//                if (Math.abs(piece) % 10 == 6) {
-//                    moveScore += (int)board.pieceValues[Math.abs(piece % 10) - 1];
-//                }
-//            }
-//            // Discourages moving to a square attacked by an enemy pawn
-//            if (board.allPawnSquares(-color).contains(move.getNewPosition())) {
-//                moveScore -= 1;
-//            }
-//            // Encourages promoting pawns
-//            moveScore += Math.abs(move.getPromotedPiece() % 10);
-//            move.setMoveScore(moveScore);
-//            orderedMoves.add(move);
-//        }
-//        // Sorts the moves so moves with higher scores are at the beginning of the arraylist
-//        Collections.sort(orderedMoves);
-//        return orderedMoves;
-//    }
+    public List<EvalMove> orderMoves(Board board, List<Move> moves) {
+        List<EvalMove> orderedMoves = new ArrayList<>(moves.size());
+        for (Move move : moves) {
+            int moveScore = 0;
+            Piece movedPiece = board.getPiece(move.getFrom());
+            Piece capturedPiece = board.getPiece(move.getTo());
+            if (capturedPiece != Piece.NONE) {
+                moveScore += Math.abs(evalMap.pieceValueMap.get((capturedPiece))) - Math.abs(evalMap.pieceValueMap.get(movedPiece))/10;
+                if (movedPiece == Piece.WHITE_KING || movedPiece == Piece.BLACK_KING) {
+                    moveScore += Math.abs(evalMap.pieceValueMap.get(movedPiece));
+                }
+            }
+
+            Piece oppositeColorPawn = board.getSideToMove() == Side.WHITE ? Piece.BLACK_PAWN : Piece.WHITE_PAWN;
+            if ((move.getTo().getBitboard() & board.getBitboard(oppositeColorPawn)) != 0L) {
+                moveScore--;
+            }
+
+            if (move.getPromotion() != Piece.NONE) {
+                moveScore += Math.abs(evalMap.pieceValueMap.get(move.getPromotion()));
+            }
+            orderedMoves.add(new EvalMove(move, 0, moveScore));
+        }
+        Collections.sort(orderedMoves);
+        return orderedMoves;
+    }
 
     public EvalMove quiescenceSearch(Board board, int alpha, int beta) {
         nodesSearched++;
@@ -127,7 +125,9 @@ public class ChessAI {
             return bestMove;
         }
 
-        for (Move move : captureMoves) {
+        List<EvalMove> orderedMoves = orderMoves(board, captureMoves);
+        for (EvalMove orderedMove : orderedMoves) {
+            Move move = orderedMove.move;
             board.doMove(move);
             EvalMove newMove = new EvalMove(move, quiescenceSearch(board, alpha, beta).eval);
             board.undoMove();
@@ -153,7 +153,7 @@ public class ChessAI {
         if (depth == 0) return quiescenceSearch(board, alpha, beta);
         List<Move> legalMoves = board.legalMoves();
         if (board.isMated()) {
-            return new EvalMove((9999 + depth * 100) * turn);
+            return new EvalMove((999999 + depth * 10000) * turn);
         } else if (board.isDraw()){
             return new EvalMove(0);
         }
@@ -165,7 +165,9 @@ public class ChessAI {
             bestMove = new EvalMove(Integer.MAX_VALUE);
         }
         // Goes through each move trying to find the best move among them
-        for (Move move : legalMoves) {
+        List<EvalMove> orderedMoves = orderMoves(board, legalMoves);
+        for (EvalMove orderedMove : orderedMoves) {
+            Move move = orderedMove.move;
             board.doMove(move);
             EvalMove newMove = new EvalMove(move, minmax(board, depth - 1, alpha, beta).eval);
             board.undoMove();

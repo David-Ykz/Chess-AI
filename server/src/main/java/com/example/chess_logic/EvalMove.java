@@ -13,21 +13,25 @@ public class EvalMove implements Comparable<EvalMove> {
         this.eval = eval;
     }
 
-    EvalMove(Move move) {
-        this.move = move;
-    }
 
     EvalMove(Move move, int eval) {
         this.move = move;
         this.eval = eval;
     }
 
+    EvalMove(Move move, int eval, int score) {
+        this.move = move;
+        this.eval = eval;
+        this.score = score;
+    }
+
+
     @Override
     public int compareTo(EvalMove move) {
         if (this.score == move.score) {
             return 0;
         } else {
-            return this.score > move.score ? 1 : -1;
+            return this.score > move.score ? -1 : 1;
         }
     }
 

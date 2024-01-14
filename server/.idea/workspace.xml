@@ -10,9 +10,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7e482143-faf7-4e4e-877f-3fddf9f08f76" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/../Client/src/Game.js" beforeDir="false" afterPath="$PROJECT_DIR$/../Client/src/Game.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chess_logic/ChessAI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/chess_logic/ChessAI.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chess_logic/EvalMove.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/chess_logic/EvalMove.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/server/ChessController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/server/ChessController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/server/ServerApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/server/SpringServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/server/SpringServer.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -86,12 +89,12 @@
     </key>
   </component>
   <component name="RunManager" selected="Application.SpringServer">
-    <configuration name="Board" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="com.example.chess_logic.Board" />
+    <configuration name="ChessAI" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.example.chess_logic.ChessAI" />
       <module name="server" />
       <extension name="coverage">
         <pattern>
-          <option name="PATTERN" value="com.example.localApp.*" />
+          <option name="PATTERN" value="com.example.chess_logic.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
@@ -154,10 +157,10 @@
     <recent_temporary>
       <list>
         <item itemvalue="Application.SpringServer" />
+        <item itemvalue="Application.ChessAI" />
         <item itemvalue="Application.OpeningMenu" />
         <item itemvalue="Application.MoveGenerationTester" />
         <item itemvalue="Application.EngineTester" />
-        <item itemvalue="Application.Board" />
       </list>
     </recent_temporary>
   </component>

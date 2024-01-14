@@ -62,7 +62,8 @@ function Game({ players, room, orientation, cleanup }) {
         while (previousMoves.length > 0) {
             previousMoves.pop();
         }
-        chess.load(DEFAULT_POSITION);
+        chess.load("4q3/4k3/8/8/8/8/4R3/4K3 w - - 0 1");
+//        chess.load(DEFAULT_POSITION);
         setFen(chess.fen());
         if (playerColor === "black") {
             getData(chess.fen());

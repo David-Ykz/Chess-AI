@@ -5,11 +5,17 @@
  */
 
 package com.example.chess_logic;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.github.bhlangonijr.chesslib.*;
 import com.github.bhlangonijr.chesslib.move.Move;
 import org.springframework.core.metrics.StartupStep;
 
 import javax.swing.plaf.synth.SynthTextAreaUI;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.*;
 
 public class ChessAI {
@@ -32,7 +38,7 @@ public class ChessAI {
         for (Piece piece : evalMap.pieceValueMap.keySet()) {
             numPieces += board.getPieceLocation(piece).size();
         }
-        if (numPieces > 5) {
+        if (numPieces > 5 && Math.abs(totalEval) < 1000) {
             totalEval += openingEval(board);
         } else {
             totalEval += endgameEval(board);
@@ -147,13 +153,13 @@ public class ChessAI {
     }
 
     // Finds the best move by searching all legal moves down to a specified depth
-    public EvalMove minmax(Board board, int depth, int alpha, int beta) {
+    public EvalMove minimax(Board board, int depth, int alpha, int beta) {
         nodesSearched++;
         int turn = board.getSideToMove() == Side.WHITE ? 1 : -1;
         if (depth == 0) return quiescenceSearch(board, alpha, beta);
         List<Move> legalMoves = board.legalMoves();
         if (board.isMated()) {
-            return new EvalMove((999999 + depth * 10000) * turn);
+            return new EvalMove((999999 + depth * 10000) * -turn);
         } else if (board.isDraw()){
             return new EvalMove(0);
         }
@@ -169,7 +175,7 @@ public class ChessAI {
         for (EvalMove orderedMove : orderedMoves) {
             Move move = orderedMove.move;
             board.doMove(move);
-            EvalMove newMove = new EvalMove(move, minmax(board, depth - 1, alpha, beta).eval);
+            EvalMove newMove = new EvalMove(move, minimax(board, depth - 1, alpha, beta).eval);
             board.undoMove();
             // Compares and prunes the moves
             if (turn > 0) {
@@ -179,6 +185,11 @@ public class ChessAI {
                 bestMove = minMove(bestMove, newMove);
                 beta = Math.min(beta, newMove.eval);
             }
+
+            if (depth == 7) {
+                System.out.println(newMove.move.getFrom() + " -> " + newMove.move.getTo() + " : " + newMove.eval);
+            }
+
             if (beta <= alpha) {
                 numPruned++;
                 return bestMove;
@@ -187,50 +198,54 @@ public class ChessAI {
         return bestMove;
     }
 
-    // Searches the opening database to find a move to make
-//    public Move findMove(Board board) {
-//        Move bestMove;
-//        int color = board.getTurn();
-//        boolean foundMove = false;
-//        HashSet<Move> moves = new HashSet<>(board.allLegalMoves(color));
-//        // Makes each move and tries to find a match in the database
-//        if (color > 0) {
-//            bestMove = new Move(-1, -1, -Double.MAX_VALUE);
-//            for (Move move : moves) {
-//                int capturedPiece = board.movePiece(move.getOldPosition(), move.getNewPosition());
-//                String fen = board.toFEN();
-//                if (Chess.evaluationData.containsKey(fen)) {
-//                    move.setEvaluation(Chess.evaluationData.get(fen) / 100.0);
-//                    bestMove = maxMove(move, bestMove);
-//                    foundMove = true;
-//                }
-//                board.revertMove(move.getOldPosition(), move.getNewPosition(), capturedPiece);
-//            }
-//        } else {
-//            bestMove = new Move(-1, -1, Double.MAX_VALUE);
-//            for (Move move : moves) {
-//                int capturedPiece = board.movePiece(move.getOldPosition(), move.getNewPosition());
-//                String fen = board.toFEN();
-//                if (Chess.evaluationData.containsKey(fen)) {
-//                    move.setEvaluation(Chess.evaluationData.get(fen) / 100.0);
-//                    bestMove = minMove(move, bestMove);
-//                    foundMove = true;
-//                }
-//                board.revertMove(move.getOldPosition(), move.getNewPosition(), capturedPiece);
-//            }
-//        }
-//        // Calls minmax to find a move if no moves are found
-//        if (!foundMove) {
-//            int depth;
-//            // Searches to a deeper depth if there are fewer pieces on the board
-//            if (board.getPieces().size() < 6) {
-//                depth = 5;
-//            } else {
-//                depth = 3;
-//            }
-//            return minmax(board, depth, color, -Double.MAX_VALUE, Double.MAX_VALUE);
-//        } else {
-//            return bestMove;
-//        }
-//    }
+    public String queryEndgameTables(String fen) {
+        String QUERY_URL = "http://tablebase.lichess.ovh/standard?fen=";
+        fen = fen.replace(' ', '_');
+        String strResponse = "";
+        try {
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(QUERY_URL + fen))
+                    .GET()
+                    .build();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            strResponse = response.body();
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        return strResponse;
+    }
+
+    public EvalMove searchEndgameTables(Board board) {
+        Move move = null;
+        try {
+            String fen = board.getFen();
+            String response = queryEndgameTables(fen);
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode rootNode = objectMapper.readTree(response);
+            String category = rootNode.get("category").asText();
+            if (category.equals("unknown")) return new EvalMove(0);
+            String uci = rootNode.get("moves").get(0).get("uci").asText();
+
+            Square fromSquare = Square.fromValue(uci.toUpperCase().substring(0, 2));
+            Square toSquare = Square.fromValue(uci.toUpperCase().substring(2));
+            move = new Move(fromSquare, toSquare);
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        board.doMove(move);
+        int eval = evaluate(board);
+        board.undoMove();
+        return new EvalMove(move, eval);
+    }
+
+    public EvalMove findMove(Board board) {
+        EvalMove evalMove = searchEndgameTables(board);
+        if (evalMove.move.getTo() != Square.NONE) {
+            return evalMove;
+        } else {
+            evalMove = minimax(board, 5, Integer.MIN_VALUE, Integer.MAX_VALUE);
+        }
+        return evalMove;
+    }
 }

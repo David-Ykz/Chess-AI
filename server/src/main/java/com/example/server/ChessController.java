@@ -1,10 +1,8 @@
 package com.example.server;
 
-//import com.github.bhlangonijr.chesslib.move.Move;
 import org.springframework.web.bind.annotation.*;
 import com.example.chess_logic.*;
 import com.github.bhlangonijr.chesslib.*;
-
 
 @RestController
 public class ChessController {
@@ -24,7 +22,7 @@ public class ChessController {
     public String makeMove(Board board) {
         ChessAI chessAI = new ChessAI();
         double start = System.nanoTime();
-        EvalMove aiMove = chessAI.minmax(board, 5, Integer.MIN_VALUE, Integer.MAX_VALUE);
+        EvalMove aiMove = chessAI.findMove(board);
         if (aiMove.move.getFrom() != Square.NONE) {
             board.doMove(aiMove.move);
         } else {
@@ -37,8 +35,9 @@ public class ChessController {
         System.out.println("Evaluation: " + aiMove.eval/100.0);
         return board.getFen();
     }
-//    @CrossOrigin(origins = "https://main.d3kqvs59i8mifl.amplifyapp.com/")
-    @CrossOrigin(origins = "http://localhost:3000")
+    @CrossOrigin(origins = {"http://localhost:3000",
+                            "https://main.d3kqvs59i8mifl.amplifyapp.com/",
+                            "https://chessai.y-backend.com"})
     @PostMapping("/move")
     public String processRequest(@RequestBody String fen) {
         String output = makeMove(fenToBoard(fen));

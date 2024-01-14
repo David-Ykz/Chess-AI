@@ -36,7 +36,7 @@ public class ChessController {
         return board.getFen();
     }
     @CrossOrigin(origins = {"http://localhost:3000",
-                            "https://main.d3kqvs59i8mifl.amplifyapp.com/",
+                            "https://bitboard.d18e1qx21kpcpk.amplifyapp.com/",
                             "https://chessai.y-backend.com"})
     @PostMapping("/move")
     public String processRequest(@RequestBody String fen) {

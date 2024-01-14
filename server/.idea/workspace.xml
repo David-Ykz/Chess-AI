@@ -10,9 +10,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7e482143-faf7-4e4e-877f-3fddf9f08f76" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/../Client/public/favicon.ico" beforeDir="false" afterPath="$PROJECT_DIR$/../Client/public/favicon.ico" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Client/public/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/../Client/public/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Client/public/logo192.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Client/public/logo512.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Client/public/manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/../Client/public/manifest.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Client/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/../Client/src/App.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/example/server/ChessController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/server/ChessController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

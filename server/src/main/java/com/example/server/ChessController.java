@@ -37,7 +37,8 @@ public class ChessController {
     }
     @CrossOrigin(origins = {"http://localhost:3000",
                             "https://bitboard.d18e1qx21kpcpk.amplifyapp.com/",
-                            "https://chessai.y-backend.com"})
+                            "https://chessai.y-backend.com",
+                            "https://www.chessai.y-backend.com"})
     @PostMapping("/move")
     public String processRequest(@RequestBody String fen) {
         String output = makeMove(fenToBoard(fen));

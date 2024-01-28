@@ -6,25 +6,15 @@ import com.example.chess_logic.*;
 import com.github.bhlangonijr.chesslib.*;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.json.*;
 
 @RestController
 public class ChessController {
-    public HashMap<Integer, Board> gameBoards = new HashMap<>();
+    public HashMap<Integer, GameInstance> gameInstances = new HashMap<>();
 
-    public String processJSFen(String str) {
-        str = str.replace("%2F", "/");
-        str = str.replace("+", " ");
-        str = str.replace("=", "");
-        return str;
-    }
-    public Board fenToBoard(String str) {
-        Board board = new Board();
-        str = processJSFen(str);
-        System.out.println(str);
-        board.loadFromFen(str);
-        return board;
-    }
     public String makeMove(Board board) {
         ChessAI chessAI = new ChessAI();
         double start = System.nanoTime();
@@ -48,23 +38,26 @@ public class ChessController {
             "https://www.chessai.y-backend.com"})
     @GetMapping("/new-game")
     public int initializeNewGame() {
+        final int MAX_CONCURRENT_GAMES = 100;
+        System.out.println(gameInstances.keySet().toString());
         int newId = 0;
-        while (gameBoards.containsKey(newId)) {
-            // random number from 0 to 99
-            newId = (int)(Math.random() * 100);
-        }
-        gameBoards.put(newId, new Board());
-        return newId;
-    }
 
-    @CrossOrigin(origins = {"http://localhost:3000",
-            "https://bitboard.d18e1qx21kpcpk.amplifyapp.com/",
-            "https://chessai.y-backend.com",
-            "https://www.chessai.y-backend.com"})
-    @PostMapping("/remove-game")
-    public void removeExistingGame(@RequestBody int id) {
-        // might have async issues if chessAI is currently processing board
-        gameBoards.remove(id);
+        HashSet<Integer> ids = new HashSet<>(gameInstances.keySet());
+        for (int id : ids) {
+            if (gameInstances.get(id).exceededLifetime()) {
+                System.out.println("Removed Id: " + id);
+                gameInstances.remove(id);
+            }
+        }
+
+        if (gameInstances.size() == MAX_CONCURRENT_GAMES)
+            return -1;
+
+        while (gameInstances.containsKey(newId)) {
+            newId = (int)(Math.random() * MAX_CONCURRENT_GAMES);
+        }
+        gameInstances.put(newId, new GameInstance());
+        return newId;
     }
 
     @CrossOrigin(origins = {"http://localhost:3000",
@@ -76,9 +69,9 @@ public class ChessController {
         try {
             JSONObject data = new JSONObject(rawData);
             int id = data.getInt("id");
-            if (!gameBoards.containsKey(id))
+            if (!gameInstances.containsKey(id))
                 return "error";
-            Board board = gameBoards.get(id);
+            Board board = gameInstances.get(id).board;
 
             Square from = Square.valueOf(data.getJSONObject("move").getString("from").toUpperCase());
             Square to = Square.valueOf(data.getJSONObject("move").getString("to").toUpperCase());

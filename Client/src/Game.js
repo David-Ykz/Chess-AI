@@ -8,22 +8,49 @@ const DEFAULT_POSITION = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0
 let playerColor = "white";
 
 function Game({ players, room, orientation, cleanup }) {
-    const chess = useMemo(() => new Chess(), []); // <- 1
-    const [fen, setFen] = useState(chess.fen()); // <- 2
+    const chess = useMemo(() => new Chess(), []);
+    const [fen, setFen] = useState(chess.fen());
     const [over, setOver] = useState("");
+    const [gameId, setGameId] = useState(-1);
     const makeAMove = useCallback(
         (move) => {
             try {
-                const result = chess.move(move); // update Chess instance
-                setFen(chess.fen()); // update fen state to trigger a re-render
+                const result = chess.move(move);
+                setFen(chess.fen());
                 checkGameEnd();
-                return result; // returns the move object
+                return result;
             } catch (e) {
-                return null; // returns null if the move was illegal
+                return null;
             }
         },
         [chess]
     );
+
+    function initializeGameInstance() {
+        axios.get('http://localhost:8080/new-game').then(response => {
+            console.log("Started new game with id: " + response.data);
+            setGameId(response.data);
+        });
+    }
+
+    function removeGameInstance() {
+        axios.post('http://localhost:8080/remove-game', gameId).then(response => {
+            console.log("Removed game with id: " + gameId);
+            setGameId(-1);
+        });
+    }
+
+    useEffect(() => {
+        initializeGameInstance();
+        const handleBeforeUnload = (event) => {
+            removeGameInstance();
+        };
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        return () => {
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+        };
+    }, [])
+
 
     function checkGameEnd() {
         if (chess.isGameOver()) {
@@ -63,7 +90,6 @@ function Game({ players, room, orientation, cleanup }) {
             previousMoves.pop();
         }
         chess.load(DEFAULT_POSITION);
-//        chess.load(DEFAULT_POSITION);
         setFen(chess.fen());
         if (playerColor === "black") {
             getData(chess.fen());
@@ -91,7 +117,7 @@ function Game({ players, room, orientation, cleanup }) {
                  console.error('Error fetching data:', error);
             });
     }
-    // onDrop function
+
     function onDrop(sourceSquare, targetSquare, promotionPiece) {
         console.log(promotionPiece);
         const moveData = {
@@ -102,14 +128,21 @@ function Game({ players, room, orientation, cleanup }) {
         };
         const move = makeAMove(moveData);
         if ((chess.turn() !== playerColor) && (move !== null)) {
-            console.log(previousMoves.length);
-            console.log("Transmitted Move Data");
-            getData(chess.fen());
+            var data = {id: gameId, move: moveData};
+            axios.post('http://localhost:8080/process-move', data).then(response => {
+                    console.log(response.data);
+                    chess.load(response.data);
+                    setFen(response.data);
+                    previousMoves.push(response.data);
+                    checkGameEnd();
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                });
         }
-        // illegal move
         return move !== null;
     }
-    // Game component returned jsx
+
     return (
         <>
             <div className="board">

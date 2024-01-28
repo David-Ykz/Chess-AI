@@ -26,12 +26,16 @@ function Game({ players, room, orientation, cleanup }) {
         [chess]
     );
 
-    // Initialize game instance
-    useEffect(() => {
+    function initializeNewGame() {
         axios.get('http://localhost:8080/new-game').then(response => {
             console.log("Started new game with id: " + response.data);
             setGameId(response.data);
         });
+    }
+
+    // Initialize game instance
+    useEffect(() => {
+        initializeNewGame()
     }, [])
 
     function checkGameEnd() {
@@ -71,15 +75,15 @@ function Game({ players, room, orientation, cleanup }) {
         while (previousMoves.length > 0) {
             previousMoves.pop();
         }
+        initializeNewGame();
         chess.load(DEFAULT_POSITION);
         setFen(chess.fen());
         if (playerColor === "black") {
-            getData(chess.fen());
+            console.log("Game is broken");
         }
     }
 
-    function onDrop(sourceSquare, targetSquare, promotionPiece, castleSquare) {
-        console.log(castleSquare);
+    function onDrop(sourceSquare, targetSquare, promotionPiece) {
         const moveData = {
             from: sourceSquare,
             to: targetSquare,

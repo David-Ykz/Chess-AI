@@ -61,9 +61,9 @@ public class ChessController {
     }
 
     @CrossOrigin(origins = {"http://localhost:3000",
-                            "https://bitboard.d18e1qx21kpcpk.amplifyapp.com/",
-                            "https://chessai.y-backend.com",
-                            "https://www.chessai.y-backend.com"})
+            "https://bitboard.d18e1qx21kpcpk.amplifyapp.com/",
+            "https://chessai.y-backend.com",
+            "https://www.chessai.y-backend.com"})
     @PostMapping("/process-move")
     public String processRequest(@RequestBody String rawData) {
         try {
@@ -78,9 +78,15 @@ public class ChessController {
             String color = data.getJSONObject("move").getString("color");
             String promotion = data.getJSONObject("move").getString("promotion");
 
-            if (color.equals("w"))
-                promotion = promotion.toUpperCase();
-            Move move = new Move(from, to, Piece.fromFenSymbol(promotion));
+            Move move;
+
+            if (promotion.equals("k")) {
+                move = new Move(from, to);
+            } else if (color.equals("w")){
+                move = new Move(from, to, Piece.fromFenSymbol(promotion.toUpperCase()));
+            } else {
+                move = new Move(from, to, Piece.fromFenSymbol(promotion));
+            }
             board.doMove(move);
             return makeMove(board);
         } catch (Exception e) {

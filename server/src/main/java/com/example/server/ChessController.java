@@ -64,6 +64,21 @@ public class ChessController {
             "https://bitboard.d18e1qx21kpcpk.amplifyapp.com/",
             "https://chessai.y-backend.com",
             "https://www.chessai.y-backend.com"})
+    @PostMapping("/undo-move")
+    public String undoMove(@RequestBody String rawId) {
+        int id = Integer.parseInt(rawId.substring(0, rawId.length() - 1));
+        if (!gameInstances.containsKey(id))
+            return "error";
+        Board board = gameInstances.get(id).board;
+        board.undoMove();
+        board.undoMove();
+        return board.getFen();
+    }
+
+    @CrossOrigin(origins = {"http://localhost:3000",
+            "https://bitboard.d18e1qx21kpcpk.amplifyapp.com/",
+            "https://chessai.y-backend.com",
+            "https://www.chessai.y-backend.com"})
     @PostMapping("/process-move")
     public String processRequest(@RequestBody String rawData) {
         try {
@@ -72,6 +87,7 @@ public class ChessController {
             if (!gameInstances.containsKey(id))
                 return "error";
             Board board = gameInstances.get(id).board;
+
 
             Square from = Square.valueOf(data.getJSONObject("move").getString("from").toUpperCase());
             Square to = Square.valueOf(data.getJSONObject("move").getString("to").toUpperCase());

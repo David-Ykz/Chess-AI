@@ -53,13 +53,11 @@ function Game({ players, room, orientation, cleanup }) {
     }
 
     function revertMove() {
-        if ((previousMoves.length > 1) && (chess.turn() === playerColor.substring(0,1))) {
-            previousMoves.pop();
-            const oldFen = previousMoves[previousMoves.length - 1];
-            console.log(oldFen);
-            chess.load(oldFen);
-            setFen(oldFen);
-        }
+        axios.post('http://localhost:8080/undo-move', gameId.toString()).then(response => {
+            console.log(response.data);
+            chess.load(response.data);
+            setFen(response.data);
+        });
     }
 
     function switchColors() {

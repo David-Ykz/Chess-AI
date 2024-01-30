@@ -228,9 +228,15 @@ public class ChessAI {
             String uci = rootNode.get("moves").get(0).get("uci").asText();
 
             Square fromSquare = Square.fromValue(uci.toUpperCase().substring(0, 2));
-            Square toSquare = Square.fromValue(uci.toUpperCase().substring(2));
-            move = new Move(fromSquare, toSquare);
+            Square toSquare = Square.fromValue(uci.toUpperCase().substring(2, 4));
+            if (uci.length() > 4) {
+                Piece promotionPiece = Piece.fromFenSymbol(uci.substring(4));
+                move = new Move(fromSquare, toSquare, promotionPiece);
+            } else {
+                move = new Move(fromSquare, toSquare);
+            }
         } catch (Exception e) {
+            System.out.println("Encountered error reading from table");
             System.out.println(e);
         }
         board.doMove(move);

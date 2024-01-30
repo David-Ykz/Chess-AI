@@ -10,6 +10,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7e482143-faf7-4e4e-877f-3fddf9f08f76" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/example/chess_logic/TranspositionTable.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chess_logic/ChessAI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/chess_logic/ChessAI.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/example/server/ChessController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/server/ChessController.java" afterDir="false" />
@@ -191,11 +192,6 @@
           <properties class="java.lang.StringIndexOutOfBoundsException" package="java.lang" />
           <option name="timeStamp" value="2" />
         </breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>jar://$MAVEN_REPOSITORY$/com/github/bhlangonijr/chesslib/1.3.3/chesslib-1.3.3.jar!/com/github/bhlangonijr/chesslib/Board.class</url>
-          <line>130</line>
-          <option name="timeStamp" value="10" />
-        </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
   </component>

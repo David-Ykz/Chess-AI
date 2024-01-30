@@ -22,7 +22,10 @@ public class ChessAI {
     // Performance Statistics //
     public int nodesSearched = 0;
     public int numPruned = 0;
+    public int transpositions = 0;
+
     public EvaluationMap evalMap = new EvaluationMap();
+    public TranspositionTable transpositionTable = new TranspositionTable();
 
     public ChessAI() {
     }
@@ -30,6 +33,8 @@ public class ChessAI {
     public void printPerformanceInfo() {
         System.out.println("Nodes searched: " + nodesSearched);
         System.out.println("Nodes Pruned: " + numPruned);
+        System.out.println("Transpositions: " + transpositions);
+        System.out.println("Transposition table size: " + transpositionTable.table.keySet().size());
     }
 
     public int evaluate(Board board) {
@@ -155,8 +160,22 @@ public class ChessAI {
     // Finds the best move by searching all legal moves down to a specified depth
     public EvalMove minimax(Board board, int depth, int alpha, int beta) {
         nodesSearched++;
+
+        long hash = board.getZobristKey();
+        TranspositionTable.TableEntry entry = transpositionTable.probe(hash);
+        if (entry != null && entry.depth >= depth) {
+            transpositions++;
+            return entry.move;
+        }
+
         int turn = board.getSideToMove() == Side.WHITE ? 1 : -1;
-        if (depth == 0) return quiescenceSearch(board, alpha, beta);
+
+        if (depth == 0) {
+            EvalMove qSearchResult = quiescenceSearch(board, alpha, beta);
+            transpositionTable.store(hash, depth, TranspositionTable.EXACT, qSearchResult);
+            return qSearchResult;
+        }
+
         List<Move> legalMoves = board.legalMoves();
         if (board.isMated()) {
             return new EvalMove((999999 + depth * 10000) * -turn);
@@ -164,12 +183,7 @@ public class ChessAI {
             return new EvalMove(0);
         }
 
-        EvalMove bestMove;
-        if (turn > 0) {
-            bestMove = new EvalMove(Integer.MIN_VALUE);
-        } else {
-            bestMove = new EvalMove(Integer.MAX_VALUE);
-        }
+        EvalMove bestMove = new EvalMove(turn > 0 ? Integer.MIN_VALUE : Integer.MAX_VALUE);
         // Goes through each move trying to find the best move among them
         List<EvalMove> orderedMoves = orderMoves(board, legalMoves);
         for (EvalMove orderedMove : orderedMoves) {
@@ -186,14 +200,13 @@ public class ChessAI {
                 beta = Math.min(beta, newMove.eval);
             }
 
-            if (depth == 7) {
-                System.out.println(newMove.move.getFrom() + " -> " + newMove.move.getTo() + " : " + newMove.eval);
-            }
-
             if (beta <= alpha) {
                 numPruned++;
+                transpositionTable.store(hash, depth, TranspositionTable.EXACT, bestMove);
                 return bestMove;
             }
+
+            transpositionTable.store(hash, depth, TranspositionTable.EXACT, bestMove);
         }
         return bestMove;
     }
@@ -246,12 +259,32 @@ public class ChessAI {
     }
 
     public EvalMove findMove(Board board) {
-        EvalMove evalMove = searchEndgameTables(board);
-        if (evalMove.move.getTo() != Square.NONE) {
-            return evalMove;
+        EvalMove bestMove = searchEndgameTables(board);
+
+        final long MAX_TIME_ALLOCATED = 1000;
+        if (bestMove.move.getTo() != Square.NONE) {
+            return bestMove;
         } else {
-            evalMove = minimax(board, 5, Integer.MIN_VALUE, Integer.MAX_VALUE);
+            long startTime = System.currentTimeMillis();
+            for (int depth = 1; depth < 100; depth++) {
+                System.out.println(depth);
+                EvalMove currentMove = minimax(board, depth, Integer.MIN_VALUE, Integer.MAX_VALUE);
+                if (bestMove.move.getTo() == Square.NONE ||
+                        (board.getSideToMove() == Side.WHITE && currentMove.eval > bestMove.eval) ||
+                        (board.getSideToMove() == Side.BLACK && currentMove.eval < bestMove.eval)) {
+                        bestMove = currentMove;
+                }
+
+                long currentTime = System.currentTimeMillis();
+                if (currentTime - startTime >= MAX_TIME_ALLOCATED) {
+                    break;
+                }
+
+            }
+
+
+//            evalMove = minimax(board, 5, Integer.MIN_VALUE, Integer.MAX_VALUE);
         }
-        return evalMove;
+        return bestMove;
     }
 }

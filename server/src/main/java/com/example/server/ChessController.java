@@ -57,6 +57,7 @@ public class ChessController {
             newId = (int)(Math.random() * MAX_CONCURRENT_GAMES);
         }
         gameInstances.put(newId, new GameInstance());
+        gameInstances.get(newId).board.loadFromFen("8/k7/3p4/p2P1p2/P2P1P2/8/8/K7 w - - 0 1");
         return newId;
     }
 

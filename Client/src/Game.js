@@ -4,8 +4,9 @@ import { Chess } from "chess.js";
 import axios from 'axios';
 import CustomDialog from "./components/CustomDialog";
 const previousMoves = [];
-//const DEFAULT_POSITION = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
-const DEFAULT_POSITION = '8/k7/3p4/p2P1p2/P2P1P2/8/8/K7 w -- - 0 1'
+//const DEFAULT_POSITION = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+const DEFAULT_POSITION = '8/k7/3p4/p2P1p2/P2P1P2/8/8/K7 w -- - 0 1';
+//const DEFAULT_POSITION = 'k7/8/8/P5n1/NN6/QN6/QN4NN/QN3BK1 w -- - 0 1';
 let playerColor = "white";
 
 function Game({ players, room, orientation, cleanup }) {

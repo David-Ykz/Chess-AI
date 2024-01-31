@@ -165,7 +165,17 @@ public class ChessAI {
         TranspositionTable.TableEntry entry = transpositionTable.probe(hash);
         if (entry != null && entry.depth >= depth) {
             transpositions++;
-            return entry.move;
+            if (false) {
+                if (entry.move.eval == 0) {
+//                    System.out.println("recorded a draw");
+                }
+                board.doMove(entry.move.move);
+                if (board.isDraw()) {
+                    entry.move.eval = 0;
+                }
+                board.undoMove();
+            }
+//            return entry.move;
         }
 
         int turn = board.getSideToMove() == Side.WHITE ? 1 : -1;
@@ -177,11 +187,16 @@ public class ChessAI {
         }
 
         List<Move> legalMoves = board.legalMoves();
-        if (board.isMated()) {
-            return new EvalMove((999999 + depth * 10000) * -turn);
-        } else if (board.isDraw()){
-            return new EvalMove(0);
-        }
+//        if (board.isMated()) {
+//            EvalMove mateMove = new EvalMove((999999 + depth * 10000) * -turn);
+//            transpositionTable.store(hash, depth, TranspositionTable.EXACT, mateMove);
+//            return mateMove;
+//        } else if (board.isDraw()){
+//            System.out.println("draw");
+//            EvalMove drawMove = new EvalMove(0);
+//            transpositionTable.store(hash, depth, TranspositionTable.EXACT, drawMove);
+//            return drawMove;
+//        }
 
         EvalMove bestMove = new EvalMove(turn > 0 ? Integer.MIN_VALUE : Integer.MAX_VALUE);
         // Goes through each move trying to find the best move among them
@@ -189,15 +204,23 @@ public class ChessAI {
         for (EvalMove orderedMove : orderedMoves) {
             Move move = orderedMove.move;
             board.doMove(move);
-            EvalMove newMove = new EvalMove(move, minimax(board, depth - 1, alpha, beta).eval);
+            if (board.isMated()) {
+                orderedMove.eval = (999999 + depth * 10000) * turn;
+            } else if (board.isDraw()){
+//                System.out.println("draw");
+                orderedMove.eval = 0;
+            } else {
+                orderedMove.eval = minimax(board, depth - 1, alpha, beta).eval;
+//            EvalMove newMove = new EvalMove(move, minimax(board, depth - 1, alpha, beta).eval);
+            }
             board.undoMove();
             // Compares and prunes the moves
             if (turn > 0) {
-                bestMove = maxMove(bestMove, newMove);
-                alpha = Math.max(alpha, newMove.eval);
+                bestMove = maxMove(bestMove, orderedMove);
+                alpha = Math.max(alpha, orderedMove.eval);
             } else {
-                bestMove = minMove(bestMove, newMove);
-                beta = Math.min(beta, newMove.eval);
+                bestMove = minMove(bestMove, orderedMove);
+                beta = Math.min(beta, orderedMove.eval);
             }
 
             if (beta <= alpha) {
@@ -266,12 +289,13 @@ public class ChessAI {
             return bestMove;
         } else {
             long startTime = System.currentTimeMillis();
+
             for (int depth = 1; depth < 100; depth++) {
                 System.out.println(depth);
                 EvalMove currentMove = minimax(board, depth, Integer.MIN_VALUE, Integer.MAX_VALUE);
                 if (bestMove.move.getTo() == Square.NONE ||
-                        (board.getSideToMove() == Side.WHITE && currentMove.eval > bestMove.eval) ||
-                        (board.getSideToMove() == Side.BLACK && currentMove.eval < bestMove.eval)) {
+                        (board.getSideToMove() == Side.WHITE && currentMove.eval >= bestMove.eval) ||
+                        (board.getSideToMove() == Side.BLACK && currentMove.eval <= bestMove.eval)) {
                         bestMove = currentMove;
                 }
 
@@ -279,6 +303,7 @@ public class ChessAI {
                 if (currentTime - startTime >= MAX_TIME_ALLOCATED) {
                     break;
                 }
+//                transpositionTable.table.clear();
 
             }
 

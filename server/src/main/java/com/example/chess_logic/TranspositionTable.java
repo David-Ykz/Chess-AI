@@ -14,7 +14,9 @@ public class TranspositionTable {
     }
 
     public void store(long key, int depth, int flag, EvalMove move) {
-        table.put(key, new TableEntry(depth, flag, move));
+        if (depth >= 3) {
+            table.put(key, new TableEntry(depth, flag, move));
+        }
     }
 
     public TableEntry probe(long key) {

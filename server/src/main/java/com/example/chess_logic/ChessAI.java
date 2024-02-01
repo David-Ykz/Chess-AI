@@ -26,6 +26,7 @@ public class ChessAI {
 
     public EvaluationMap evalMap = new EvaluationMap();
     public TranspositionTable transpositionTable = new TranspositionTable();
+    public PVTable pvTable = new PVTable();
 
     public ChessAI() {
     }
@@ -86,6 +87,9 @@ public class ChessAI {
         return a.eval <= b.eval ? a : b;
     }
 
+
+
+
     // Sorts the moves so better moves are searched first
     public List<EvalMove> orderMoves(Board board, List<Move> moves) {
         List<EvalMove> orderedMoves = new ArrayList<>(moves.size());
@@ -108,7 +112,24 @@ public class ChessAI {
             if (move.getPromotion() != Piece.NONE) {
                 moveScore += Math.abs(evalMap.pieceValueMap.get(move.getPromotion()));
             }
-            orderedMoves.add(new EvalMove(move, 0, moveScore));
+
+            board.doMove(move);
+            EvalMove entry = pvTable.probe(board.getZobristKey());
+            board.undoMove();
+            if (entry != null) {
+                orderedMoves.add(new EvalMove(move, 0, moveScore + Math.abs(entry.eval)));
+            } else {
+                orderedMoves.add(new EvalMove(move, 0, moveScore));
+            }
+
+//            board.doMove(move);
+//            EvalMove entry = pvTable.probe(board.getZobristKey());
+//            if (entry != null) {
+//
+//            }
+//            long hash = board.getZobristKey();
+//            if (pvTable.probe())
+
         }
         Collections.sort(orderedMoves);
         return orderedMoves;
@@ -293,6 +314,9 @@ public class ChessAI {
             for (int depth = 1; depth < 100; depth++) {
                 System.out.println(depth);
                 EvalMove currentMove = minimax(board, depth, Integer.MIN_VALUE, Integer.MAX_VALUE);
+                board.doMove(currentMove.move);
+                pvTable.store(board.getZobristKey(), currentMove);
+                board.undoMove();
                 if (bestMove.move.getTo() == Square.NONE ||
                         (board.getSideToMove() == Side.WHITE && currentMove.eval >= bestMove.eval) ||
                         (board.getSideToMove() == Side.BLACK && currentMove.eval <= bestMove.eval)) {

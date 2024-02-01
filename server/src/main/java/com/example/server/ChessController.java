@@ -90,7 +90,6 @@ public class ChessController {
                 return "error";
             Board board = gameInstances.get(id).board;
 
-
             Square from = Square.valueOf(data.getJSONObject("move").getString("from").toUpperCase());
             Square to = Square.valueOf(data.getJSONObject("move").getString("to").toUpperCase());
             String color = data.getJSONObject("move").getString("color");

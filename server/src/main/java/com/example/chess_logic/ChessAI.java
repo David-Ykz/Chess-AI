@@ -317,7 +317,7 @@ public class ChessAI {
         } else {
             long startTime = System.currentTimeMillis();
 
-            for (int depth = 3; depth < 100; depth++) {
+            for (int depth = 1; depth < 100; depth++) {
                 System.out.println(depth);
                 int alpha = Integer.MIN_VALUE;
                 int beta = Integer.MAX_VALUE;

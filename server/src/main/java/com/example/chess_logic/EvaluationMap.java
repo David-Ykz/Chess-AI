@@ -15,13 +15,19 @@ public class EvaluationMap {
     public final HashMap<Piece, Integer> endgamePieceValues = new HashMap<>();
     public final HashMap<Piece, Integer> pieceIntegerMap = new HashMap<>();
     public final HashMap<String, Integer> listOfLetters = new HashMap<>();
+    public final HashMap<Square, Integer> squares = new HashMap<>();
+    public final HashMap<Piece, Integer> whitePieces = new HashMap<>();
+    public final HashMap<Piece, Integer> blackPieces = new HashMap<>();
 
-    public final Square[] squares = Square.values();
     public final int[] midgameValues = {124, 781, 825, 1276, 2538, -124, -781, -825, -1276, -2538};
     public final int[] endgameValues = {206, 854, 915, 1380, 2682, -206, -854, -915, -1380, -2682};
-    public final Piece[] pieces = {
+    public final Piece[] piecesNoKing = {
             Piece.WHITE_PAWN, Piece.WHITE_BISHOP, Piece.WHITE_KNIGHT, Piece.WHITE_ROOK, Piece.WHITE_QUEEN,
             Piece.BLACK_PAWN, Piece.BLACK_BISHOP, Piece.BLACK_KNIGHT, Piece.BLACK_ROOK, Piece.BLACK_QUEEN
+    };
+    public final Piece[] piecesWithKing = {
+            Piece.WHITE_PAWN, Piece.WHITE_BISHOP, Piece.WHITE_KNIGHT, Piece.WHITE_ROOK, Piece.WHITE_QUEEN, Piece.WHITE_KING,
+            Piece.BLACK_PAWN, Piece.BLACK_BISHOP, Piece.BLACK_KNIGHT, Piece.BLACK_ROOK, Piece.BLACK_QUEEN, Piece.BLACK_KING
     };
 
 
@@ -309,76 +315,6 @@ public class EvaluationMap {
     };
     //</editor-fold>
 
-
-    // P B N R K
-    public final int[][] openingTable = {
-            {
-                    0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 0, 0, 1, 1, 0, 0, 0,
-                    1, 1, 4, 5, 5, 0, 0, 0,
-                    1, 1, 3, 3, 3, 0, 0, 1,
-                    0, 0, -1, -2, -2, 0, 0, 0,
-                    0, 0, 0, 0, 0, 0, 0, 0
-            },
-
-            {
-                    0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 5, 0, 1, 1, 0, 5, 0,
-                    0, 0, 5, 1, 1, 5, 0, 0,
-                    0, 1, 0, 0, 0, 0, 1, 0,
-                    0, 3, 0, 2, 2, 0, 3, 0,
-                    0, 0, -1, 0, 0, 0, -1, 0
-            },
-
-            {
-                    0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 1, 0, 1, 1, 0, 1, 0,
-                    0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 0, 3, 0, 0, 3, 0, 0,
-                    0, 0, 0, 2, 2, 0, 0, 0,
-                    0, -1, 0, 0, 0, 0, -1, 0
-            },
-
-            {
-                    0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 0, 0, 0, 0, 0, 0, 0,
-                    1, -1, 0, 1, 1, 1, -1, 1
-            },
-
-            {
-                    0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 0, 1, 1, 0, 0, 0, 0,
-                    0, 0, 0, 6, 0, 0, 0, 0
-            },
-
-            {
-                    0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 0, 0, 0, 0, 0, 0, 0,
-                    0, 0, 2, 0, 2, 0, 2, 0
-            }
-    };
-
     // Distance from the center
     public final int[] centerManhattanDistance = {
             6, 5, 4, 3, 3, 4, 5, 6,
@@ -392,9 +328,23 @@ public class EvaluationMap {
     };
 
     EvaluationMap() {
-        for (int i = 0; i < pieces.length; i++) {
-            midgamePieceValues.put(pieces[i], midgameValues[i]);
-            endgamePieceValues.put(pieces[i], endgameValues[i]);
+        for (int i = 0; i < piecesNoKing.length; i++) {
+            midgamePieceValues.put(piecesNoKing[i], midgameValues[i]);
+            endgamePieceValues.put(piecesNoKing[i], endgameValues[i]);
+        }
+
+        for (int i = 0; i < piecesWithKing.length; i++) {
+            if (i < piecesWithKing.length/2) {
+                whitePieces.put(piecesWithKing[i], i);
+            } else {
+                blackPieces.put(piecesWithKing[i], i - 6);
+            }
+        }
+
+        Square[] allSquares = Square.values();
+        // Exclude Square.NONE
+        for (int i = 0; i < allSquares.length - 1; i++) {
+            squares.put(allSquares[i], i);
         }
 
         pieceIntegerMap.put(Piece.WHITE_PAWN, 1);
@@ -434,18 +384,13 @@ public class EvaluationMap {
     }
 
     public int midgamePSTBonus(Square square, Piece pieceType) {
-        return 0;
-    }
-
-
-    public int openingEvaluation(Board board, Piece piece) {
-        int totalEval = 0;
-        int pieceValue = pieceIntegerMap.get(piece);
-        for (Square square : board.getPieceLocation(piece)) {
-            totalEval += openingTable[Math.abs(pieceValue) - 1][squareToArrIndex(square, pieceValue)];
+        if (pieceType.getPieceSide() == Side.WHITE) {
+            return whiteMidgamePST[whitePieces.get(pieceType)][squares.get(square)];
+        } else {
+            return blackMidgamePST[blackPieces.get(pieceType)][squares.get(square)];
         }
-        return totalEval;
     }
+
 
     // Finds how far a piece is from the center of the board
     public int findCMD(Square square, int color) {

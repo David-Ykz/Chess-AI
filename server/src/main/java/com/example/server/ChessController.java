@@ -108,7 +108,8 @@ public class ChessController {
             return makeMove(board);
         } catch (Exception e) {
             System.out.println("Encountered error");
-            System.out.println(e);
+            e.printStackTrace();
+            //System.out.println(e);
             return "error";
         }
     }

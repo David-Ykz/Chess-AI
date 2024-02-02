@@ -387,7 +387,7 @@ public class EvaluationMap {
         if (pieceType.getPieceSide() == Side.WHITE) {
             return whiteMidgamePST[whitePieces.get(pieceType)][squares.get(square)];
         } else {
-            return blackMidgamePST[blackPieces.get(pieceType)][squares.get(square)];
+            return -blackMidgamePST[blackPieces.get(pieceType)][squares.get(square)];
         }
     }
 

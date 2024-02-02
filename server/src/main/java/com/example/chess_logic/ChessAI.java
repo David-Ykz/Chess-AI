@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.bhlangonijr.chesslib.*;
 import com.github.bhlangonijr.chesslib.move.Move;
+import com.github.bhlangonijr.chesslib.move.MoveGenerator;
 import org.springframework.core.metrics.StartupStep;
 
 import javax.swing.plaf.synth.SynthTextAreaUI;
@@ -24,7 +25,7 @@ public class ChessAI {
     public int numPruned = 0;
     public int transpositions = 0;
 
-    public EvaluationMap evalMap = new EvaluationMap();
+    public EvaluationWeights evalWeights = new EvaluationWeights();
     public TranspositionTable transpositionTable = new TranspositionTable();
     public PVTable pvTable = new PVTable();
 
@@ -40,13 +41,13 @@ public class ChessAI {
 
     public int midgameEval(Board board) {
         int totalEval = 0;
-        for (Piece pieceType : evalMap.midgamePieceValues.keySet()) {
+        for (Piece pieceType : evalWeights.midgamePieceValues.keySet()) {
             List<Square> piecePositions = board.getPieceLocation(pieceType);
             // Piece value
-            totalEval += piecePositions.size() * evalMap.midgamePieceValues.get(pieceType);
+            totalEval += piecePositions.size() * evalWeights.midgamePieceValues.get(pieceType);
             // PST
             for (Square square : piecePositions) {
-                totalEval += evalMap.midgamePSTBonus(square, pieceType);
+                totalEval += evalWeights.midgamePSTBonus(square, pieceType);
             }
         }
         // Tempo
@@ -56,8 +57,8 @@ public class ChessAI {
 
     public int endgameEval(Board board) {
         int totalEval = 0;
-        for (Piece piece : evalMap.endgamePieceValues.keySet()) {
-            totalEval += board.getPieceLocation(piece).size() * evalMap.endgamePieceValues.get(piece);
+        for (Piece piece : evalWeights.endgamePieceValues.keySet()) {
+            totalEval += board.getPieceLocation(piece).size() * evalWeights.endgamePieceValues.get(piece);
         }
         return totalEval;
     }
@@ -71,11 +72,12 @@ public class ChessAI {
         return (((npm - endgameLimit) * 128) / (midgameLimit - endgameLimit));
     }
 
+
     public int nonPawnMaterial(Board board) {
         int totalEval = 0;
-        for (Piece piece : evalMap.midgamePieceValues.keySet()) {
+        for (Piece piece : evalWeights.midgamePieceValues.keySet()) {
             if (piece.equals(Piece.WHITE_PAWN) || piece.equals(Piece.BLACK_PAWN)) {
-                totalEval += board.getPieceLocation(piece).size() * evalMap.midgamePieceValues.get(piece);
+                totalEval += board.getPieceLocation(piece).size() * evalWeights.midgamePieceValues.get(piece);
             }
         }
         return totalEval;
@@ -113,9 +115,9 @@ public class ChessAI {
             Piece capturedPiece = board.getPiece(move.getTo());
             if (capturedPiece != Piece.NONE) {
                 if (movedPiece == Piece.WHITE_KING || movedPiece == Piece.BLACK_KING) {
-                    moveScore += Math.abs(evalMap.midgamePieceValues.get((capturedPiece)));
+                    moveScore += Math.abs(evalWeights.midgamePieceValues.get((capturedPiece)));
                 } else {
-                    moveScore += Math.abs(evalMap.midgamePieceValues.get((capturedPiece))) - Math.abs(evalMap.midgamePieceValues.get(movedPiece))/10;
+                    moveScore += Math.abs(evalWeights.midgamePieceValues.get((capturedPiece))) - Math.abs(evalWeights.midgamePieceValues.get(movedPiece))/10;
                 }
             }
 
@@ -125,7 +127,7 @@ public class ChessAI {
             }
 
             if (move.getPromotion() != Piece.NONE) {
-                moveScore += Math.abs(evalMap.midgamePieceValues.get(move.getPromotion()));
+                moveScore += Math.abs(evalWeights.midgamePieceValues.get(move.getPromotion()));
             }
 
             board.doMove(move);
@@ -309,6 +311,7 @@ public class ChessAI {
         EvalMove bestMove = searchEndgameTables(board);
 
         final long MAX_TIME_ALLOCATED = 1000;
+        final int ASPIRATION_WINDOW_WIDTH = 62;
         if (bestMove.move.getTo() != Square.NONE) {
             return bestMove;
         } else {
@@ -316,7 +319,20 @@ public class ChessAI {
 
             for (int depth = 3; depth < 100; depth++) {
                 System.out.println(depth);
-                EvalMove currentMove = minimax(board, depth, Integer.MIN_VALUE, Integer.MAX_VALUE);
+                int alpha = Integer.MIN_VALUE;
+                int beta = Integer.MAX_VALUE;
+                if (depth > 4) {
+                    alpha = bestMove.eval - ASPIRATION_WINDOW_WIDTH;
+                    beta = bestMove.eval + ASPIRATION_WINDOW_WIDTH;
+                }
+
+                EvalMove currentMove = minimax(board, depth, alpha, beta);
+
+                if (Math.abs(bestMove.eval - currentMove.eval) > ASPIRATION_WINDOW_WIDTH) {
+                    System.out.println("Researching");
+                    currentMove = minimax(board, depth, Integer.MIN_VALUE, Integer.MAX_VALUE);
+                }
+
                 board.doMove(currentMove.move);
                 pvTable.store(board.getZobristKey(), currentMove);
                 board.undoMove();
@@ -330,12 +346,7 @@ public class ChessAI {
                 if (currentTime - startTime >= MAX_TIME_ALLOCATED) {
                     break;
                 }
-//                transpositionTable.table.clear();
-
             }
-
-
-//            evalMove = minimax(board, 5, Integer.MIN_VALUE, Integer.MAX_VALUE);
         }
         return bestMove;
     }

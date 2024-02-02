@@ -9,7 +9,7 @@ import com.github.bhlangonijr.chesslib.*;
 
 import java.util.HashMap;
 
-public class EvaluationMap {
+public class EvaluationWeights {
 
     public final HashMap<Piece, Integer> midgamePieceValues = new HashMap<>();
     public final HashMap<Piece, Integer> endgamePieceValues = new HashMap<>();
@@ -327,7 +327,7 @@ public class EvaluationMap {
             6, 5, 4, 3, 3, 4, 5, 6
     };
 
-    EvaluationMap() {
+    EvaluationWeights() {
         for (int i = 0; i < piecesNoKing.length; i++) {
             midgamePieceValues.put(piecesNoKing[i], midgameValues[i]);
             endgamePieceValues.put(piecesNoKing[i], endgameValues[i]);

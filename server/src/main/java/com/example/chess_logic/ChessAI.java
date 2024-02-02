@@ -38,7 +38,60 @@ public class ChessAI {
         System.out.println("Transposition table size: " + transpositionTable.table.keySet().size());
     }
 
+    public int midgameEval(Board board) {
+        int totalEval = 0;
+        for (Piece pieceType : evalMap.midgamePieceValues.keySet()) {
+            List<Square> piecePositions = board.getPieceLocation(pieceType);
+            // Piece value
+            totalEval += piecePositions.size() * evalMap.midgamePieceValues.get(pieceType);
+            // PST
+            for (Square square : piecePositions) {
+                totalEval += evalMap.midgamePSTBonus(square, pieceType);
+            }
+        }
+        // Tempo
+        totalEval += 28 * (board.getSideToMove() == Side.WHITE ? 1 : -1);
+        return totalEval;
+    }
+
+    public int endgameEval(Board board) {
+        int totalEval = 0;
+        for (Piece piece : evalMap.endgamePieceValues.keySet()) {
+            totalEval += board.getPieceLocation(piece).size() * evalMap.endgamePieceValues.get(piece);
+        }
+        return totalEval;
+    }
+
+    public int phase(Board board) {
+        final int midgameLimit = 15258;
+        final int endgameLimit = 3915;
+
+        int npm = Math.max(endgameLimit, Math.min(nonPawnMaterial(board), midgameLimit));
+
+        return (((npm - endgameLimit) * 128) / (midgameLimit - endgameLimit));
+    }
+
+    public int nonPawnMaterial(Board board) {
+        int totalEval = 0;
+        for (Piece piece : evalMap.midgamePieceValues.keySet()) {
+            if (piece.equals(Piece.WHITE_PAWN) || piece.equals(Piece.BLACK_PAWN)) {
+                totalEval += board.getPieceLocation(piece).size() * evalMap.midgamePieceValues.get(piece);
+            }
+        }
+        return totalEval;
+    }
+
+
     public int evaluate(Board board) {
+        // Tempo: side to move gets +28
+        // Midgame piece values: [124, 781, 825, 1276, 2538]
+        // Not midgame piece values: [206, 854, 915, 1380, 2682]
+
+
+
+
+
+
         int totalEval = basicEval(board);
         int numPieces = 0;
         for (Piece piece : evalMap.pieceValueMap.keySet()) {

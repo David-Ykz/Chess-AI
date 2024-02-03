@@ -159,7 +159,7 @@ public class ChessAI {
     }
 
     public EvalMove quiescenceSearch(Board board, int alpha, int beta) {
-        nodesSearched++;
+//        nodesSearched++;
         EvalMove bestMove = new EvalMove(evaluate(board));
 
         if (board.getSideToMove() == Side.WHITE) {
@@ -203,13 +203,15 @@ public class ChessAI {
 
     // Finds the best move by searching all legal moves down to a specified depth
     public EvalMove minimax(Board board, int depth, int alpha, int beta) {
-        nodesSearched++;
+        if (depth >= 3) {
+            nodesSearched++;
+        }
 
         long hash = board.getZobristKey();
         TranspositionTable.TableEntry entry = transpositionTable.probe(hash);
         if (entry != null && entry.depth >= depth) {
             transpositions++;
-            return entry.move;
+//            return entry.move;
         }
 
         int turn = board.getSideToMove() == Side.WHITE ? 1 : -1;
@@ -317,7 +319,7 @@ public class ChessAI {
                 System.out.println(depth);
                 int alpha = Integer.MIN_VALUE;
                 int beta = Integer.MAX_VALUE;
-                if (depth > 4) {
+                if (depth > 1) {
                     alpha = bestMove.eval - ASPIRATION_WINDOW_WIDTH;
                     beta = bestMove.eval + ASPIRATION_WINDOW_WIDTH;
                 }

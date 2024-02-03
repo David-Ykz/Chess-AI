@@ -10,13 +10,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7e482143-faf7-4e4e-877f-3fddf9f08f76" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/example/chess_logic/MoveGenerationTester.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Client/src/Game.js" beforeDir="false" afterPath="$PROJECT_DIR$/../Client/src/Game.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chess_logic/Board.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/chess_logic/Board.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chess_logic/ChessAI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/chess_logic/ChessAI.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/server/ChessController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/server/ChessController.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -68,7 +63,7 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
-    "git-widget-placeholder": "main",
+    "git-widget-placeholder": "bitboard",
     "ignore.virus.scanning.warn.message": "true",
     "jdk.selected.JAVA_MODULE": "openjdk-17",
     "last_opened_file_path": "C:/Users/kzdav/Documents",
@@ -79,7 +74,7 @@
     "project.structure.last.edited": "Libraries",
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.2",
-    "settings.editor.selected.configurable": "project.propVCSSupport.DirectoryMappings",
+    "settings.editor.selected.configurable": "project.propVCSSupport.ChangelistConflict",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -89,9 +84,9 @@
       <recent name="C:\Users\kzdav\Documents\Github\Chess-AI\server" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.MoveGenerationTester">
-    <configuration name="Board" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="com.example.chess_logic.Board" />
+  <component name="RunManager" selected="Application.SpringServer">
+    <configuration name="ChessAI" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.example.chess_logic.ChessAI" />
       <module name="server" />
       <extension name="coverage">
         <pattern>
@@ -108,7 +103,7 @@
       <module name="server" />
       <extension name="coverage">
         <pattern>
-          <option name="PATTERN" value="com.example.chess_logic.*" />
+          <option name="PATTERN" value="com.example.localApp.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
@@ -121,7 +116,7 @@
       <module name="server" />
       <extension name="coverage">
         <pattern>
-          <option name="PATTERN" value="com.example.chess_logic.*" />
+          <option name="PATTERN" value="com.example.localApp.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
@@ -130,11 +125,11 @@
       </method>
     </configuration>
     <configuration name="OpeningMenu" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="com.example.chess_logic.OpeningMenu" />
+      <option name="MAIN_CLASS_NAME" value="com.example.localApp.OpeningMenu" />
       <module name="server" />
       <extension name="coverage">
         <pattern>
-          <option name="PATTERN" value="com.example.chess_logic.*" />
+          <option name="PATTERN" value="com.example.localApp.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
@@ -157,11 +152,11 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Application.MoveGenerationTester" />
         <item itemvalue="Application.SpringServer" />
+        <item itemvalue="Application.ChessAI" />
         <item itemvalue="Application.OpeningMenu" />
+        <item itemvalue="Application.MoveGenerationTester" />
         <item itemvalue="Application.EngineTester" />
-        <item itemvalue="Application.Board" />
       </list>
     </recent_temporary>
   </component>

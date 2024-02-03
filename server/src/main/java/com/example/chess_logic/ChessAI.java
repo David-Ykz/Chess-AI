@@ -73,6 +73,12 @@ public class ChessAI {
     }
 
 
+    public int isolatedPawns(Board board) {
+        long whiteBitboard = board.getBitboard(Piece.WHITE_PAWN);
+
+        return 0;
+    }
+
     public int nonPawnMaterial(Board board) {
         int totalEval = 0;
         for (Piece piece : evalWeights.midgamePieceValues.keySet()) {
@@ -203,17 +209,7 @@ public class ChessAI {
         TranspositionTable.TableEntry entry = transpositionTable.probe(hash);
         if (entry != null && entry.depth >= depth) {
             transpositions++;
-            if (false) {
-                if (entry.move.eval == 0) {
-//                    System.out.println("recorded a draw");
-                }
-                board.doMove(entry.move.move);
-                if (board.isDraw()) {
-                    entry.move.eval = 0;
-                }
-                board.undoMove();
-            }
-//            return entry.move;
+            return entry.move;
         }
 
         int turn = board.getSideToMove() == Side.WHITE ? 1 : -1;

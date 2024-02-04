@@ -241,6 +241,13 @@ public class Evaluator {
         return (((npm - endgameLimit) * 128) / (midgameLimit - endgameLimit));
     }
 
+    public int numPiecesLeft(Board board) {
+        int totalPieces = 0;
+        for (Piece pieceType : piecesWithKing) {
+            totalPieces += board.getPieceLocation(pieceType).size();
+        }
+        return totalPieces;
+    }
 
     public int doubledPawns(Board board) {
         long whiteBitboard = board.getBitboard(Piece.WHITE_PAWN);

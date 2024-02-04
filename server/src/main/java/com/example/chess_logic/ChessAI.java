@@ -52,6 +52,7 @@ public class ChessAI {
     public EvalMove maxMove(EvalMove a, EvalMove b) {
         return a.eval >= b.eval ? a : b;
     }
+
     public EvalMove minMove(EvalMove a, EvalMove b) {
         return a.eval <= b.eval ? a : b;
     }
@@ -222,8 +223,60 @@ public class ChessAI {
         return new EvalMove(move, eval);
     }
 
+    public String queryOpeningTables(String fen) {
+        String QUERY_URL = "https://explorer.lichess.ovh/masters?fen=";
+        fen = fen.replace(' ', '_');
+        String strResponse = "";
+        try {
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(QUERY_URL + fen))
+                    .GET()
+                    .build();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            strResponse = response.body();
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        return strResponse;
+    }
+
+    public EvalMove searchOpeningTables(Board board) {
+        Move move = null;
+        try {
+            String fen = board.getFen();
+            String response = queryOpeningTables(fen);
+            System.out.println(response);
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode rootNode = objectMapper.readTree(response);
+            if (rootNode.get("opening").isNull()) return new EvalMove(0);
+            String uci = rootNode.get("moves").get(0).get("uci").asText();
+            Square fromSquare = Square.fromValue(uci.toUpperCase().substring(0, 2));
+            Square toSquare = Square.fromValue(uci.toUpperCase().substring(2, 4));
+            if (uci.length() > 4) {
+                Piece promotionPiece = Piece.fromFenSymbol(uci.substring(4));
+                move = new Move(fromSquare, toSquare, promotionPiece);
+            } else {
+                move = new Move(fromSquare, toSquare);
+            }
+        } catch (Exception e) {
+            System.out.println("Encountered error reading from table");
+            System.out.println(e);
+        }
+        board.doMove(move);
+        int eval = evaluator.evaluate(board);
+        board.undoMove();
+        return new EvalMove(move, eval);
+    }
+
+
     public EvalMove findMove(Board board) {
-        EvalMove bestMove = searchEndgameTables(board);
+        EvalMove bestMove;
+        if (evaluator.numPiecesLeft(board) < 8) {
+            bestMove = searchEndgameTables(board);
+        } else {
+            bestMove = searchOpeningTables(board);
+        }
 
         if (bestMove.move.getTo() != Square.NONE) {
             return bestMove;

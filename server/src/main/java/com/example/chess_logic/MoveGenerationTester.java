@@ -28,14 +28,14 @@ public class MoveGenerationTester {
 
 
     public static void main(String[] args) {
-        ChessAI ai = new ChessAI();
+        com.github.bhlangonijr.chesslib.Board newBoard = new com.github.bhlangonijr.chesslib.Board();
+        ChessAI ai = new ChessAI(newBoard);
         double start = System.nanoTime();
         double end = System.nanoTime();
         System.out.println("Time taken: " + (end - start)/1000000000);
         System.out.println(searchedPos);
 
 
-        com.github.bhlangonijr.chesslib.Board newBoard = new com.github.bhlangonijr.chesslib.Board();
         searchedPos = 0;
         start = System.nanoTime();
         perft(4, newBoard);

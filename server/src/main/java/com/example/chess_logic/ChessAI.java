@@ -21,85 +21,32 @@ import java.util.*;
 
 public class ChessAI {
     // Performance Statistics //
-    public int nodesSearched = 0;
-    public int numPruned = 0;
-    public int transpositions = 0;
+    public int nodesSearched;
+    public int numPruned;
+
+    public Board board;
+    public Evaluator evaluator;
+
+    public final int PAWN_ATTACK_SQUARE_PENALTY = 30;
+    public final long MAX_TIME_ALLOCATED = 1000;
+    public final int ASPIRATION_WINDOW_WIDTH = 62;
 
     public EvaluationWeights evalWeights = new EvaluationWeights();
     public TranspositionTable transpositionTable = new TranspositionTable();
     public PVTable pvTable = new PVTable();
 
-    public ChessAI() {
+    public ChessAI(Board board) {
+        this.board = board;
+        this.evaluator = new Evaluator();
+
+        this.nodesSearched = 0;
+        this.numPruned = 0;
+
     }
 
     public void printPerformanceInfo() {
         System.out.println("Nodes searched: " + nodesSearched);
         System.out.println("Nodes Pruned: " + numPruned);
-        System.out.println("Transpositions: " + transpositions);
-        System.out.println("Transposition table size: " + transpositionTable.table.keySet().size());
-    }
-
-    public int midgameEval(Board board) {
-        int totalEval = 0;
-        for (Piece pieceType : evalWeights.midgamePieceValues.keySet()) {
-            List<Square> piecePositions = board.getPieceLocation(pieceType);
-            // Piece value
-            totalEval += piecePositions.size() * evalWeights.midgamePieceValues.get(pieceType);
-            // PST
-            for (Square square : piecePositions) {
-                totalEval += evalWeights.midgamePSTBonus(square, pieceType);
-            }
-        }
-        // Tempo
-        totalEval += 28 * (board.getSideToMove() == Side.WHITE ? 1 : -1);
-        return totalEval;
-    }
-
-    public int endgameEval(Board board) {
-        int totalEval = 0;
-        for (Piece piece : evalWeights.endgamePieceValues.keySet()) {
-            totalEval += board.getPieceLocation(piece).size() * evalWeights.endgamePieceValues.get(piece);
-        }
-        return totalEval;
-    }
-
-    public int phase(Board board) {
-        final int midgameLimit = 15258;
-        final int endgameLimit = 3915;
-
-        int npm = Math.max(endgameLimit, Math.min(nonPawnMaterial(board), midgameLimit));
-
-        return (((npm - endgameLimit) * 128) / (midgameLimit - endgameLimit));
-    }
-
-
-    public int isolatedPawns(Board board) {
-        long whiteBitboard = board.getBitboard(Piece.WHITE_PAWN);
-
-        return 0;
-    }
-
-    public int nonPawnMaterial(Board board) {
-        int totalEval = 0;
-        for (Piece piece : evalWeights.midgamePieceValues.keySet()) {
-            if (piece.equals(Piece.WHITE_PAWN) || piece.equals(Piece.BLACK_PAWN)) {
-                totalEval += board.getPieceLocation(piece).size() * evalWeights.midgamePieceValues.get(piece);
-            }
-        }
-        return totalEval;
-    }
-
-
-    public int evaluate(Board board) {
-        // Tempo: side to move gets +28
-        // Midgame piece values: [124, 781, 825, 1276, 2538]
-        // Not midgame piece values: [206, 854, 915, 1380, 2682]
-
-        int totalEval = 0;
-        int mgEval = midgameEval(board);
-//        int egEval = endgameEval(board);
-        totalEval += mgEval;
-        return totalEval;
     }
 
     public EvalMove maxMove(EvalMove a, EvalMove b) {
@@ -109,11 +56,7 @@ public class ChessAI {
         return a.eval <= b.eval ? a : b;
     }
 
-
-
-
-    // Sorts the moves so better moves are searched first
-    public List<EvalMove> orderMoves(Board board, List<Move> moves) {
+    public List<EvalMove> orderMoves(List<Move> moves) {
         List<EvalMove> orderedMoves = new ArrayList<>(moves.size());
         for (Move move : moves) {
             int moveScore = 0;
@@ -121,19 +64,19 @@ public class ChessAI {
             Piece capturedPiece = board.getPiece(move.getTo());
             if (capturedPiece != Piece.NONE) {
                 if (movedPiece == Piece.WHITE_KING || movedPiece == Piece.BLACK_KING) {
-                    moveScore += Math.abs(evalWeights.midgamePieceValues.get((capturedPiece)));
+                    moveScore += Math.abs(evaluator.getMidgamePieceValue(capturedPiece));
                 } else {
-                    moveScore += Math.abs(evalWeights.midgamePieceValues.get((capturedPiece))) - Math.abs(evalWeights.midgamePieceValues.get(movedPiece))/10;
+                    moveScore += Math.abs(evaluator.getMidgamePieceValue(capturedPiece)) - Math.abs(evaluator.getMidgamePieceValue(movedPiece))/10;
                 }
             }
 
             Piece oppositeColorPawn = board.getSideToMove() == Side.WHITE ? Piece.BLACK_PAWN : Piece.WHITE_PAWN;
             if ((move.getTo().getBitboard() & board.getBitboard(oppositeColorPawn)) != 0L) {
-                moveScore--;
+                moveScore -= PAWN_ATTACK_SQUARE_PENALTY;
             }
 
             if (move.getPromotion() != Piece.NONE) {
-                moveScore += Math.abs(evalWeights.midgamePieceValues.get(move.getPromotion()));
+                moveScore += Math.abs(evaluator.getMidgamePieceValue(move.getPromotion()));
             }
 
             board.doMove(move);
@@ -144,23 +87,14 @@ public class ChessAI {
             } else {
                 orderedMoves.add(new EvalMove(move, 0, moveScore));
             }
-
-//            board.doMove(move);
-//            EvalMove entry = pvTable.probe(board.getZobristKey());
-//            if (entry != null) {
-//
-//            }
-//            long hash = board.getZobristKey();
-//            if (pvTable.probe())
-
         }
         Collections.sort(orderedMoves);
         return orderedMoves;
     }
 
-    public EvalMove quiescenceSearch(Board board, int alpha, int beta) {
-//        nodesSearched++;
-        EvalMove bestMove = new EvalMove(evaluate(board));
+    public EvalMove quiescenceSearch(int alpha, int beta) {
+        nodesSearched++;
+        EvalMove bestMove = new EvalMove(evaluator.evaluate(board));
 
         if (board.getSideToMove() == Side.WHITE) {
             alpha = Math.max(alpha, bestMove.eval);
@@ -180,11 +114,11 @@ public class ChessAI {
             return bestMove;
         }
 
-        List<EvalMove> orderedMoves = orderMoves(board, captureMoves);
+        List<EvalMove> orderedMoves = orderMoves(captureMoves);
         for (EvalMove orderedMove : orderedMoves) {
             Move move = orderedMove.move;
             board.doMove(move);
-            EvalMove newMove = new EvalMove(move, quiescenceSearch(board, alpha, beta).eval);
+            EvalMove newMove = new EvalMove(move, quiescenceSearch(alpha, beta).eval);
             board.undoMove();
             if (board.getSideToMove() == Side.WHITE) {
                 bestMove = maxMove(bestMove, newMove);
@@ -201,32 +135,18 @@ public class ChessAI {
         return bestMove;
     }
 
-    // Finds the best move by searching all legal moves down to a specified depth
-    public EvalMove minimax(Board board, int depth, int alpha, int beta) {
-        if (depth >= 3) {
-            nodesSearched++;
-        }
-
-        long hash = board.getZobristKey();
-        TranspositionTable.TableEntry entry = transpositionTable.probe(hash);
-        if (entry != null && entry.depth >= depth) {
-            transpositions++;
-//            return entry.move;
-        }
-
+    public EvalMove minimax(int depth, int alpha, int beta) {
+        nodesSearched++;
         int turn = board.getSideToMove() == Side.WHITE ? 1 : -1;
 
-        if (depth == 0) {
-            EvalMove qSearchResult = quiescenceSearch(board, alpha, beta);
-            transpositionTable.store(hash, depth, TranspositionTable.EXACT, qSearchResult);
-            return qSearchResult;
-        }
+        if (depth == 0)
+            return quiescenceSearch(alpha, beta);
 
         List<Move> legalMoves = board.legalMoves();
 
         EvalMove bestMove = new EvalMove(turn > 0 ? Integer.MIN_VALUE : Integer.MAX_VALUE);
-        // Goes through each move trying to find the best move among them
-        List<EvalMove> orderedMoves = orderMoves(board, legalMoves);
+
+        List<EvalMove> orderedMoves = orderMoves(legalMoves);
         for (EvalMove orderedMove : orderedMoves) {
             Move move = orderedMove.move;
             board.doMove(move);
@@ -235,10 +155,10 @@ public class ChessAI {
             } else if (board.isDraw()){
                 orderedMove.eval = 0;
             } else {
-                orderedMove.eval = minimax(board, depth - 1, alpha, beta).eval;
+                orderedMove.eval = minimax(depth - 1, alpha, beta).eval;
             }
             board.undoMove();
-            // Compares and prunes the moves
+
             if (turn > 0) {
                 bestMove = maxMove(bestMove, orderedMove);
                 alpha = Math.max(alpha, orderedMove.eval);
@@ -249,11 +169,8 @@ public class ChessAI {
 
             if (beta <= alpha) {
                 numPruned++;
-                transpositionTable.store(hash, depth, TranspositionTable.EXACT, bestMove);
                 return bestMove;
             }
-
-            transpositionTable.store(hash, depth, TranspositionTable.EXACT, bestMove);
         }
         return bestMove;
     }
@@ -300,7 +217,7 @@ public class ChessAI {
             System.out.println(e);
         }
         board.doMove(move);
-        int eval = evaluate(board);
+        int eval = evaluator.evaluate(board);
         board.undoMove();
         return new EvalMove(move, eval);
     }
@@ -308,15 +225,13 @@ public class ChessAI {
     public EvalMove findMove(Board board) {
         EvalMove bestMove = searchEndgameTables(board);
 
-        final long MAX_TIME_ALLOCATED = 1000;
-        final int ASPIRATION_WINDOW_WIDTH = 62;
         if (bestMove.move.getTo() != Square.NONE) {
             return bestMove;
         } else {
             long startTime = System.currentTimeMillis();
 
             for (int depth = 1; depth < 100; depth++) {
-                System.out.println(depth);
+                System.out.println("Searching from depth " + depth);
                 int alpha = Integer.MIN_VALUE;
                 int beta = Integer.MAX_VALUE;
                 if (depth > 1) {
@@ -324,11 +239,11 @@ public class ChessAI {
                     beta = bestMove.eval + ASPIRATION_WINDOW_WIDTH;
                 }
 
-                EvalMove currentMove = minimax(board, depth, alpha, beta);
+                EvalMove currentMove = minimax(depth, alpha, beta);
 
                 if (Math.abs(bestMove.eval - currentMove.eval) > ASPIRATION_WINDOW_WIDTH) {
-                    System.out.println("Researching");
-                    currentMove = minimax(board, depth, Integer.MIN_VALUE, Integer.MAX_VALUE);
+                    System.out.println("Researching move");
+                    currentMove = minimax(depth, Integer.MIN_VALUE, Integer.MAX_VALUE);
                 }
 
                 board.doMove(currentMove.move);

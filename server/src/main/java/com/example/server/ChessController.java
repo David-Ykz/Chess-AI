@@ -16,7 +16,7 @@ public class ChessController {
     public HashMap<Integer, GameInstance> gameInstances = new HashMap<>();
 
     public String makeMove(Board board) {
-        ChessAI chessAI = new ChessAI();
+        ChessAI chessAI = new ChessAI(board);
         double start = System.nanoTime();
         EvalMove aiMove = chessAI.findMove(board);
         if (aiMove.move.getFrom() != Square.NONE) {

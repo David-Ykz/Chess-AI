@@ -29,7 +29,7 @@ public class ChessAI {
 
     public final int PAWN_ATTACK_SQUARE_PENALTY = 30;
     public final long MAX_TIME_ALLOCATED = 1000;
-    public final int ASPIRATION_WINDOW_WIDTH = 62;
+    public final int ASPIRATION_WINDOW_WIDTH = 50;
 
     public EvaluationWeights evalWeights = new EvaluationWeights();
     public TranspositionTable transpositionTable = new TranspositionTable();
@@ -234,17 +234,37 @@ public class ChessAI {
                 System.out.println("Searching from depth " + depth);
                 int alpha = Integer.MIN_VALUE;
                 int beta = Integer.MAX_VALUE;
+                EvalMove currentMove;
                 if (depth > 1) {
-                    alpha = bestMove.eval - ASPIRATION_WINDOW_WIDTH;
-                    beta = bestMove.eval + ASPIRATION_WINDOW_WIDTH;
+                    for (int window = ASPIRATION_WINDOW_WIDTH; ;) {
+                        alpha = bestMove.eval - window;
+                        beta = bestMove.eval + window;
+                        currentMove = minimax(depth, alpha, beta);
+
+                        long currentTime = System.currentTimeMillis();
+                        if (currentTime - startTime >= MAX_TIME_ALLOCATED) {
+                            break;
+                        }
+
+                        if (Math.abs(bestMove.eval - currentMove.eval) > window) {
+                            System.out.println("Researching move");
+                            System.out.println(currentMove.eval);
+
+                            if (Math.abs(bestMove.eval - currentMove.eval) > 900000) {
+                                currentMove = minimax(depth, Integer.MIN_VALUE, Integer.MAX_VALUE);
+                                break;
+                            }
+
+                            window *= 2;
+                        } else {
+                            break;
+                        }
+                    }
+                } else {
+                    currentMove = minimax(depth, alpha, beta);
                 }
 
-                EvalMove currentMove = minimax(depth, alpha, beta);
 
-                if (Math.abs(bestMove.eval - currentMove.eval) > ASPIRATION_WINDOW_WIDTH) {
-                    System.out.println("Researching move");
-                    currentMove = minimax(depth, Integer.MIN_VALUE, Integer.MAX_VALUE);
-                }
 
                 board.doMove(currentMove.move);
                 pvTable.store(board.getZobristKey(), currentMove);

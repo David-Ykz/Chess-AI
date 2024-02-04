@@ -10,12 +10,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7e482143-faf7-4e4e-877f-3fddf9f08f76" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/example/chess_logic/Evaluator.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/example/chess_logic/PST.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chess_logic/ChessAI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/chess_logic/ChessAI.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chess_logic/MoveGenerationTester.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/chess_logic/MoveGenerationTester.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/server/ChessController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/server/ChessController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chess_logic/Evaluator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/chess_logic/Evaluator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chess_logic/PST.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/chess_logic/PST.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

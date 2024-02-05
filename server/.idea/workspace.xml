@@ -13,6 +13,9 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chess_logic/ChessAI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/chess_logic/ChessAI.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chess_logic/Evaluator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/chess_logic/Evaluator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/chess_logic/PST.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/chess_logic/PST.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/server/ChessController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/server/ChessController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/server/GameInstance.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/server/GameInstance.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

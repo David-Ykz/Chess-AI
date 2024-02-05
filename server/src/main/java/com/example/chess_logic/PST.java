@@ -1,9 +1,5 @@
 package com.example.chess_logic;
 
-import com.github.bhlangonijr.chesslib.Piece;
-import com.github.bhlangonijr.chesslib.Side;
-import com.github.bhlangonijr.chesslib.Square;
-
 public class PST {
     //<editor-fold desc="whiteMidgamePST">
     public static final int[][] whiteMidgame = {

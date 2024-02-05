@@ -44,9 +44,12 @@ public class ChessAI {
 
     }
 
-    public void printPerformanceInfo() {
+    public void printPerformanceInfo(double start, double end) {
         System.out.println("Nodes searched: " + nodesSearched);
         System.out.println("Nodes Pruned: " + numPruned);
+        System.out.print("Time Taken: ");
+        System.out.println((end-start)/1000000000);
+
     }
 
     public EvalMove maxMove(EvalMove a, EvalMove b) {
@@ -152,6 +155,7 @@ public class ChessAI {
             Move move = orderedMove.move;
             board.doMove(move);
             if (board.isMated()) {
+//                System.out.println(turn);
                 orderedMove.eval = (999999 + depth * 10000) * turn;
             } else if (board.isDraw()){
                 orderedMove.eval = 0;
@@ -168,7 +172,17 @@ public class ChessAI {
                 beta = Math.min(beta, orderedMove.eval);
             }
 
+            if (bestMove.eval < -999999) {
+                System.out.println("eval: " + bestMove.eval);
+                System.out.println("beta: " + beta);
+            }
+
             if (beta <= alpha) {
+                if (bestMove.eval < -999999) {
+                    System.out.print("eval: " + bestMove.eval);
+                    System.out.print(" alpha: " + beta);
+                    System.out.println(" beta: " + beta);
+                }
                 numPruned++;
                 return bestMove;
             }
@@ -249,7 +263,7 @@ public class ChessAI {
             System.out.println(response);
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode rootNode = objectMapper.readTree(response);
-            if (rootNode.get("opening").isNull()) return new EvalMove(0);
+            if (rootNode.get("moves").isEmpty()) return new EvalMove(0);
             String uci = rootNode.get("moves").get(0).get("uci").asText();
             Square fromSquare = Square.fromValue(uci.toUpperCase().substring(0, 2));
             Square toSquare = Square.fromValue(uci.toUpperCase().substring(2, 4));
@@ -257,7 +271,21 @@ public class ChessAI {
                 Piece promotionPiece = Piece.fromFenSymbol(uci.substring(4));
                 move = new Move(fromSquare, toSquare, promotionPiece);
             } else {
-                move = new Move(fromSquare, toSquare);
+                if (board.getPiece(fromSquare) == Piece.WHITE_KING && fromSquare == Square.E1) {
+                    if (toSquare == Square.H1) {
+                        move = new Move(Square.E1, Square.G1);
+                    } else if (toSquare == Square.A1) {
+                        move = new Move(Square.E1, Square.C1);
+                    }
+                } else if (board.getPiece(fromSquare) == Piece.BLACK_KING && fromSquare == Square.E8) {
+                    if (toSquare == Square.H8) {
+                        move = new Move(Square.E8, Square.G8);
+                    } else if (toSquare == Square.A8) {
+                        move = new Move(Square.E8, Square.C8);
+                    }
+                } else {
+                    move = new Move(fromSquare, toSquare);
+                }
             }
         } catch (Exception e) {
             System.out.println("Encountered error reading from table");
@@ -283,8 +311,9 @@ public class ChessAI {
         } else {
             long startTime = System.currentTimeMillis();
 
+            System.out.print("Searching: ");
             for (int depth = 1; depth < 100; depth++) {
-                System.out.println("Searching from depth " + depth);
+                System.out.print(depth + " ");
                 int alpha = Integer.MIN_VALUE;
                 int beta = Integer.MAX_VALUE;
                 EvalMove currentMove;
@@ -300,8 +329,7 @@ public class ChessAI {
                         }
 
                         if (Math.abs(bestMove.eval - currentMove.eval) > window) {
-                            System.out.println("Researching move");
-                            System.out.println(currentMove.eval);
+                            System.out.print("R ");
 
                             if (Math.abs(bestMove.eval - currentMove.eval) > 900000) {
                                 currentMove = minimax(depth, Integer.MIN_VALUE, Integer.MAX_VALUE);
@@ -317,7 +345,7 @@ public class ChessAI {
                     currentMove = minimax(depth, alpha, beta);
                 }
 
-
+                System.out.print(currentMove.move + " ");
 
                 board.doMove(currentMove.move);
                 pvTable.store(board.getZobristKey(), currentMove);
@@ -334,6 +362,21 @@ public class ChessAI {
                 }
             }
         }
+        System.out.println();
         return bestMove;
     }
+
+    public void makeAIMove() {
+        double start = System.nanoTime();
+        EvalMove aiMove = findMove(board);
+        if (aiMove.move.getFrom() != Square.NONE) {
+            board.doMove(aiMove.move);
+        } else {
+            System.out.println("Error: cannot make move");
+        }
+        double end = System.nanoTime();
+        printPerformanceInfo(start, end);
+        System.out.println("Evaluation: " + aiMove.eval/100.0);
+    }
+
 }

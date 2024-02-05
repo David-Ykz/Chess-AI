@@ -282,8 +282,9 @@ public class Evaluator {
         int notPawns = nonPawnMaterial(board);
         int numPawns = numPawnsLeft(board);
 
-        if (numPawns < 5 || notPawns <= GAME_PHASE_THRESHOLD)
+        if (notPawns <= GAME_PHASE_THRESHOLD) {
             return egEval;
+        }
 
         return mgEval;
     }

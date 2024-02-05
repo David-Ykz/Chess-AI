@@ -27,7 +27,6 @@ public class ChessAI {
     public Board board;
     public Evaluator evaluator;
 
-    public final int PAWN_ATTACK_SQUARE_PENALTY = 30;
     public final long MAX_TIME_ALLOCATED = 1000;
     public final int ASPIRATION_WINDOW_WIDTH = 50;
 
@@ -76,7 +75,7 @@ public class ChessAI {
 
             Piece oppositeColorPawn = board.getSideToMove() == Side.WHITE ? Piece.BLACK_PAWN : Piece.WHITE_PAWN;
             if ((move.getTo().getBitboard() & board.getBitboard(oppositeColorPawn)) != 0L) {
-                moveScore -= PAWN_ATTACK_SQUARE_PENALTY;
+                moveScore -= evaluator.PAWN_ATTACK_SQUARE_PENALTY;
             }
 
             if (move.getPromotion() != Piece.NONE) {
@@ -142,53 +141,61 @@ public class ChessAI {
     public EvalMove minimax(int depth, int alpha, int beta) {
         nodesSearched++;
         int turn = board.getSideToMove() == Side.WHITE ? 1 : -1;
+        if (board.isMated()) {
+            return new EvalMove((evaluator.CHECKMATE_EVALUATION + depth * evaluator.CHECKMATE_DEPTH_INCENTIVE) * -turn);
+        }
+
+        if (board.isDraw())
+            return new EvalMove(0);
 
         if (depth == 0)
             return quiescenceSearch(alpha, beta);
 
-        List<Move> legalMoves = board.legalMoves();
 
+        List<Move> legalMoves = board.legalMoves();
         EvalMove bestMove = new EvalMove(turn > 0 ? Integer.MIN_VALUE : Integer.MAX_VALUE);
 
         List<EvalMove> orderedMoves = orderMoves(legalMoves);
         for (EvalMove orderedMove : orderedMoves) {
             Move move = orderedMove.move;
             board.doMove(move);
-            if (board.isMated()) {
-//                System.out.println(turn);
-                orderedMove.eval = (999999 + depth * 10000) * turn;
-            } else if (board.isDraw()){
-                orderedMove.eval = 0;
-            } else {
-                orderedMove.eval = minimax(depth - 1, alpha, beta).eval;
-            }
+//            orderedMove.eval = minimax(depth - 1, alpha, beta).eval;
+            EvalMove newMove = new EvalMove(move, minimax(depth - 1, alpha, beta).eval);
             board.undoMove();
 
             if (turn > 0) {
-                bestMove = maxMove(bestMove, orderedMove);
-                alpha = Math.max(alpha, orderedMove.eval);
+                bestMove = maxMove(bestMove, newMove);
+                alpha = Math.max(alpha, newMove.eval);
             } else {
-                bestMove = minMove(bestMove, orderedMove);
-                beta = Math.min(beta, orderedMove.eval);
+                bestMove = minMove(bestMove, newMove);
+//                System.out.println(bestMove.move + " " + bestMove.eval);
+                beta = Math.min(beta, newMove.eval);
             }
 
-            if (bestMove.eval < -999999) {
-                System.out.println("eval: " + bestMove.eval);
-                System.out.println("beta: " + beta);
-            }
+//            if (bestMove.eval < -999999) {
+//                System.out.println("eval: " + bestMove.eval);
+//                System.out.println("beta: " + beta);
+//            }
 
             if (beta <= alpha) {
-                if (bestMove.eval < -999999) {
-                    System.out.print("eval: " + bestMove.eval);
-                    System.out.print(" alpha: " + beta);
-                    System.out.println(" beta: " + beta);
-                }
+//                if (bestMove.eval < -999999) {
+//                    System.out.print("eval: " + bestMove.eval);
+//                    System.out.print(" alpha: " + beta);
+//                    System.out.println(" beta: " + beta);
+//                }
+//                if (orderedMove.move.toString().equals("h3h2")) {
+//                    System.out.println("Move pruned: " + orderedMove.move);
+//                    System.out.print("eval: " + orderedMove.eval);
+//                    System.out.print(" alpha: " + beta);
+//                    System.out.println(" beta: " + beta);
+//                }
                 numPruned++;
                 return bestMove;
             }
         }
         return bestMove;
     }
+
 
     public String queryEndgameTables(String fen) {
         String QUERY_URL = "http://tablebase.lichess.ovh/standard?fen=";
@@ -312,37 +319,35 @@ public class ChessAI {
             long startTime = System.currentTimeMillis();
 
             System.out.print("Searching: ");
-            for (int depth = 1; depth < 100; depth++) {
+            for (int depth = 2; depth < 100; depth++) {
                 System.out.print(depth + " ");
                 int alpha = Integer.MIN_VALUE;
                 int beta = Integer.MAX_VALUE;
                 EvalMove currentMove;
-                if (depth > 1) {
-                    for (int window = ASPIRATION_WINDOW_WIDTH; ;) {
-                        alpha = bestMove.eval - window;
-                        beta = bestMove.eval + window;
-                        currentMove = minimax(depth, alpha, beta);
-
-                        long currentTime = System.currentTimeMillis();
-                        if (currentTime - startTime >= MAX_TIME_ALLOCATED) {
-                            break;
-                        }
-
-                        if (Math.abs(bestMove.eval - currentMove.eval) > window) {
-                            System.out.print("R ");
-
-                            if (Math.abs(bestMove.eval - currentMove.eval) > 900000) {
-                                currentMove = minimax(depth, Integer.MIN_VALUE, Integer.MAX_VALUE);
-                                break;
-                            }
-
-                            window *= 2;
-                        } else {
-                            break;
-                        }
-                    }
-                } else {
+                for (int window = ASPIRATION_WINDOW_WIDTH; ;) {
+                    alpha = bestMove.eval - window;
+                    beta = bestMove.eval + window;
+                    System.out.println(alpha);
                     currentMove = minimax(depth, alpha, beta);
+//                        currentMove = minimax(depth, Integer.MIN_VALUE, Integer.MAX_VALUE);
+
+                    long currentTime = System.currentTimeMillis();
+                    if (currentTime - startTime >= MAX_TIME_ALLOCATED) {
+                        break;
+                    }
+
+                    if (Math.abs(bestMove.eval - currentMove.eval) > window) {
+                        System.out.print("R " + currentMove.move + " " + currentMove.eval + " ");
+
+                        if (Math.abs(bestMove.eval - currentMove.eval) > 900000) {
+                            currentMove = minimax(depth, Integer.MIN_VALUE, Integer.MAX_VALUE);
+                            break;
+                        }
+
+                        window *= 2;
+                    } else {
+                        break;
+                    }
                 }
 
                 System.out.print(currentMove.move + " ");
@@ -350,11 +355,10 @@ public class ChessAI {
                 board.doMove(currentMove.move);
                 pvTable.store(board.getZobristKey(), currentMove);
                 board.undoMove();
-                if (bestMove.move.getTo() == Square.NONE ||
-                        (board.getSideToMove() == Side.WHITE && currentMove.eval >= bestMove.eval) ||
-                        (board.getSideToMove() == Side.BLACK && currentMove.eval <= bestMove.eval)) {
-                        bestMove = currentMove;
-                }
+
+                bestMove = currentMove;
+
+
 
                 long currentTime = System.currentTimeMillis();
                 if (currentTime - startTime >= MAX_TIME_ALLOCATED) {

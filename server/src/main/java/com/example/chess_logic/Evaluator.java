@@ -14,7 +14,10 @@ import java.util.List;
 public class Evaluator {
     public final int MIDGAME_BISHOP_PAIR_BONUS = 110;
     public final int ENDGAME_BISHOP_PAIR_BONUS = 190;
+    public final int PAWN_ATTACK_SQUARE_PENALTY = 30;
     public final int GAME_PHASE_THRESHOLD = 1600;
+    public final int CHECKMATE_EVALUATION = 999999;
+    public final int CHECKMATE_DEPTH_INCENTIVE = 10000;
 
     public final HashMap<Piece, Integer> midgamePieceValues = new HashMap<>();
     public final HashMap<Piece, Integer> endgamePieceValues = new HashMap<>();

@@ -27,10 +27,8 @@ public class ChessAI {
     public Board board;
     public Evaluator evaluator;
 
-    public final long MAX_TIME_ALLOCATED = 4000;
-    public final int ASPIRATION_WINDOW_WIDTH = 50;
+    public final long MAX_TIME_ALLOCATED = 1000;
 
-    public EvaluationWeights evalWeights = new EvaluationWeights();
     public TranspositionTable transpositionTable = new TranspositionTable();
     public PVTable pvTable = new PVTable();
 
@@ -172,10 +170,7 @@ public class ChessAI {
         for (EvalMove orderedMove : orderedMoves) {
             Move move = orderedMove.move;
             board.doMove(move);
-            EvalMove response = minimax(depth - 1, depthSearched + 1, alpha, beta);
-            EvalMove newMove = new EvalMove(move, response.eval);
-            newMove.response = response;
-
+            EvalMove newMove = new EvalMove(move, minimax(depth - 1, depthSearched + 1, alpha, beta).eval);
             board.undoMove();
 
             if (turn > 0) {
@@ -316,48 +311,10 @@ public class ChessAI {
             long startTime = System.currentTimeMillis();
 
             System.out.print("Searching: ");
-            for (int depth = 1; depth < 100; depth++) {
+            for (int depth = 5; depth < 100; depth++) {
                 System.out.print(depth + " ");
-                int alpha = Integer.MIN_VALUE;
-                int beta = Integer.MAX_VALUE;
-                EvalMove currentMove;
-                // currentMove = minimax(depth, alpha, beta);
-
-                for (int window = ASPIRATION_WINDOW_WIDTH; ;) {
-                    alpha = bestMove.eval - window;
-                    beta = bestMove.eval + window;
-//                    System.out.println(alpha);
-                    //                   currentMove = minimax(depth, 0, alpha, beta);
-                        currentMove = minimax(depth, 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
-
-                    long currentTime = System.currentTimeMillis();
-                    if (currentTime - startTime >= MAX_TIME_ALLOCATED) {
-                        break;
-                    }
-
-                    if (Math.abs(bestMove.eval - currentMove.eval) > window) {
-                        System.out.print("R ");
-//                        System.out.print("R " + currentMove.move + " " + currentMove.eval + " ");
-
-                        if (Math.abs(bestMove.eval - currentMove.eval) > 9000000) {
-                            currentMove = minimax(depth, 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
-                            break;
-                        }
-
-                        window *= 2;
-                    } else {
-                        break;
-                    }
-                }
-
-                System.out.print(currentMove.move + "");
-                EvalMove response = currentMove.response;
-                while (response.response != null) {
-                    System.out.print(" -> " + response.move);
-                    response = response.response;
-                }
-                System.out.print(" ");
-//                System.out.print(" -> " + response.move + " ");
+                EvalMove currentMove = minimax(depth, 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
+                System.out.print(currentMove.move + " ");
 
                 board.doMove(currentMove.move);
                 pvTable.store(board.getZobristKey(), currentMove);

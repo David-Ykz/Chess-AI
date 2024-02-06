@@ -19,7 +19,7 @@ public class GameInstance {
         this.createDate = LocalDateTime.now();
         this.ai = new ChessAI(new Board());
 
-        ai.board.loadFromFen("r4rk1/1bp1npp1/p2p1n1p/1p2p2P/4P2N/1BPPB1Pq/P1P2P2/1R1Q1RK1 b - - 2 15");
+//        ai.board.loadFromFen("r4rk1/1bp1npp1/p2p1n1p/1p2p2P/4P2N/1BPPB1Pq/P1P2P2/1R1Q1RK1 b - - 2 15");
         if (playerSide.equals("black")) {
             ai.makeAIMove();
         }

@@ -7,6 +7,7 @@ public class EvalMove implements Comparable<EvalMove> {
     public Move move;
     public int eval;
     public int score;
+    public EvalMove response = null;
 
     EvalMove(int eval) {
         move = new Move(Square.NONE, Square.NONE);

@@ -217,6 +217,7 @@ public class ChessAI {
 
     public EvalMove searchEndgameTables(Board board) {
         Move move = null;
+        boolean isWhiteTurn = board.getSideToMove() == Side.WHITE;
         try {
             String fen = board.getFen();
             String response = queryEndgameTables(fen);
@@ -225,11 +226,14 @@ public class ChessAI {
             String category = rootNode.get("category").asText();
             if (category.equals("unknown")) return new EvalMove(0);
             String uci = rootNode.get("moves").get(0).get("uci").asText();
-
+            System.out.println("UCI: " + uci);
             Square fromSquare = Square.fromValue(uci.toUpperCase().substring(0, 2));
             Square toSquare = Square.fromValue(uci.toUpperCase().substring(2, 4));
             if (uci.length() > 4) {
-                Piece promotionPiece = Piece.fromFenSymbol(uci.substring(4));
+                String promotion = uci.substring(4);
+                if (isWhiteTurn)
+                    promotion = promotion.toUpperCase();
+                Piece promotionPiece = Piece.fromFenSymbol(promotion);
                 move = new Move(fromSquare, toSquare, promotionPiece);
             } else {
                 move = new Move(fromSquare, toSquare);
@@ -306,12 +310,13 @@ public class ChessAI {
 
     public EvalMove findMove(Board board) {
         EvalMove bestMove = new EvalMove(0);
+        nodesSearched = 0;
+        numPruned = 0;
         transpositionTable.table.clear();
         if (evaluator.numPiecesLeft(board) < 8) {
             bestMove = searchEndgameTables(board);
         } else {
-            {};
-//            bestMove = searchOpeningTables(board);
+            bestMove = searchOpeningTables(board);
         }
 
         if (bestMove.move.getTo() != Square.NONE) {

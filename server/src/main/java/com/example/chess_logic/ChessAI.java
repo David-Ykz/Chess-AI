@@ -163,6 +163,13 @@ public class ChessAI {
         if (depth == 0)
             return quiescenceSearch(alpha, beta);
 
+        if (depth >= 3) {
+            TranspositionTable.TableEntry entry = transpositionTable.probe(board.getZobristKey());
+            if (entry != null && entry.depth >= depth) {
+                return entry.move;
+            }
+        }
+
         List<Move> legalMoves = board.legalMoves();
         EvalMove bestMove = new EvalMove(turn > 0 ? Integer.MIN_VALUE : Integer.MAX_VALUE);
 
@@ -186,6 +193,7 @@ public class ChessAI {
                 return bestMove;
             }
         }
+        transpositionTable.store(board.getZobristKey(), depth, TranspositionTable.EXACT, bestMove);
         return bestMove;
     }
 
@@ -298,6 +306,7 @@ public class ChessAI {
 
     public EvalMove findMove(Board board) {
         EvalMove bestMove = new EvalMove(0);
+        transpositionTable.table.clear();
         if (evaluator.numPiecesLeft(board) < 8) {
             bestMove = searchEndgameTables(board);
         } else {
@@ -311,7 +320,7 @@ public class ChessAI {
             long startTime = System.currentTimeMillis();
 
             System.out.print("Searching: ");
-            for (int depth = 5; depth < 100; depth++) {
+            for (int depth = 3; depth < 100; depth++) {
                 System.out.print(depth + " ");
                 EvalMove currentMove = minimax(depth, 0, Integer.MIN_VALUE, Integer.MAX_VALUE);
                 System.out.print(currentMove.move + " ");

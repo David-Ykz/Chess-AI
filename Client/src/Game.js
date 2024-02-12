@@ -6,7 +6,7 @@ import {Button, Card, Col, Row, Table} from 'react-bootstrap';
 import CustomDialog from "./components/CustomDialog";
 let playerColor = "white";
 
-function Game({ players, room, orientation, cleanup }) {
+function Game() {
     const chess = useMemo(() => new Chess(), []);
     const [fen, setFen] = useState(chess.fen());
     const [over, setOver] = useState("");
@@ -40,7 +40,6 @@ function Game({ players, room, orientation, cleanup }) {
         });
     }
 
-    // Initialize game instance
     useEffect(() => {
         initializeNewGame()
     }, [])
@@ -108,7 +107,7 @@ function Game({ players, room, orientation, cleanup }) {
                 <div style={{display: 'flex', alignItems: 'center'}}>
                     <Chessboard position={fen} onPieceDrop={onDrop} customBoardStyle={{display: 'flex', alignItems: 'center'}} boardOrientation={playerColor} />
                 </div>
-                <CustomDialog // <- 5
+                <CustomDialog
                     open={Boolean(over)}
                     title={over}
                     contentText={over}
@@ -124,10 +123,6 @@ function Game({ players, room, orientation, cleanup }) {
 
             </Col>
             <Col>
-                <Card>
-
-                </Card>
-
                 <div style={{fontSize: '24px'}}>
                     About Chess AI
                 </div>

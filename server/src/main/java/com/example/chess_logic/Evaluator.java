@@ -12,8 +12,8 @@ import java.util.HashMap;
 import java.util.List;
 
 public class Evaluator {
-    public final int MIDGAME_BISHOP_PAIR_BONUS = 110;
-    public final int ENDGAME_BISHOP_PAIR_BONUS = 190;
+    public final int MIDGAME_BISHOP_PAIR_BONUS = 40;
+    public final int ENDGAME_BISHOP_PAIR_BONUS = 90;
     public final int PAWN_ATTACK_SQUARE_PENALTY = 50;
     public final int GAME_PHASE_THRESHOLD = 1600;
     public final int CHECKMATE_SCORE = 10000;

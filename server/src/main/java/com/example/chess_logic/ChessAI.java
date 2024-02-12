@@ -28,6 +28,7 @@ public class ChessAI {
     public Evaluator evaluator;
 
     public final long MAX_TIME_ALLOCATED = 1000;
+    public final int OPENING_TABLE_RANDOMNESS = 1;
 
     public TranspositionTable transpositionTable = new TranspositionTable();
     public PVTable pvTable = new PVTable();
@@ -35,6 +36,7 @@ public class ChessAI {
     public ChessAI(Board board) {
         this.board = board;
         this.evaluator = new Evaluator();
+
 
         this.nodesSearched = 0;
         this.numPruned = 0;
@@ -275,7 +277,8 @@ public class ChessAI {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode rootNode = objectMapper.readTree(response);
             if (rootNode.get("moves").isEmpty()) return new EvalMove(0);
-            String uci = rootNode.get("moves").get(0).get("uci").asText();
+            int searchRange = Math.min(OPENING_TABLE_RANDOMNESS, rootNode.get("moves").size());
+            String uci = rootNode.get("moves").get((int)(Math.random() * searchRange)).get("uci").asText();
             Square fromSquare = Square.fromValue(uci.toUpperCase().substring(0, 2));
             Square toSquare = Square.fromValue(uci.toUpperCase().substring(2, 4));
             if (uci.length() > 4) {

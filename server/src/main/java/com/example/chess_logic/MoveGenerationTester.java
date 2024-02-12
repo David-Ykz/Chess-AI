@@ -38,7 +38,7 @@ public class MoveGenerationTester {
 
         searchedPos = 0;
         start = System.nanoTime();
-        perft(4, newBoard);
+        perft(5, newBoard);
         end = System.nanoTime();
         System.out.println("Time taken: " + (end - start)/1000000000);
         System.out.println(searchedPos);

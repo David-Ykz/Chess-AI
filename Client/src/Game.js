@@ -2,11 +2,8 @@ import { useState, useMemo, useCallback, useEffect } from "react";
 import { Chessboard } from "react-chessboard";
 import { Chess } from "chess.js";
 import axios from 'axios';
+import {Button, Card, Col, Row, Table} from 'react-bootstrap';
 import CustomDialog from "./components/CustomDialog";
-const previousMoves = [];
-const DEFAULT_POSITION = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
-//const DEFAULT_POSITION = '8/k7/3p4/p2P1p2/P2P1P2/8/8/K7 w -- - 0 1';
-//const DEFAULT_POSITION = 'k7/8/8/P5n1/NN6/QN6/QN4NN/QN3BK1 w -- - 0 1';
 let playerColor = "white";
 
 function Game({ players, room, orientation, cleanup }) {
@@ -70,25 +67,10 @@ function Game({ players, room, orientation, cleanup }) {
     }
 
     function switchColors() {
-        if (playerColor === "white") {
-            playerColor = "black";
-        } else {
-            playerColor = "white";
-        }
+        playerColor = playerColor === "white" ? "black" : "white";
         initializeNewGame();
     }
 
-    function newGame() {
-        while (previousMoves.length > 0) {
-            previousMoves.pop();
-        }
-        initializeNewGame();
-        chess.load(DEFAULT_POSITION);
-        setFen(chess.fen());
-        if (playerColor === "black") {
-            console.log("Game is broken");
-        }
-    }
 
     function onDrop(sourceSquare, targetSquare, promotionPiece) {
         const moveData = {
@@ -102,9 +84,16 @@ function Game({ players, room, orientation, cleanup }) {
             var data = {id: gameId, move: moveData};
             axios.post('http://localhost:8080/process-move', data).then(response => {
                     console.log(response.data);
-                    setBoard(response.data);
-                    previousMoves.push(response.data);
-                    checkGameEnd();
+                    if (response.data === "checkmate") {
+                        setOver(
+                            `Checkmate! ${chess.turn() === "w" ? "Black" : "White"} wins!`
+                        );
+                    } else if (response.data === "draw") {
+                        setOver("Draw");
+                    } else {
+                        setBoard(response.data);
+                        checkGameEnd();
+                    }
                 })
                 .catch(error => {
                     console.error('Error fetching data:', error);
@@ -114,22 +103,81 @@ function Game({ players, room, orientation, cleanup }) {
     }
 
     return (
-        <>
-            <div className="board">
-                <Chessboard position={fen} onPieceDrop={onDrop}  boardWidth={600} boardOrientation={playerColor} />  {/**  <- 4 */}
-            </div>
-            <CustomDialog // <- 5
-                open={Boolean(over)}
-                title={over}
-                contentText={over}
-                handleContinue={() => {
-                    setOver("");
-                }}
-            />
-            <button onClick={revertMove}>Revert Move</button> {/** Add a button to call revertMove */}
-            <button onClick={switchColors}>Swap Sides</button> {/** Add a button to call revertMove */}
-            <button onClick={newGame}>New Game</button> {/** Add a button to call revertMove */}
-        </>
+        <Row>
+            <Col>
+                <div style={{display: 'flex', alignItems: 'center'}}>
+                    <Chessboard position={fen} onPieceDrop={onDrop} customBoardStyle={{display: 'flex', alignItems: 'center'}} boardOrientation={playerColor} />
+                </div>
+                <CustomDialog // <- 5
+                    open={Boolean(over)}
+                    title={over}
+                    contentText={over}
+                    handleContinue={() => {
+                        initializeNewGame()
+                        setOver("");
+                    }}
+                />
+
+                <button onClick={revertMove}>Revert Move</button> {/** Add a button to call revertMove */}
+                <button onClick={switchColors}>Swap Sides</button> {/** Add a button to call revertMove */}
+                <button onClick={initializeNewGame}>New Game</button> {/** Add a button to call revertMove */}
+
+            </Col>
+            <Col>
+                <Card>
+
+                </Card>
+
+                <div style={{fontSize: '24px'}}>
+                    About Chess AI
+                </div>
+                <div style={{fontSize: '14px'}}>
+                    <br/>
+                    The AI is split into 3 parts: move generation, search, and evaluation
+                    <br/><br/>
+                    Move generation: The AI uses bitboards to represent pieces, with each bit in a long representing a square on the chessboard.
+                    This approach leverages the efficiency of bitwise and bitshift operations to generate ~4 million positions per second
+                    <br/><br/>
+                    Search: The AI employs a minimax recursive search to evaluates potential moves.
+                    This search process is speed up by alpha-beta pruning and move-ordering: a method of pruning the search tree to
+                    avoid searching unnecessary moves. Finally, the AI uses a transposition table to store search results to avoid spending
+                    time computing the same positions.
+                    <br/><br/>
+                    Evaluation: To measure how good a position is, the AI counts the material value of each board and uses
+                    additional heuristics like piece position or the mobility of pieces.
+                    <br/><br/>
+                    Performance: The AI is estimated to be rated ~2100 on Lichess, which ranks it in the top 1% of players.
+                    It is able to easily beat Stockfish Level 5 and is evenly matched against Stockfish Level 6. Some of the games are linked below:
+                    <br/><br/>
+                    <Table>
+                        <Row style={{fontWeight: 'bold'}}>
+                            <Col xs={2}>White</Col>
+                            <Col xs={2}>Black</Col>
+                            <Col xs={2}>Result</Col>
+                            <Col xs={6}>Opening</Col>
+                        </Row>
+                        <Row style={{paddingTop: '7px'}}>
+                            <Col xs={2}>Chess AI</Col>
+                            <Col xs={2}>Stockfish 6</Col>
+                            <Col xs={2}><a href='https://lichess.org/A6cWu2wx/white' style={{color: '#0D77FD'}}>1-0</a></Col>
+                            <Col xs={6}>Sicilian Defense, Dragon Variation</Col>
+                        </Row>
+                        <Row style={{paddingTop: '7px'}}>
+                            <Col xs={2}>Stockfish 6</Col>
+                            <Col xs={2}>Chess AI</Col>
+                            <Col xs={2}><a href='https://lichess.org/bQ9LX5aV/black' style={{color: '#0D77FD'}}>1-0</a></Col>
+                            <Col xs={6}>English Opening</Col>
+                        </Row>
+                        <Row style={{paddingTop: '7px'}}>
+                            <Col xs={2}>Stockfish 5</Col>
+                            <Col xs={2}>Chess AI</Col>
+                            <Col xs={2}><a href='https://lichess.org/7GfeyRT0/black' style={{color: '#0D77FD'}}>0-1</a></Col>
+                            <Col xs={6}>Indian Defense</Col>
+                        </Row>
+                    </Table>
+                </div>
+            </Col>
+        </Row>
     );
 }
 

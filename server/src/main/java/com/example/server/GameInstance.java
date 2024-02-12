@@ -19,7 +19,8 @@ public class GameInstance {
         this.createDate = LocalDateTime.now();
         this.ai = new ChessAI(new Board());
 
-        ai.board.loadFromFen("8/1P6/6k1/5R2/P5K1/8/8/8 b - - 2 66");
+//        ai.board.loadFromFen("3rr1k1/pp5p/7B/2p2N2/2n3P1/b1Pq4/P4Q1P/1R3RK1 b - - 0 27");
+//        ai.makeAIMove();
 //        ai.board.loadFromFen("r4rk1/1bp1npp1/p2p1n1p/1p2p2P/4P2N/1BPPB1Pq/P1P2P2/1R1Q1RK1 b - - 2 15");
         if (playerSide.equals("black")) {
             ai.makeAIMove();
@@ -52,6 +53,10 @@ public class GameInstance {
         }
 
         ai.board.doMove(move);
+        if (ai.board.isMated())
+            return "checkmate";
+        else if (ai.board.isDraw())
+            return "draw";
         ai.makeAIMove();
         return ai.board.getFen();
     }

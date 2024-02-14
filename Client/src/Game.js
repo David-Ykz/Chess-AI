@@ -31,7 +31,7 @@ function Game() {
     }
 
     function initializeNewGame() {
-        axios.post('http://localhost:8080/new-game', playerColor).then(response => {
+        axios.post('https://y-backend.com:8080/new-game', playerColor).then(response => {
             const id = response.data.substring(0, response.data.indexOf("|"));
             console.log("Started new game with id: " + id);
             setGameId(id);
@@ -59,7 +59,7 @@ function Game() {
     }
 
     function revertMove() {
-        axios.post('http://localhost:8080/undo-move', gameId.toString()).then(response => {
+        axios.post('https://y-backend.com:8080/undo-move', gameId.toString()).then(response => {
             console.log(response.data);
             setBoard(response.data);
         });
@@ -81,7 +81,7 @@ function Game() {
         const move = makeAMove(moveData);
         if ((chess.turn() !== playerColor) && (move !== null)) {
             var data = {id: gameId, move: moveData};
-            axios.post('http://localhost:8080/process-move', data).then(response => {
+            axios.post('https://y-backend.com:8080/process-move', data).then(response => {
                     console.log(response.data);
                     if (response.data === "checkmate") {
                         setOver(

@@ -36,6 +36,9 @@ public class GameInstance {
     }
 
     public String undoMove() {
+        if (ai.board.getHistory().size() <= 2)
+            return ai.board.getFen();
+
         ai.board.undoMove();
         ai.board.undoMove();
         return ai.board.getFen();

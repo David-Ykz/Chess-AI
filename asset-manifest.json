@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/Chess-AI/static/css/main.d5289b2f.css",
+    "main.js": "/Chess-AI/static/js/main.ea1cae1c.js",
+    "index.html": "/Chess-AI/index.html",
+    "main.d5289b2f.css.map": "/Chess-AI/static/css/main.d5289b2f.css.map",
+    "main.ea1cae1c.js.map": "/Chess-AI/static/js/main.ea1cae1c.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.d5289b2f.css",
+    "static/js/main.ea1cae1c.js"
+  ]
+}
